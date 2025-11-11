@@ -7,9 +7,9 @@ Just finished implementing a blog system, aptly called the Dev Diary, along with
 
 - **Automatic timestamps** using `<!-- page-date: YYYY-MM-DD -->` comments
 - **Index page generation** showing all posts chronologically
-- **Custom theming** with green/orange accent colors
+- **Persistent Custom theming** with green/orange accent colors
 - **Excerpt preview** from first paragraph
 - **Interest buttons** on title page with hyper links to each interest
-- **Title Page** Main landing page with navigation options to each portion of the site
+- **Title Page** with navigation options to each portion of the site
 
 <a href="../dev_diary.html" class="back-button">← Back to Blog</a>
