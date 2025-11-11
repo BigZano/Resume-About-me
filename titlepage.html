@@ -3,19 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Home - Portfolio</title>
+    <title>{{ Title }}</title>
 
     <!-- Basic SEO -->
-    <meta name="description" content="Personal portfolio featuring development projects, resume, and creative pursuits" />
+    <meta name="description" content="{{ Description }}" />
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Home - Portfolio" />
-    <meta property="og:description" content="Personal portfolio featuring development projects, resume, and creative pursuits" />
-    <meta property="og:url" content="/" />
+    <meta property="og:title" content="{{ Title }}" />
+    <meta property="og:description" content="{{ Description }}" />
+    <meta property="og:url" content="{{ Canonical }}" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Home - Portfolio" />
-    <meta name="twitter:description" content="Personal portfolio featuring development projects, resume, and creative pursuits" />
+    <meta name="twitter:title" content="{{ Title }}" />
+    <meta name="twitter:description" content="{{ Description }}" />
 
     <!-- Icons / PWA -->
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
@@ -31,8 +31,8 @@
   <body>
     <article>
       <header class="landing-header">
-        <h1>Bret Zanotelli</h1>
-        <p>Developer | Hobbyist | Creator</p>
+        <h1>{{ SiteTitle }}</h1>
+        <p>{{ SiteDescription }}</p>
       </header>
 
       <main class="landing-main">
@@ -50,9 +50,7 @@
           </h2>
           <nav>
             <ul class="page-links">
-                            <li style="margin: 1rem 0;"><a href="dev_diary.html" style="font-size: 1.2rem; text-decoration: none;">Dev Diary</a></li>
-              <li style="margin: 1rem 0;"><a href="aboutme.html" style="font-size: 1.2rem; text-decoration: none;">About Me</a></li>
-              <li style="margin: 1rem 0;"><a href="resume.html" style="font-size: 1.2rem; text-decoration: none;">Resume</a></li>
+              {{ PageLinks }}
             </ul>
           </nav>
         </section>
@@ -137,7 +135,7 @@
       </main>
 
       <footer class="landing-footer">
-        <p>&copy; 2025 Bret Zanotelli | Forged in fire, tempered in code</p>
+        <p>&copy; {{ Year }} {{ SiteAuthor }} | Forged in fire, tempered in code</p>
       </footer>
     </article>
   </body>

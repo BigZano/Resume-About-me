@@ -4,6 +4,8 @@ import sys
 import shutil
 from pathlib import Path
 from Gen_Content.generate_page import generate_page
+from Gen_Content.generate_landing_page import generate_landing_page
+from Gen_Content.generate_blog_index import generate_blog_index
 
 def copy_static_to_docs():
     """
@@ -83,21 +85,79 @@ def copy_static_to_docs():
                 log_message(traceback.format_exc())
                 continue
         
-        # Set homepage (prefer resume.html if present, else first generated file)
-        resume_html = os.path.join(docs_path, "resume.html")
-        index_html = os.path.join(docs_path, "index.html")
-        if os.path.exists(resume_html):
-            shutil.copy2(resume_html, index_html)
-            log_message("Set homepage: index.html copied from resume.html")
-        else:
-            # fallback to any generated page
-            generated = [os.path.join(docs_path, f"{os.path.splitext(m)[0]}.html") for m in md_files]
-            generated = [p for p in generated if os.path.exists(p)]
-            if generated:
-                shutil.copy2(generated[0], index_html)
-                log_message(f"Set homepage: index.html copied from {os.path.basename(generated[0])}")
+        # Generate blog posts from content/dev_diary/
+        blog_dir = os.path.join(content_path, "dev_diary")
+        blog_posts_out = os.path.join(docs_path, "dev_diary")
+        if os.path.exists(blog_dir):
+            log_message("Generating blog posts from content/dev_diary/...")
+            os.makedirs(blog_posts_out, exist_ok=True)
+            blog_md_files = [f for f in os.listdir(blog_dir) if f.lower().endswith(".md")]
+            for md_name in sorted(blog_md_files):
+                src_md = os.path.join(blog_dir, md_name)
+                out_html = os.path.join(blog_posts_out, f"{os.path.splitext(md_name)[0]}.html")
+                log_message(f"  Generating blog post: {md_name}")
+                try:
+                    generate_page(src_md, template_path, out_html)
+                except Exception as e:
+                    had_errors = True
+                    log_message(f"  ERROR building blog post {md_name}: {e}")
+                    import traceback
+                    log_message(traceback.format_exc())
+                    continue
+            
+            # Generate blog index page
+            dev_diary_template = os.path.join(workspace_root, "dev_diary_template.html")
+            dev_diary_index = os.path.join(docs_path, "dev_diary.html")
+            if os.path.exists(dev_diary_template):
+                log_message("Generating blog index page...")
+                try:
+                    generate_blog_index(content_path, dev_diary_template, dev_diary_index)
+                except Exception as e:
+                    had_errors = True
+                    log_message(f"ERROR generating blog index: {e}")
+                    import traceback
+                    log_message(traceback.format_exc())
             else:
-                log_message("WARNING: No pages generated to set as index.html")
+                log_message(f"WARNING: dev_diary_template.html not found")
+        else:
+            log_message("No dev_diary subdirectory found, skipping blog generation")
+        
+        # Generate landing page as index.html
+        titlepage_template = os.path.join(workspace_root, "titlepage.html")
+        index_html = os.path.join(docs_path, "index.html")
+        
+        if os.path.exists(titlepage_template):
+            log_message("Generating landing page...")
+            try:
+                site_config = {
+                    "title": "Home - Portfolio",
+                    "site_title": "Bret Zanotelli",
+                    "site_description": "Developer | Hobbyist | Creator",
+                    "site_author": "Bret Zanotelli",
+                    "description": "Personal portfolio featuring development projects, resume, and creative pursuits"
+                }
+                generate_landing_page(content_path, titlepage_template, index_html, site_config)
+                log_message("Landing page generated successfully as index.html")
+            except Exception as e:
+                had_errors = True
+                log_message(f"ERROR generating landing page: {e}")
+                import traceback
+                log_message(traceback.format_exc())
+        else:
+            log_message(f"WARNING: titlepage.html template not found at {titlepage_template}")
+            # Fallback to old behavior
+            resume_html = os.path.join(docs_path, "resume.html")
+            if os.path.exists(resume_html):
+                shutil.copy2(resume_html, index_html)
+                log_message("Set homepage: index.html copied from resume.html (fallback)")
+            else:
+                generated = [os.path.join(docs_path, f"{os.path.splitext(m)[0]}.html") for m in md_files]
+                generated = [p for p in generated if os.path.exists(p)]
+                if generated:
+                    shutil.copy2(generated[0], index_html)
+                    log_message(f"Set homepage: index.html copied from {os.path.basename(generated[0])} (fallback)")
+                else:
+                    log_message("WARNING: No pages generated to set as index.html")
         
         if had_errors:
             log_message("Build completed with errors (see above).")

@@ -1,0 +1,331 @@
+/* Landing Page Custom Styles - Salamanders Theme */
+
+:root {
+  /* Salamanders Color Palette */
+  --salamander-green: #1a5c3a;
+  --salamander-bright-green: #2d8659;
+  --fire-orange: #ff6b35;
+  --fire-red: #d93a2b;
+  --flame-yellow: #ffb627;
+  --dark-bg: #1a1a1a;
+  --light-text: #f5f5f5;
+  --accent-gold: #c9a961;
+}
+
+body {
+  background: linear-gradient(135deg, var(--dark-bg) 0%, #2a2a2a 100%);
+  color: var(--light-text);
+  min-height: 100vh;
+}
+
+/* Header Styling */
+.landing-header {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  background: linear-gradient(to bottom, transparent, rgba(26, 92, 58, 0.1));
+  border-bottom: 2px solid var(--salamander-green);
+  position: relative;
+}
+
+.landing-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(to right, var(--fire-orange), var(--flame-yellow), var(--fire-orange));
+  box-shadow: 0 0 10px var(--fire-orange);
+}
+
+.landing-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--light-text);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.landing-header p {
+  font-size: 1.2rem;
+  color: var(--accent-gold);
+  font-style: italic;
+}
+
+/* Main Content */
+.landing-main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.landing-section {
+  margin-bottom: 2.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border-left: 4px solid var(--salamander-green);
+  transition: all 0.3s ease;
+}
+
+.landing-section:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: var(--salamander-bright-green);
+  transform: translateX(5px);
+}
+
+.landing-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--salamander-bright-green);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* Page Links */
+.page-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.page-links li {
+  margin: 0.75rem 0;
+  padding-left: 2.5rem;
+  position: relative;
+}
+
+/* Custom bullet point - Crossed Hammers */
+.page-links li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-image: url('data:image/svg+xml,<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="translate(32, 32)"><g transform="rotate(-45)"><rect x="-2" y="-20" width="4" height="30" fill="%232d8659"/><rect x="-8" y="-26" width="16" height="10" rx="2" fill="%231a5c3a"/><path d="M -6 -26 L 6 -26 L 8 -20 L -8 -20 Z" fill="%23ff6b35"/></g><g transform="rotate(45)"><rect x="-2" y="-20" width="4" height="30" fill="%232d8659"/><rect x="-8" y="-26" width="16" height="10" rx="2" fill="%231a5c3a"/><path d="M -6 -26 L 6 -26 L 8 -20 L -8 -20 Z" fill="%23d93a2b"/></g></g></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+.page-links li:hover::before {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.15);
+  filter: drop-shadow(0 0 4px var(--salamander-bright-green));
+}
+
+.page-links a {
+  color: var(--light-text);
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+  display: inline-block;
+  position: relative;
+}
+
+.page-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--salamander-green), var(--salamander-bright-green));
+  transition: width 0.3s ease;
+}
+
+.page-links a:hover {
+  color: var(--salamander-bright-green);
+}
+
+.page-links a:hover::after {
+  width: 100%;
+}
+
+/* Interests Grid */
+.interests-intro {
+  margin-bottom: 1.5rem;
+  color: var(--accent-gold);
+  font-style: italic;
+}
+
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.interest-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.interest-card {
+  background: rgba(26, 92, 58, 0.1);
+  border: 1px solid var(--salamander-green);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.interest-link:hover .interest-card {
+  background: rgba(45, 134, 89, 0.15);
+  border-color: var(--salamander-bright-green);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(45, 134, 89, 0.2);
+}
+
+.interest-card .icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 0.5rem;
+}
+
+.interest-card h3 {
+  font-size: 1rem;
+  margin: 0;
+  color: var(--salamander-bright-green);
+}
+
+/* Footer */
+.landing-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.landing-footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .landing-header h1 {
+    font-size: 2rem;
+  }
+  
+  .landing-section h2 {
+    font-size: 1.5rem;
+  }
+  
+  .interests-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .interests-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print styles override */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .landing-section {
+    border-left-color: #1a5c3a;
+  }
+  
+  .landing-header, .landing-footer, .interests-grid {
+    display: block;
+  }
+}
+
+/* ==========================================
+   Blog Post Listing Styles
+   ========================================== */
+
+.blog-posts {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.blog-post-preview {
+  background: linear-gradient(135deg, rgba(26, 92, 58, 0.1), rgba(26, 26, 26, 0.3));
+  border-left: 4px solid var(--salamander-bright-green);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.blog-post-preview:hover {
+  background: linear-gradient(135deg, rgba(26, 92, 58, 0.15), rgba(26, 26, 26, 0.4));
+  border-left-color: var(--fire-orange);
+  transform: translateX(4px);
+}
+
+.blog-post-preview header {
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.blog-post-preview h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+.blog-post-preview h2 a {
+  color: var(--salamander-bright-green);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.blog-post-preview h2 a:hover {
+  color: var(--fire-orange);
+}
+
+.blog-post-preview time {
+  color: var(--accent-gold);
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  display: block;
+}
+
+.blog-post-preview .excerpt {
+  color: var(--light-text);
+  opacity: 0.8;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+}
+
+.blog-post-preview .read-more {
+  color: var(--fire-orange);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.blog-post-preview .read-more:hover {
+  color: var(--fire-red);
+  transform: translateX(4px);
+}
+

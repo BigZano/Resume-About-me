@@ -1,6 +1,10 @@
+<!-- landing-title: Resume -->
+<!-- page-date: 2025-11-11 -->
 # Bret Zanotelli
 
 [bretzanotelli@yahoo.com](mailto:bretzanotelli@yahoo.com) • [github.com/bigzano](https://github.com/bigzano) • [About Me](aboutme.html)
+
+<a href="index.html" class="back-button">← Back</a>
 
 > Experienced System Administrator and Jr backend developer with experience in Windows environments and with Linux endpoints. Provided remote and on-site support for businesses throughout the Puget Sound Corridor. Passionate about computer networking and network security.
 
@@ -55,3 +59,5 @@ Remote technical support for business clients across various applications and sy
 ## Education
 
 - AAS in Information Technology — Tacoma Community College (2018–2020)
+
+<a href="index.html" class="back-button">← Back</a>

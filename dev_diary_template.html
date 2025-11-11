@@ -3,19 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ Title }}</title>
+    <title>Dev Diary - Blog Archive</title>
 
     <!-- Basic SEO -->
-    <meta name="description" content="{{ Description }}" />
+    <meta name="description" content="Development diary and project updates by Bret Zanotelli" />
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="{{ Title }}" />
-    <meta property="og:description" content="{{ Description }}" />
-    <meta property="og:url" content="{{ Canonical }}" />
+    <meta property="og:title" content="Dev Diary - Blog Archive" />
+    <meta property="og:description" content="Development diary and project updates" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="{{ Title }}" />
-    <meta name="twitter:description" content="{{ Description }}" />
 
     <!-- Icons / PWA -->
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
@@ -29,6 +26,17 @@
   </head>
 
   <body>
-    <article>{{ Content }}</article>
+    <article>
+      <header class="landing-header">
+        <h1>Dev Diary</h1>
+        <p class="subtitle">Project updates, technical notes, and development logs</p>
+      </header>
+
+      {{ BlogPosts }}
+
+      <footer class="landing-footer">
+        <a href="index.html" class="back-button">← Back to Home</a>
+      </footer>
+    </article>
   </body>
 </html>
