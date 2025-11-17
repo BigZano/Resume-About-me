@@ -1,0 +1,46 @@
+<!-- page-date: 2025-11-17 -->
+
+<a href="../dev_diary.html" class="back-button">← Back to Blog</a>
+
+# Welcome!
+
+> You may be thinking this doesn't look like a dev entry, you may be correct. You may also think that these entries don't sound particularly development related, you are definitely correct. Development is a hobby, IT pays the bills.
+
+This week's entry is about project work! Instead of development projects, I actually sat down and set up the home server I've been meaning to set up. I also ended up having to reinstall my OS (whoops, bet the file server makes sense now) and ended up trying some new stuff, which turned out pretty nice so far. Am I using it now? Well, we'll go over that. 
+
+## First
+
+### The server!
+
+This is going to be a bit of a teach-back for me, as well as a blog and hopefully some entertainment for whoever is reading this. Kind of a bit of old internet when you think about it eh? Back when everyone had their own blog to talk about cats, encoded in some eye-destroying neon color. Ahh, the good old days™️.
+
+Anyways, the file server is a spare computer I had laying around. I installed Debian onto it so I had something pretty stable to work with, bought a disk enclosure then installed the disk and formatted it then got to work. I created 3 users and matching partitions for each, a shared partition for everyone with the leftover space and then set up Samba to handle network sharing. Everything went relatively smooth, one of the fun things to workaround was one person is using Windows, so that left us scratching our heads as to why they could connect to the public share, but not their assigned private share. Quick read up about Windows permissions, and it turns out it was DNS (insert obligatory DNS joke here)- using the Host Name for the file server made it freak out while direct IP worked. Given that this is just a local network with *at most* 10 devices connected, I'm not particularly concerned about collisions so I'm going to forgive it here. The important bit was it was alive! Data was a-talkin' and files were moving. From here, I walked each user through mapping the drives and after identifying the permissions issue, we were all set. I've always leaned towards GUI's for setup, so not giving myself the option here and using SSH to configure the whole thing was definitely an experience. Thank goodness for nano, although for reasons we'll get into later the point is relatively moot now for cmd line editors.
+
+One of the biggest tweaking points was the smb.conf file, and making sure I had the right descriptors on each share and confirming the following:
+
+- each user was mapped to their private share and had full ownership
+- each share was truly private, and while visible they're not navigible by anyone other than the user
+- that each user was a member of the SMB group and the SMB group had the proper permissions to the public share
+- double check that the IP was indeed static so that we're not suddenly missing the better part of 10 TB of data.
+
+I elected to go with group management as that's the easiest way - if I need to add new folks or remove folks going forward I can just take em from the group or vice versa. Big fan of doing things the common sense way most of the time.
+
+This led to me setting up another piece of software that I had been putting off for a while also - PiHole! Unfortunately, I had a fundamental misunderstanding about how ads worked for some sites that we'll get into. I set up PiHole and followed the docs for the cloudflared method, as that fits in nicely with a future project I have in mind as well (I want my own VPN, so CFZT feels like a great option for me and the set of folks I'd be letting use it) and when I still encounted ads, I was *shocked* until I did some reading and found out about the actual types of ads served. Yes PiHole is great for a console or a smart TV, but not exactly desktop clients (which is what I was aiming for). So project scuppered, still a fun learning experience setting up custom DNS and hardening a Debian endpoint. 
+
+## Second
+
+### The reinstall!
+
+Yep, it happened again. The person that insists on running Arch broke their install by messing around, yet again. I've been running Arch for about 3-ish 4 years now, and I gotta say FAFO is really the name of the game here. I get the best middle of the road experience between gaming and development / actual work with Arch with the distro's I've tried, so I stick with it but man...super volatile. Anyways, onto the stuff. 
+
+I've been using a subset of Arch called EndeavourOS for a while now, and I've been in *love*. And about 6-ish months ago...I found Hyprland and I've also loved it since. I've personally never had any of the weird bugs folks have been having, but they do happen so YMMV. However, some of the danger comes in when you migrate from Hyprland to KDE (just for a quick change) then to Gnome (again, just for something new) then back to Hyprland (because there's no place like home). Changing so many desktop environments in a row so quickly led to, *somehow*, my login manager being deleted and my shell being corrupted. So that when I did login with the tty, all I saw was a recreation of the Poltergeist TV static. This left me with a decision, do I reinstall Endeavour and go about my day, or do I give something else a shot. Enter: Omarchy. I followed the distro hype and installed Omarchy with an open mind (clearly, I enjoy the freedom of Arch) so everything being preconfigured was a bit new for me. However, once I booted into the system it felt great. It says it's opinionated, sure. But *it's Linux* my dude. Everything is a file, go edit the configs. If anything, I've had an easier time navigating around because I wasn't ham-handedly messing about my Hypr.conf and my waybar was setup by someone that understood what they were doing loads better than myself. You're given a few really nice tools that I hadn't even realized I wanted, like a fuzzy package manager, features with a more TUI-driven experience, and something that just felt like it's designed to get out of your way as much as it is to be never more than a step away if you need something. It feels great honestly.
+
+## Third
+
+### New text editor!
+
+The name gave it away a bit, but along with moving to Omarchy I've made the final swap....I'm a NeoVim user now.
+
+In complete transparency, I totally have VSCode still installed. I need a backup lol. Omarchy came with NeoVim / LazyVim, so I figured this was the perfect time to swap over. The learning has been slow (definitely didn't accidentally delete one of the other markdown files), but it's going forward and it'll be interesting to see if I end up preferring this or going back to VSCode.
+
+<a href="../dev_diary.html" class="back-button">← Back to Blog</a>
