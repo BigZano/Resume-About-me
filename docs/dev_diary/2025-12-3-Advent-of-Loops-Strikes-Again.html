@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Day 3 of Advent of Code: Lööps Strike Again!</title>
+
+    <!-- Basic SEO -->
+    <meta name="description" content="Day three of the Advent is here, and Day 3 is in the bag! Once again, let's take a look at our code and see how we did." />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Day 3 of Advent of Code: Lööps Strike Again!" />
+    <meta property="og:description" content="Day three of the Advent is here, and Day 3 is in the bag! Once again, let's take a look at our code and see how we did." />
+    <meta property="og:url" content="/2025-12-3-Advent-of-Loops-Strikes-Again.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Day 3 of Advent of Code: Lööps Strike Again!" />
+    <meta name="twitter:description" content="Day three of the Advent is here, and Day 3 is in the bag! Once again, let's take a look at our code and see how we did." />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="../site.webmanifest" />
+    <meta name="theme-color" content="#1a5c3a" />
+
+    <!-- Styles -->
+    <link href="../index.css?v=2" rel="stylesheet" />
+    <link href="../landing.css?v=2" rel="stylesheet" />
+    <link href="../print.css" rel="stylesheet" media="print" />
+  </head>
+
+  <body>
+    <article><div><h1>Day 3 of Advent of Code: Lööps Strike Again!</h1><p><a href="../dev_diary.html" class="back-button">← Back to Blog</a></p><p>Day three of the Advent is here, and Day 3 is in the bag! Once again, let's take a look at our code and see how we did.</p><pre><code># part 1
+total_joltage = 0
+
+for bank in list_of_banks:  # loop for each bank, strip spaces, commas and quotes, confirm digits only
+banks = bank.strip().rstrip(',')
+digits = [int(ch) for ch in banks if ch.isdigit()]
+
+best = 0  # find best two-digit combination, walk left to right
+max_left = -1
+for d in digits:
+if max_left >= 0:
+candidate = max_left * 10 + d
+if candidate > best:
+best = candidate
+if d > max_left:  # Set max_left to largest digit seen so far
+max_left = d
+
+total_joltage += best  # add best for this bank to total_joltage
+
+print(total_joltage)
+</code></pre><h2>Part 2</h2><pre><code>total_joltage = 0
+k = 12  # digits to turn per bank
+
+for bank in list_of_banks:
+banks = bank.strip().rstrip(',')
+digits = [int(ch) for ch in banks if ch.isdigit()]
+
+# make stack and pop items for largest k digits
+needed = len(digits) - k
+stack = []
+for d in digits:
+while stack and needed > 0 and stack[-1] < d:
+stack.pop()
+needed -= 1
+stack.append(d)
+
+selected = stack[:k]  # take first k items from stack
+best = 0
+for d in selected:
+best = best * 10 + d
+total_joltage += best
+
+print(total_joltage)
+</code></pre><p>Remembered to snag part one and two this time, and this one was a bit more tough. Finding the right combinations of digits was tough but I eventually got there in the end. Pretty sure it's O(n), which is mid but loads better than yesterday where it was exponential time lol. Got there with a bunch of loops, and was inspired to make the meme below 😁.</p><p><img src="../loops.png" alt="May I have some loops?"></img></p><p><a href="../dev_diary.html" class="back-button">← Back to Blog</a></p></div></article>
+  </body>
+</html>
