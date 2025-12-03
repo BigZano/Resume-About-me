@@ -1,7 +1,9 @@
 import os
 import re
+from math import ceil
 from pathlib import Path
 from datetime import datetime
+from urllib.parse import quote_plus
 
 def _extract_page_date(markdown: str) -> tuple[str, bool]:
     """Extract page date from HTML comment or filename"""
@@ -60,7 +62,63 @@ def _extract_title_from_filename(filename: str) -> str:
         return title
     return name.replace('-', ' ').title()
 
-def generate_blog_index(content_dir: str, template_path: str, dest_path: str, subdocs_dir: str = "dev_diary"):
+def _build_share_comment(post_url: str, title: str, site_base_url: str) -> str:
+    """Return commented-out share links for future activation"""
+    if site_base_url:
+        base = site_base_url.rstrip('/')
+        share_url = f"{base}/{post_url.lstrip('/')}"
+    else:
+        share_url = post_url
+
+    encoded_url = quote_plus(share_url)
+    encoded_title = quote_plus(title)
+
+    return (
+        "            <!--\n"
+        "            <div class=\"share-links\">\n"
+        f"                <a class=\"share share-x\" href=\"https://twitter.com/intent/tweet?text={encoded_title}&url={encoded_url}\" target=\"_blank\" rel=\"noopener\">Share on X</a>\n"
+        f"                <a class=\"share share-mastodon\" href=\"https://mastodon.social/share?text={encoded_title}%20{encoded_url}\" target=\"_blank\" rel=\"noopener\">Share on Mastodon</a>\n"
+        f"                <a class=\"share share-bluesky\" href=\"https://bsky.app/intent/compose?text={encoded_title}%20{encoded_url}\" target=\"_blank\" rel=\"noopener\">Share on Bluesky</a>\n"
+        "            </div>\n"
+        "            -->\n"
+    )
+
+
+def _build_pagination_nav(current_page: int, total_pages: int, base_name: str, suffix: str) -> str:
+    """Generate pagination navigation HTML"""
+    if total_pages <= 1:
+        return ""
+
+    def page_href(page: int) -> str:
+        return f"{base_name}{suffix}" if page == 1 else f"{base_name}-page-{page}{suffix}"
+
+    nav_parts: list[str] = ["<nav class=\"blog-pagination\" aria-label=\"Blog pages\">"]
+
+    if current_page > 1:
+        prev_href = page_href(current_page - 1)
+        nav_parts.append(f"  <a class=\"nav-link\" href=\"{prev_href}\">← Newer posts</a>")
+    else:
+        nav_parts.append("  <span class=\"nav-link disabled\">← Newer posts</span>")
+
+    page_links = []
+    for page in range(1, total_pages + 1):
+        if page == current_page:
+            page_links.append(f"  <span class=\"page-link current\">{page}</span>")
+        else:
+            page_links.append(f"  <a class=\"page-link\" href=\"{page_href(page)}\">{page}</a>")
+    nav_parts.extend(page_links)
+
+    if current_page < total_pages:
+        next_href = page_href(current_page + 1)
+        nav_parts.append(f"  <a class=\"nav-link\" href=\"{next_href}\">Older posts →</a>")
+    else:
+        nav_parts.append("  <span class=\"nav-link disabled\">Older posts →</span>")
+
+    nav_parts.append("</nav>")
+    return "\n".join(nav_parts) + "\n"
+
+
+def generate_blog_index(content_dir: str, template_path: str, dest_path: str, subdocs_dir: str = "dev_diary", posts_per_page: int = 5, site_base_url: str | None = None):
     """
     Generate a blog index page listing all posts in content/dev_diary/
     
@@ -122,10 +180,27 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
             'filename': md_file.name
         })
     
-    # Generate HTML for post listing
-    posts_html = '<section class="blog-posts">\n'
-    for post in posts:
-        posts_html += f'''
+    posts_per_page = max(1, posts_per_page)
+    total_posts = len(posts)
+    total_pages = max(1, ceil(total_posts / posts_per_page))
+
+    base_path = Path(dest_path)
+    base_name = base_path.stem
+    suffix = base_path.suffix
+
+    site_base_url = (site_base_url or os.environ.get("SITE_BASE_URL", "")).rstrip('/')
+
+    with open(template_path, 'r', encoding='utf-8') as f:
+        template = f.read()
+
+    for page_num in range(1, total_pages + 1):
+        start_idx = (page_num - 1) * posts_per_page
+        page_posts = posts[start_idx:start_idx + posts_per_page]
+
+        posts_html = '<section class="blog-posts">\n'
+        for post in page_posts:
+            share_comment = _build_share_comment(post['url'], post['title'], site_base_url)
+            posts_html += f'''
         <article class="blog-post-preview">
             <header>
                 <h2><a href="{post['url']}">{post['title']}</a></h2>
@@ -133,20 +208,22 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
             </header>
             <p class="excerpt">{post['excerpt']}</p>
             <a href="{post['url']}" class="read-more">Read more →</a>
-        </article>
+{share_comment}        </article>
 '''
-    posts_html += '</section>\n'
-    
-    # Load template and replace placeholder
-    with open(template_path, 'r', encoding='utf-8') as f:
-        template = f.read()
-    
-    page_html = template.replace("{{ BlogPosts }}", posts_html)
-    
-    # Write output
-    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-    with open(dest_path, 'w', encoding='utf-8') as f:
-        f.write(page_html)
-    
-    print(f"Blog index written to {dest_path}")
-    print(f"Found {len(posts)} post(s): {[p['title'] for p in posts]}")
+        posts_html += '</section>\n'
+
+        pagination_nav = _build_pagination_nav(page_num, total_pages, base_name, suffix)
+        page_html = template.replace("{{ BlogPosts }}", posts_html)
+        if "{{ PaginationNav }}" in page_html:
+            page_html = page_html.replace("{{ PaginationNav }}", pagination_nav)
+        else:
+            page_html = page_html.replace(posts_html, posts_html + pagination_nav)
+
+        page_dest = base_path if page_num == 1 else base_path.with_name(f"{base_name}-page-{page_num}{suffix}")
+        os.makedirs(page_dest.parent, exist_ok=True)
+        with open(page_dest, 'w', encoding='utf-8') as f:
+            f.write(page_html)
+
+        print(f"Blog index written to {page_dest}")
+
+    print(f"Found {len(posts)} post(s) across {total_pages} page(s): {[p['title'] for p in posts]}")
