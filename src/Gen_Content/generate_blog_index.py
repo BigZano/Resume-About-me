@@ -3,7 +3,6 @@ import re
 from math import ceil
 from pathlib import Path
 from datetime import datetime
-from urllib.parse import quote_plus
 
 def _extract_page_date(markdown: str) -> tuple[str, bool]:
     """Extract page date from HTML comment or filename"""
@@ -62,27 +61,10 @@ def _extract_title_from_filename(filename: str) -> str:
         return title
     return name.replace('-', ' ').title()
 
-def _build_share_comment(post_url: str, title: str, site_base_url: str) -> str:
-    """Return commented-out share links for future activation"""
-    if site_base_url:
-        base = site_base_url.rstrip('/')
-        share_url = f"{base}/{post_url.lstrip('/')}"
-    else:
-        share_url = post_url
-
-    encoded_url = quote_plus(share_url)
-    encoded_title = quote_plus(title)
-
-    return (
-        "            <!--\n"
-        "            <div class=\"share-links\">\n"
-        f"                <a class=\"share share-x\" href=\"https://twitter.com/intent/tweet?text={encoded_title}&url={encoded_url}\" target=\"_blank\" rel=\"noopener\">Share on X</a>\n"
-        f"                <a class=\"share share-mastodon\" href=\"https://mastodon.social/share?text={encoded_title}%20{encoded_url}\" target=\"_blank\" rel=\"noopener\">Share on Mastodon</a>\n"
-        f"                <a class=\"share share-bluesky\" href=\"https://bsky.app/intent/compose?text={encoded_title}%20{encoded_url}\" target=\"_blank\" rel=\"noopener\">Share on Bluesky</a>\n"
-        "            </div>\n"
-        "            -->\n"
-    )
-
+# ARCHIVED: Social media share links removed - see .archive/social_media_integration/
+# def _build_share_comment(post_url: str, title: str, site_base_url: str) -> str:
+#     """Return commented-out share links for future activation"""
+#     ...
 
 def _build_pagination_nav(current_page: int, total_pages: int, base_name: str, suffix: str) -> str:
     """Generate pagination navigation HTML"""
@@ -199,7 +181,7 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
 
         posts_html = '<section class="blog-posts">\n'
         for post in page_posts:
-            share_comment = _build_share_comment(post['url'], post['title'], site_base_url)
+            # Social media share links removed - see .archive/social_media_integration/
             posts_html += f'''
         <article class="blog-post-preview">
             <header>
@@ -208,7 +190,7 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
             </header>
             <p class="excerpt">{post['excerpt']}</p>
             <a href="{post['url']}" class="read-more">Read more →</a>
-{share_comment}        </article>
+        </article>
 '''
         posts_html += '</section>\n'
 

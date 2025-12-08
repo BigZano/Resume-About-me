@@ -4,6 +4,9 @@ __pycache__/
 
 log.txt
 
+# Archived code - not in active use
+.archive/
+
 # Dev helpers
 cheat_sheet.md
 css_cheatsheet.md

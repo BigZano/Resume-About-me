@@ -1,0 +1,527 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Advent of Code: Day 8 and more AI agent stuff</title>
+
+    <!-- Basic SEO -->
+    <meta name="description" content="Alright, fell off on the teach back, but between AoC and working on the AI agent, and the neverending job hunt, I've actually been working on a decent bit. First, the puzzles." />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Advent of Code: Day 8 and more AI agent stuff" />
+    <meta property="og:description" content="Alright, fell off on the teach back, but between AoC and working on the AI agent, and the neverending job hunt, I've actually been working on a decent bit. First, the puzzles." />
+    <meta property="og:url" content="/2025-12-8-Advent-day-8-and-more-AI-stuff.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Advent of Code: Day 8 and more AI agent stuff" />
+    <meta name="twitter:description" content="Alright, fell off on the teach back, but between AoC and working on the AI agent, and the neverending job hunt, I've actually been working on a decent bit. First, the puzzles." />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="../site.webmanifest" />
+    <meta name="theme-color" content="#1a5c3a" />
+
+    <!-- Styles -->
+    <link href="../index.css?v=2" rel="stylesheet" />
+    <link href="../landing.css?v=2" rel="stylesheet" />
+    <link href="../print.css" rel="stylesheet" media="print" />
+  </head>
+
+  <body>
+    <article><div><h1>Advent of Code: Day 8 and more AI agent stuff</h1><p>Alright, fell off on the teach back, but between AoC and working on the AI agent, and the neverending job hunt, I've actually been working on a decent bit. First, the puzzles.</p><h2>Advent talkback</h2><p>Day 4 was a fun one about looping through a grid and removing items, based on neighboring values. Let's have a look at the code:</p><pre><code>
+
+# Part 1
+def parse_grid(paper_grid: str):
+return [list(line) for line in paper_grid.strip().splitlines()]  # turn grid into strings
+
+def neighbors(x, y, w, h):   # Say hi to your neighbor
+for dy in (-1, 0, 1):
+for dx in (-1, 0, 1):
+if dx == 0 and dy == 0:
+continue
+nx, ny = x + dx, y + dy
+if 0 <= nx < w and 0 <= ny < h:
+yield nx, ny
+
+def accessible_count(grid, roll='@'):    # Count accessible positions
+h = len(grid)
+w = len(grid[0]) if h else 0
+total = 0
+for y in range(h):                   # "main loop", go through and add to total
+for x in range(w):
+if grid[y][x] != roll:
+continue
+n = sum(1 for nx, ny in neighbors(x, y, w, h) if grid[ny][nx] == roll)
+if n < 4:
+total += 1
+return total
+
+# part 2
+def parse_grid(paper_grid: str):
+return [list(line) for line in paper_grid.strip().splitlines()]            # grid to strings
+
+def neighbors(x, y, w, h):       # Say hi again
+for dy in (-1, 0, 1):
+for dx in (-1, 0, 1):
+if dx == 0 and dy == 0:
+continue
+nx, ny = x + dx, y + dy
+if 0 <= nx < w and 0 <= ny < h:
+yield nx, ny
+
+def accessible_count(grid, roll='@', threshold=4):     # count accessible positions, create variables to remove
+h = len(grid)
+w = len(grid[0]) if h else 0
+grid = [row[:] for row in grid]    # create copy of grid
+total_removed = 0
+while True:                       # while loop to keep removing
+to_remove = []
+for y in range(h):
+for x in range(w):
+if grid[y][x] != roll:
+continue
+n = sum(1 for nx, ny in neighbors(x, y, w, h) if grid[ny][nx] == roll)
+if n < threshold:
+to_remove.append((x, y))
+if not to_remove:
+break
+for x, y in to_remove:
+grid[y][x] = '.'
+total_removed += len(to_remove)
+return total_removed
+
+if __name__ == "__main__":
+
+grid = parse_grid(paper_grid)
+print(accessible_count(grid))
+
+</code></pre><p>This one was a bit more challenging, but that's to be expected I've come to find out. This far it's been extremely fun practice with loops, data structures and algorithms. It's also making me more comfortable with Python, which was a big plus. On to day 5!</p><pre><code>
+def parse_allowed_ranges(allowed_ranges: str) -> list[tuple[int, int]]:
+ranges = []
+for line in allowed_ranges.strip().splitlines():
+start, end = tuple(map(int, line.split('-')))
+ranges.append((start, end))
+return ranges
+
+def parse_available_ingredients(available_ingredients: str) -> list[int]:
+return [int(line) for line in available_ingredients.strip().splitlines()]
+
+# Part 1: sum the bad stuff
+
+# def ingredients_sum(allowed_ranges: list[tuple[int, int]], available_ingredients: list[int]) -> list[int]:
+#     ingredients_sum = 0
+#     for ingredient in available_ingredients:
+#         for start, end in allowed_ranges:
+#             if start <= ingredient <= end:
+#                 ingredients_sum += 1
+#                 break
+#     return ingredients_sum
+
+# part 1
+# if __name__ == "__main__":
+#     allowed_ranges_list = parse_allowed_ranges(allowed_ranges)
+#     available_ingredients_list = parse_available_ingredients(available_ingredients)
+#     result = ingredients_sum(allowed_ranges_list, available_ingredients_list)
+#     print(f"Number of available ingredients within allowed ranges: {result}")
+
+
+# part 2: sum the good stuff
+
+def count_fresh_ids_from_ranges(allowed_ranges: list[tuple[int, int]]) -> int:
+if not allowed_ranges:
+return 0
+ranges = sorted(allowed_ranges)
+total = 0
+current_start, current_end = ranges[0]
+for s, e in ranges[1:]:
+if s <= current_end + 1:
+current_end = max(current_end, e)
+else:
+total += current_end - current_start + 1
+current_start, current_end = s, e
+total += current_end - current_start + 1
+return total
+
+if __name__ == "__main__":
+allowed_ranges_list = parse_allowed_ranges(allowed_ranges)
+result = count_fresh_ids_from_ranges(allowed_ranges_list)
+print(f"Sum of available ingredients within allowed ranges: {result}")
+
+</code></pre><p>This was a bit more straightforward, looping through ranges and summing the valid ingredients. That's really it, it was a nice break, and I got to practice some more algorithmic thinking. Day 6!</p><pre><code>
+from pathlib import Path
+from typing import List
+
+
+def parse_worksheet_part2(lines: List[str]) -> int:
+"""Part 2: Read right-to-left, each column is a number (top=MSD, bottom=LSD)."""
+width = max(len(l) for l in lines)
+grid = [list(l.rstrip("\n").ljust(width)) for l in lines]
+h = len(grid)
+ops_row = grid[-1]
+
+# Identify problems: groups of columns separated by space-only columns
+problems = []
+x = 0
+while x < width:
+# Skip space-only columns (separator)
+if all(grid[r][x] == ' ' for r in range(h)):
+x += 1
+continue
+
+# Found start of problem block
+start = x
+op = None
+while x < width and not all(grid[r][x] == ' ' for r in range(h)):
+if ops_row[x] in '+*':
+op = ops_row[x]
+x += 1
+end = x
+
+if op:
+problems.append((start, end, op))
+
+# Process each problem RIGHT-TO-LEFT
+total = 0
+for start, end, op in reversed(problems):
+# Within this problem block, each column represents one number
+# Read top-to-bottom to get digits (MSD first)
+numbers = []
+
+for col in range(start, end):
+# Read this column top-to-bottom, collecting digits
+digits = []
+for r in range(h - 1):  # Skip operator row
+c = grid[r][col]
+if c.isdigit():
+digits.append(c)
+
+# If we collected digits, form a number
+if digits:
+numbers.append(int(''.join(digits)))
+
+# Apply operation to all numbers in this problem
+if numbers:
+if op == '+':
+result = sum(numbers)
+else:
+result = 1
+for n in numbers:
+result *= n
+total += result
+
+return total
+
+
+def parse_worksheet(lines: List[str]) -> int:
+"""Part 1: Read left-to-right, each problem is vertical numbers."""
+width = max(len(l) for l in lines)
+grid = [list(l.rstrip("\n").ljust(width)) for l in lines]
+h = len(grid)
+ops_row = grid[-1]
+
+# Find problems separated by space-only columns
+problems = []
+x = 0
+while x < width:
+if all(grid[r][x] == ' ' for r in range(h)):
+x += 1
+continue
+
+start = x
+op = None
+while x < width and not all(grid[r][x] == ' ' for r in range(h)):
+if ops_row[x] in '+*':
+op = ops_row[x]
+x += 1
+end = x
+
+if op:
+problems.append((start, end, op))
+
+total = 0
+for start, end, op in problems:
+numbers = []
+for r in range(h - 1):
+row_segment = ''.join(grid[r][start:end]).strip()
+if row_segment and row_segment.replace(' ', '').isdigit():
+num_str = row_segment.replace(' ', '')
+if num_str:
+numbers.append(int(num_str))
+
+if numbers:
+if op == '+':
+result = sum(numbers)
+else:
+result = 1
+for n in numbers:
+result *= n
+total += result
+
+return total
+def main(path: str = "day_6.txt", part: int = 2) -> None:
+text = Path(path).read_text()
+lines = [ln for ln in text.splitlines() if ln.rstrip()]
+
+if part == 1:
+total = parse_worksheet(lines)
+else:
+total = parse_worksheet_part2(lines)
+
+print(total)
+if __name__ == "__main__":
+import sys
+part = 2
+path = "day_6.txt"
+if len(sys.argv) > 1:
+if sys.argv[1] in ["1", "2"]:
+part = int(sys.argv[1])
+if len(sys.argv) > 2:
+path = sys.argv[2]
+else:
+path = sys.argv[1]
+main(path, part)
+</code></pre><p>This was more challenging, a kind of marked step up in difficulty over the previous days. Part two took a while, but we got it in the end. It was the math in part one was pretty straightforward, just took a sec to get into the headspace of the problem. Part two took a bit more thinking, especially figuring out how to laterally read through the arrays. Part 7!</p><pre><code>
+"""
+Repair manifold for challenge. input is provided in day_7_input.txt.
+
+Analyze input doc and analyze how many times beam is split.
+
+S = start
+. = default char
+^ = splitter
+
+when contacting a spliter, beam splits into immediate left and right of splitter exclusive. if a beam falls between two splitters, it is only the one beam.
+"""
+
+from typing import List
+
+def main(path: str = "day_7_input.txt") -> int:
+with open(path, 'r') as f:
+lines = [line.rstrip('\n') for line in f]
+
+height = len(lines)
+width = max(len(l) for l in lines)
+grid = [list(l.ljust(width)) for l in lines]
+
+# Find the start column in the first row
+try:
+start_col = grid[0].index('S')
+except ValueError:
+raise ValueError("No start position 'S' found in the top row.")
+
+active_beams = {start_col}
+split_count = 0
+
+for row in range(1, height):
+next_beams = set()
+for col in active_beams:
+cell = grid[row][col]
+if cell == '.':
+next_beams.add(col)
+elif cell == '^':
+# Split left and right, if within bounds
+if col - 1 >= 0:
+next_beams.add(col - 1)
+if col + 1 < width:
+next_beams.add(col + 1)
+split_count += 1
+# If cell is ' ', beam is lost (do nothing)
+active_beams = next_beams
+
+print("Total splits:", split_count)
+return split_count
+
+
+if __name__ == "__main__":
+main()
+
+
+from typing import List
+
+def main(path: str = "./day_7/day_7_input.txt") -> int:
+with open(path, 'r') as f:
+lines = [line.rstrip('\n') for line in f]
+
+height = len(lines)
+width = max(len(l) for l in lines)
+grid = [list(l.ljust(width)) for l in lines]
+
+# Find the start column in first row
+try:
+start_col = grid[0].index('S')
+except ValueError:
+raise ValueError("No start position 'S' found in the top row.")
+
+# timeline_counts[row][col] = number of timelines at (row, col)
+timeline_counts = [ [0]*width for _ in range(height) ]
+timeline_counts[0][start_col] = 1
+
+for row in range(1, height):
+for col in range(width):
+count = timeline_counts[row-1][col]
+if count == 0:
+continue
+cell = grid[row][col]
+if cell == '.':
+timeline_counts[row][col] += count
+elif cell == '^':
+if col - 1 >= 0:
+timeline_counts[row][col-1] += count
+if col + 1 < width:
+timeline_counts[row][col+1] += count
+# if cell is ' ', beam is lost (do nothing)
+
+total_timelines = sum(timeline_counts[-1])
+print("Total timelines at bottom:", total_timelines)
+return total_timelines
+
+if __name__ == "__main__":
+main()
+
+</code></pre><p>Fire the tachyon beam! In seriousness, this one was a bit easier than the previous day for me. The splitting logic was pretty straightforward once I got the hang of it, and it was interesting to work out what it meant by timelines. And at last, day 8!</p><pre><code>
+from typing import List
+
+def main(path: str = "day_8/day_8_input.txt", k: int = 1000) -> int:
+"""
+Connect the `k` pairs of junction boxes with the smallest straight-line distances (squared distance used),
+applying them in ascending order. Each pair is processed even if it doesn't change component structure.
+After processing the first `k` pairs, return the product of the sizes of the three largest connected components.
+"""
+from itertools import combinations
+import heapq
+from collections import Counter
+from functools import reduce
+from operator import mul
+
+with open(path, 'r') as f:
+points = [tuple(map(int, line.strip().split(','))) for line in f if line.strip()]
+
+n = len(points)
+if n == 0:
+return 0
+
+total_pairs = n * (n - 1) // 2
+k = min(k, total_pairs)
+
+# Generate pairwise squared distances lazily and pick k smallest efficiently.
+def pair_dist_iter():
+for i in range(n):
+xi, yi, zi = points[i]
+for j in range(i + 1, n):
+xj, yj, zj = points[j]
+d = (xi - xj) ** 2 + (yi - yj) ** 2 + (zi - zj) ** 2
+yield (d, i, j)
+
+
+smallest = heapq.nsmallest(k, pair_dist_iter(), key=lambda x: x[0])
+
+# Disjoint-set (union-find) with size
+parent = list(range(n))
+size = [1] * n
+
+def find(a):
+while parent[a] != a:
+parent[a] = parent[parent[a]]
+a = parent[a]
+return a
+
+def union(a, b):
+ra, rb = find(a), find(b)
+if ra == rb:
+return False
+if size[ra] < size[rb]:
+ra, rb = rb, ra
+parent[rb] = ra
+size[ra] += size[rb]
+return True
+
+# Process the k smallest pairs in ascending distance order.
+smallest.sort(key=lambda x: x[0])
+for _, i, j in smallest:
+union(i, j)
+
+# Count component sizes
+roots = [find(i) for i in range(n)]
+counts = Counter(roots)
+sizes = sorted(counts.values(), reverse=True)
+
+# Debug prints
+print(f"All group sizes (desc): {sizes}")
+top3 = sizes[:3]
+print(f"Top 3 sizes: {top3}")
+
+if not top3:
+return 0
+return reduce(mul, top3, 1)
+
+if __name__ == "__main__":
+print(main())
+
+
+from typing import List, Tuple
+
+
+def find_last_connection(points: List[Tuple[int, int, int]]) -> int:
+n = len(points)
+if n < 2:
+return 0
+
+# Build list of all pairs (squared distance, i, j)
+pairs = []
+for i in range(n):
+xi, yi, zi = points[i]
+for j in range(i + 1, n):
+xj, yj, zj = points[j]
+d = (xi - xj) ** 2 + (yi - yj) ** 2 + (zi - zj) ** 2
+pairs.append((d, i, j))
+
+# Sort by distance (then by indices to break ties deterministically)
+pairs.sort()
+
+# Disjoint-set (union-find) with path compression and union by size
+parent = list(range(n))
+size = [1] * n
+
+def find(a: int) -> int:
+while parent[a] != a:
+parent[a] = parent[parent[a]]
+a = parent[a]
+return a
+
+def union(a: int, b: int) -> bool:
+ra, rb = find(a), find(b)
+if ra == rb:
+return False
+if size[ra] < size[rb]:
+ra, rb = rb, ra
+parent[rb] = ra
+size[ra] += size[rb]
+return True
+
+components = n
+for _, i, j in pairs:
+if union(i, j):
+components -= 1
+if components == 1:
+# Return product of X coordinates of the final connected pair
+return points[i][0] * points[j][0]
+
+return 0
+
+
+def main(path: str = "day_8/day_8_input.txt") -> int:
+with open(path, 'r') as f:
+points = []
+for line in f:
+if line.strip():
+parts = list(map(int, line.strip().split(',')))
+points.append((parts[0], parts[1], parts[2]))
+return find_last_connection(points)
+
+
+if __name__ == "__main__":
+print(main())
+</code></pre><p>This one was a monster. I ended up learning an entierly new algorithm for it, using the KNN approach to find closest points, then a dis-join union set to group them. Rough was an understatement, but they don't ask how, they ask how many. Overall I'm really pleased with being able to finish them so far, with only roughly a years worth of coding experience under my belt. I'm learning loads, and it'll be interesting to see where I come to land on the leaderboard at the end. 4 days left!</p><h3>Onward to the AI!</h3><p>Holy. hell.</p><p>I don't think I would have bit this much off when I started, had I known what I was getting into. It's been extremely rewarding though, and I'm learning an absolute ton about LLMs, prompt engineering, general AI concepts and general software engineering best practices, as well as tons of work into thinking about architecture and how I want everything to fit together. I keep just going in stages, and it just keeps working? Which is wild. It defintely comes down to just a bunch of reading documentation, trial, and error, and what feels like an insane amount of patience. It helps that it speaks now, and I've got it hooked up to Ollama, so I can use it to review itself, and help me debug it's own issues. It is defenitely not perfect, or complete. But we're getting there, and it's been fun to nerd out on so far. I've incorporated a bunch of 40K theming, and seeing it come together has been really fun. So far I've gotten the code generation, file reading, code analysis, basic reasoning and web search working. Next up is system search, more interactive capabilities, and better memory management. After that, I want to look into creating more of a terminal front end for it, some more aesthetic stuff.</p></div></article>
+  </body>
+</html>
