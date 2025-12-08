@@ -2,6 +2,8 @@
 
 # Advent of Code: Day 8 and more AI agent stuff
 
+<a href="../dev_diary.html" class="back-button">← Back to Blog</a>
+
 
 Alright, fell off on the teach back, but between AoC and working on the AI agent, and the neverending job hunt, I've actually been working on a decent bit. First, the puzzles. 
 
@@ -535,3 +537,5 @@ This one was a monster. I ended up learning an entierly new algorithm for it, us
 Holy. hell. 
 
 I don't think I would have bit this much off when I started, had I known what I was getting into. It's been extremely rewarding though, and I'm learning an absolute ton about LLMs, prompt engineering, general AI concepts and general software engineering best practices, as well as tons of work into thinking about architecture and how I want everything to fit together. I keep just going in stages, and it just keeps working? Which is wild. It defintely comes down to just a bunch of reading documentation, trial, and error, and what feels like an insane amount of patience. It helps that it speaks now, and I've got it hooked up to Ollama, so I can use it to review itself, and help me debug it's own issues. It is defenitely not perfect, or complete. But we're getting there, and it's been fun to nerd out on so far. I've incorporated a bunch of 40K theming, and seeing it come together has been really fun. So far I've gotten the code generation, file reading, code analysis, basic reasoning and web search working. Next up is system search, more interactive capabilities, and better memory management. After that, I want to look into creating more of a terminal front end for it, some more aesthetic stuff. 
+
+<a href="../dev_diary.html" class="back-button">← Back to Blog</a>
