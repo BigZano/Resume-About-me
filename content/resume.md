@@ -25,6 +25,7 @@
 ## Experience
 
 ### IT Consultant — Praece Consulting (2022–2025)
+Provided IT support for Small and Medium size businesses in an MSP setting
 
 - Delivered onsite and remote troubleshooting in a collaborative environment
 
