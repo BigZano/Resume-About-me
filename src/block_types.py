@@ -1,4 +1,5 @@
 from enum import Enum
+import re
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -10,25 +11,16 @@ class BlockType(Enum):
 
 
 def block_to_block_type(block):
-    if block.startswith("# "):
+    text = block.strip()
+
+    if re.match(r"^#{1,6}\s+", text):
         return BlockType.HEADER
-    elif block.startswith("## "):
-        return BlockType.HEADER
-    elif block.startswith("### "):
-        return BlockType.HEADER
-    elif block.startswith("#### "):
-        return BlockType.HEADER
-    elif block.startswith("##### "):
-        return BlockType.HEADER
-    elif block.startswith("###### "):
-        return BlockType.HEADER
-    elif block.startswith("> "):
-        return BlockType.QUOTE
-    elif block.startswith("- "):
-        return BlockType.UNORDERED_LIST
-    elif block.startswith(". "):
-        return BlockType.ORDERED_LIST
-    elif block.startswith("```") and block.endswith("```"):
+    if text.startswith("```") and text.endswith("```"):
         return BlockType.CODE
-    else:
-        return BlockType.PARAGRAPH
+    if all(not l.strip() or re.match(r"^\s*>\s?.+", l) for l in block.splitlines()):
+        return BlockType.QUOTE
+    if all(not l.strip() or re.match(r"^\s*-\s+.+", l) for l in block.splitlines()):
+        return BlockType.UNORDERED_LIST
+    if all(not l.strip() or re.match(r"^\s*\d+\.\s+.+", l) for l in block.splitlines()):
+        return BlockType.ORDERED_LIST
+    return BlockType.PARAGRAPH

@@ -1,62 +1,59 @@
 def markdown_to_blocks(markdown_text):
     """
     converts markdown to a list of blocks
-    like headers, paragraphs, etc. 
+    like headers, paragraphs, etc.
     """
     blocks = []
     current_paragraph = []
     in_code_fence = False
 
-    lines = markdown_text.split('\n')
-    for line in lines:
-        line = line.rstrip()
-        
-        # Check for code fence markers
-        if line.strip().startswith('```'):
+    lines = markdown_text.split("\n")
+    for raw_line in lines:
+        line = raw_line.rstrip()
+
+        # Check for code fence markers (allow optional indent before ```)
+        if line.lstrip().startswith("```"):
             if not in_code_fence:
-                # Starting a code fence
                 if current_paragraph:
-                    block = "\n".join(current_paragraph).strip()
+                    block = "\n".join(current_paragraph).strip("\n")
                     blocks.append(block)
                     current_paragraph = []
                 in_code_fence = True
-                current_paragraph.append(line.strip())
+                current_paragraph.append(line.lstrip())
             else:
-                # Ending a code fence
-                current_paragraph.append(line.strip())
-                block = "\n".join(current_paragraph).strip()
+                current_paragraph.append(line.lstrip())
+                block = "\n".join(current_paragraph).strip("\n")
                 blocks.append(block)
                 current_paragraph = []
                 in_code_fence = False
             continue
 
         if in_code_fence:
-            # Inside code fence, preserve everything including blank lines
-            current_paragraph.append(line.strip())
+            # Preserve inside code fences
+            current_paragraph.append(line)
             continue
 
-        if line == "":
+        if line.strip() == "":
             if current_paragraph:
-                block = "\n".join(current_paragraph).strip()
+                block = "\n".join(current_paragraph).strip("\n")
                 blocks.append(block)
                 current_paragraph = []
         else:
             stripped = line.strip()
-            # Headings should always be their own block
-            if stripped.startswith('#') and ' ' in stripped:
-                # Flush current paragraph first
+
+            # Keep heading behavior for top-level headings
+            if line == line.lstrip() and stripped.startswith("#") and " " in stripped:
                 if current_paragraph:
-                    block = "\n".join(current_paragraph).strip()
+                    block = "\n".join(current_paragraph).strip("\n")
                     blocks.append(block)
                     current_paragraph = []
-                # Add the heading as its own block
                 blocks.append(stripped)
             else:
-                current_paragraph.append(stripped)
-    
-    # Handle the final block if it doesn't end with a blank line
+                # Preserve leading spaces for nested list parsing
+                current_paragraph.append(line)
+
     if current_paragraph:
-        block = "\n".join(current_paragraph).strip()
+        block = "\n".join(current_paragraph).strip("\n")
         blocks.append(block)
-    
+
     return blocks
