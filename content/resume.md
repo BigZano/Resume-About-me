@@ -35,13 +35,13 @@ Provided IT support for Small and Medium size businesses in an MSP setting
   - Disaster recovery
 
 - Performed server troubleshooting, creating new virtual machines and identifying issues with
-replication and other services
+  replication and other services.
 
 - Monitored downtime for services and maintained communication during outages, minimizing 
-downtime.
+  downtime.
 
 - Managed Microsoft 365 tenants, including user management and service configuration
-to assist with adopting cloud services.
+  to assist with adopting cloud services.
 
 - Maintained and monitored backup and recovery options with Veeam VBR and Datto.
 
