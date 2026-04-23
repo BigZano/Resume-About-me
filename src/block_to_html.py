@@ -14,6 +14,56 @@ def text_to_children(text):
         children.append(html_node)
     return children
 
+def _indent_width(whitespace):
+    """Normalize tabs to 4 spaces"""
+    return len(whitespace.replace("\t", "    "))
+
+
+def _parse_list_items(block, ordered=False):
+    """Parse list items (ordered or unordered) with support for nesting via indentation"""
+    if ordered:
+        pattern = re.compile(r"^(\s*)\d+\.\s+(.*)$")
+        list_tag = "ol"
+    else:
+        pattern = re.compile(r"^(\s*)-\s+(.*)$")
+        list_tag = "ul"
+
+    # Tree structure: [{"text": "...", "children": [ ... ]}, ...]
+    root = []
+    stack = [(-1, root)]  # (indent_level, children_list)
+
+    for raw_line in block.splitlines():
+        if not raw_line.strip():
+            continue
+
+        m = pattern.match(raw_line)
+        if not m:
+            continue
+
+        indent = _indent_width(m.group(1))
+        item_text = m.group(2).strip()
+
+        # Pop stack until we find the correct parent indent level
+        while len(stack) > 1 and indent <= stack[-1][0]:
+            stack.pop()
+
+        node = {"text": item_text, "children": []}
+        stack[-1][1].append(node)
+        stack.append((indent, node["children"]))
+
+    def to_list_node(nodes):
+        """Recursively convert tree structure to HTML nodes"""
+        list_children = []
+        for n in nodes:
+            li_children = text_to_children(n["text"])
+            if n["children"]:
+                li_children.append(to_list_node(n["children"]))
+            list_children.append(ParentNode("li", li_children))
+        return ParentNode(list_tag, list_children)
+
+    return to_list_node(root)
+
+
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
     children = []
@@ -48,9 +98,11 @@ def markdown_to_html_node(markdown):
             if not cleaned:
                 continue  # skip empty blockquote
             children.append(ParentNode("blockquote", text_to_children(cleaned)))
-        elif all(l.strip() == "" or re.match(r"^\d+\.\s+", l) for l in block.splitlines()):
+        elif all(l.strip() == "" or re.match(r"^\s*\d+\.\s+", l) for l in block.splitlines()):
+            # Ordered list (handles indentation)
             children.append(_parse_list_items(block, ordered=True))
         elif all(l.strip() == "" or re.match(r"^\s*-\s+", l) for l in block.splitlines()):
+            # Unordered list (handles indentation)
             children.append(_parse_list_items(block, ordered=False))
         else:
             lines = [l.strip() for l in block.splitlines()]
@@ -58,50 +110,3 @@ def markdown_to_html_node(markdown):
             inlines = text_to_children(para_text)
             children.append(ParentNode("p", inlines))
     return ParentNode("div", children)
-
-def _indent_width(whitespace):
-    # Normalize tabs to 4 spaces
-    return len(whitespace.replace("\t", "    "))
-
-
-def _parse_list_items(block, ordered=False):
-    if ordered:
-        pattern = re.compile(r"^(\s*)\d+\.\s+(.*)$")
-        list_tag = "ol"
-    else:
-        pattern = re.compile(r"^(\s*)-\s+(.*)$")
-        list_tag = "ul"
-
-    # Tree form:
-    # [{"text": "...", "children": [ ... ]}, ...]
-    root = []
-    stack = [(-1, root)]  # (indent, children_list)
-
-    for raw_line in block.splitlines():
-        if not raw_line.strip():
-            continue
-
-        m = pattern.match(raw_line)
-        if not m:
-            continue
-
-        indent = _indent_width(m.group(1))
-        item_text = m.group(2).strip()
-
-        while len(stack) > 1 and indent <= stack[-1][0]:
-            stack.pop()
-
-        node = {"text": item_text, "children": []}
-        stack[-1][1].append(node)
-        stack.append((indent, node["children"]))
-
-    def to_list_node(nodes):
-        list_children = []
-        for n in nodes:
-            li_children = text_to_children(n["text"])
-            if n["children"]:
-                li_children.append(to_list_node(n["children"]))
-            list_children.append(ParentNode("li", li_children))
-        return ParentNode(list_tag, list_children)
-
-    return to_list_node(root)
