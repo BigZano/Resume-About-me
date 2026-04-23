@@ -66,6 +66,12 @@ def copy_static_to_docs():
                     log_message(f"Copied file: {relative_item} ({file_size} bytes)")
         
         copy_recursive(static_path, docs_path)
+        # Preserve repository-level CNAME if present (avoid wiping custom domain on rebuild)
+        repo_cname = os.path.join(workspace_root, "CNAME")
+        docs_cname = os.path.join(docs_path, "CNAME")
+        if os.path.exists(repo_cname):
+            shutil.copy2(repo_cname, docs_cname)
+            log_message("Copied repository CNAME to docs/CNAME")
         
         # Render all markdown files in content/ -> docs/*.html
         md_files = [f for f in os.listdir(content_path) if f.lower().endswith(".md")]
