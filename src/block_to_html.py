@@ -23,7 +23,7 @@ def _is_list_block(block, ordered=False):
     """
     Check if block is a list, allowing continuation lines.
     A valid list block:
-    - Starts with at least one list marker (- or \d+\.)
+    - Starts with at least one list marker (- or N.)
     - Can have continuation lines (indented or empty lines)
     """
     if ordered:
