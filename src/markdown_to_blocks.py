@@ -1,7 +1,7 @@
 def markdown_to_blocks(markdown_text):
     """
     converts markdown to a list of blocks
-    like headers, paragraphs, etc.
+    like headers, paragraphs, etc. 
     """
     blocks = []
     current_paragraph = []
