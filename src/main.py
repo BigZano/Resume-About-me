@@ -103,7 +103,7 @@ def copy_static_to_docs():
                 out_html = os.path.join(blog_posts_out, f"{os.path.splitext(md_name)[0]}.html")
                 log_message(f"  Generating blog post: {md_name}")
                 try:
-                    generate_page(src_md, template_path, out_html)
+                    generate_page(src_md, template_path, out_html, is_blog_post=True)
                 except Exception as e:
                     had_errors = True
                     log_message(f"  ERROR building blog post {md_name}: {e}")

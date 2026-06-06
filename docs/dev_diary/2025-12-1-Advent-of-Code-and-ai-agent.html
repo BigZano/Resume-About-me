@@ -29,7 +29,7 @@
   </head>
 
   <body>
-    <article><div><p><a href="../dev_diary.html" class="back-button">← Back to Blog</a></p><h1>Advent of Code is here!</h1><p>Figured I've almost been programming a year now, it'd be a fun experiment and I've not been disappointed.</p><p>I'm going to aim to do an entry after each day's challenge, and today involved a fun exercise with looping over a dataset to rotate a "lock" to find the passcode. I'm running as a part of the BootDev leaderboard, and in the Discord group it's a blast to see the different strategies folks have used to solve day one. I opted for a more...caveman solution than most, turning the entire thing into a string (4k lines btw) and iterating over that.</p><pre><code>    import re
+    <article><div><p><a href="../dev_diary.html" class="back-button">← Back to Blog</a></p><h1>Advent of Code is here!</h1><p class="post-date">December 03, 2025</p><p>Figured I've almost been programming a year now, it'd be a fun experiment and I've not been disappointed.</p><p>I'm going to aim to do an entry after each day's challenge, and today involved a fun exercise with looping over a dataset to rotate a "lock" to find the passcode. I'm running as a part of the BootDev leaderboard, and in the Discord group it's a blast to see the different strategies folks have used to solve day one. I opted for a more...caveman solution than most, turning the entire thing into a string (4k lines btw) and iterating over that.</p><pre><code>    import re
     tokens = re.findall(r'([RL])\s*(\d+)', list_of_turns_raw)
     list_of_turns = [int(n) if d == 'R' else -int(n) for d, n in tokens]
 

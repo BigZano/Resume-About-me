@@ -77,6 +77,14 @@ h1 + p a:hover{
   border-bottom-color:var(--link-hover);
 }
 
+/* Blog post date */
+.post-date{
+  font-size:1rem;
+  margin:0.25rem 0 1rem;
+  color:var(--accent-gold);
+  font-style:italic;
+}
+
 /* Section headings */
 h2{
   font-size:1.5rem;
