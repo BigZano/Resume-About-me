@@ -1,0 +1,22 @@
+[project]
+name = "resume-about-me"
+version = "1.0.0"
+description = "Static site generator for bretzanotelli.work — resume, about page, and dev diary."
+readme = "readme.md"
+requires-python = ">=3.12"
+
+# The build is deliberately dependency-free: src/ uses only the standard
+# library (os, re, shutil, pathlib, datetime, enum, math, sys, traceback,
+# unittest). Nothing needs installing to build or serve the site.
+dependencies = []
+
+[dependency-groups]
+# Deliberately NOT named "dev" — uv syncs the dev group by default, which
+# would quietly install this on every `uv sync`. Pillow is not needed to
+# build the site; it was used once to recompress static/headshot.jpg
+# (4.4 MB -> 57 KB). Opt in with: uv sync --group imgtools
+imgtools = ["pillow>=12.0"]
+
+[tool.uv]
+# src/ is a collection of scripts, not an installable package.
+package = false
