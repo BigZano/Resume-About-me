@@ -85,20 +85,17 @@ def generate_landing_page(content_path, template_path, dest_path, site_config=No
     if md_files or has_dev_diary:
         page_links_html = []
         
+        # Presentation lives in landing.css — keep this markup bare.
         # Add Dev Diary first if it exists
         if has_dev_diary:
             page_links_html.append(
-                f'              <li style="margin: 1rem 0;">'
-                f'<a href="dev_diary.html" style="font-size: 1.2rem; text-decoration: none;">'
-                f'Dev Diary</a></li>'
+                '              <li><a href="dev_diary.html">Dev Diary</a></li>'
             )
-        
+
         # Add regular pages
         for page in md_files:
             page_links_html.append(
-                f'              <li style="margin: 1rem 0;">'
-                f'<a href="{page["html_name"]}" style="font-size: 1.2rem; text-decoration: none;">'
-                f'{page["title"]}</a></li>'
+                f'              <li><a href="{page["html_name"]}">{page["title"]}</a></li>'
             )
         page_links = '\n'.join(page_links_html)
     else:

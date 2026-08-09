@@ -1,262 +1,518 @@
-:root{
-  --maxw: 800px;
-  /* Salamanders Theme Colors */
-  --salamander-green: #1a5c3a;
-  --salamander-bright-green: #2d8659;
-  --fire-orange: #ff6b35;
-  --fire-red: #d93a2b;
-  --flame-yellow: #ffb627;
-  --dark-bg: #1a1a1a;
-  --light-text: #f5f5f5;
-  --accent-gold: #c9a961;
-  
-  /* Legacy mappings for compatibility */
-  --fg: var(--light-text);
-  --muted: var(--accent-gold);
-  --bg: var(--dark-bg);
-  --link: var(--salamander-bright-green);
-  --link-hover: var(--fire-orange);
-  --border: rgba(45, 134, 89, 0.3);
-  --subtle-bg: rgba(26, 92, 58, 0.1);
-  --heading: var(--salamander-bright-green);
+/* ============================================================
+   bretzanotelli.work — design system
+   Loaded on every page. Page-specific layout lives in landing.css.
+   ============================================================ */
+
+@font-face{
+  font-family:"Bricolage Grotesque";
+  src:url("./fonts/BricolageGrotesque.woff2") format("woff2");
+  font-weight:200 800;
+  font-display:swap;
+}
+@font-face{
+  font-family:"Literata";
+  src:url("./fonts/Literata.woff2") format("woff2");
+  font-weight:200 900;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"Literata";
+  src:url("./fonts/Literata-Italic.woff2") format("woff2");
+  font-weight:200 900;
+  font-style:italic;
+  font-display:swap;
+}
+@font-face{
+  font-family:"Departure Mono";
+  src:url("./fonts/DepartureMono.woff2") format("woff2");
+  font-weight:400;
+  font-display:swap;
 }
 
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-html,body{
-  margin:0;
-  padding:0;
-  background: linear-gradient(135deg, var(--dark-bg) 0%, #2a2a2a 100%);
-  color:var(--fg);
-  min-height: 100vh;
+:root{
+  /* ── colour ──────────────────────────────────────────────
+     Warm, brown-shifted dark — firelight in a room, not a
+     terminal. Every value below clears WCAG AA on --ash.     */
+  --ash:#14100E;      /* page ground            */
+  --soot:#1F1A17;     /* raised surfaces        */
+  --iron:#2E2724;     /* rules and borders      */
+  --ember:#E2551F;    /* the fire               */
+  --flame:#F2A63B;    /* heat, hover, focus     */
+  --forge:#5E9B74;    /* links, structure       */
+  --copper:#A89060;   /* metadata, small labels */
+  --bone:#EDE4D8;     /* body text              */
+
+  /* deeper variants for fills and borders only — too dark for text */
+  --forge-deep:#3C6349;
+  --ember-deep:#8E3211;
+
+  /* ── type ──────────────────────────────────────────────── */
+  --display:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --body:"Literata", Georgia, "Times New Roman", serif;
+  --util:"Departure Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  --step--1:0.833rem;
+  --step-0:1rem;
+  --step-1:1.2rem;
+  --step-2:1.44rem;
+  --step-3:1.728rem;
+  --step-4:2.074rem;
+
+  /* ── measure ───────────────────────────────────────────── */
+  --measure:66ch;
+  --maxw:820px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
 }
 
 body{
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  line-height:1.65;
-  font-size:16px;
+  margin:0;
+  padding:0;
+  background:var(--ash);
+  color:var(--bone);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.7;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
 }
 
-article{
-  max-width:var(--maxw);
-  margin:3rem auto 5rem;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
-  border-left: 4px solid var(--salamander-green);
-}
-
-/* Name/Title */
-h1{
-  font-size:2.5rem;
-  line-height:1.2;
-  margin:0 0 0.5rem 0;
-  font-weight:700;
-  color:var(--heading);
-  letter-spacing:-0.025em;
-  border-bottom: 2px solid var(--salamander-green);
-  padding-bottom: 0.5rem;
-}
-
-/* Contact info paragraph */
-h1 + p{
-  font-size:1.05rem;
-  margin:0.5rem 0 1rem;
-  color:var(--muted);
-}
-
-h1 + p a{
-  color:var(--link);
+/* ── links ──────────────────────────────────────────────── */
+a{
+  color:var(--forge);
   text-decoration:none;
-  border-bottom:1px solid transparent;
-  transition:border-color 0.2s;
+  border-bottom:1px solid rgba(94,155,116,.35);
+  transition:color .18s ease, border-color .18s ease;
+}
+a:hover{
+  color:var(--flame);
+  border-bottom-color:var(--flame);
 }
 
-h1 + p a:hover{
-  color: var(--link-hover);
-  border-bottom-color:var(--link-hover);
+/* visible keyboard focus everywhere, never removed */
+:focus-visible{
+  outline:2px solid var(--flame);
+  outline-offset:3px;
+  border-radius:2px;
 }
 
-/* Section headings */
+/* ── headings ───────────────────────────────────────────── */
+h1,h2,h3,h4{
+  font-family:var(--display);
+  color:var(--bone);
+  letter-spacing:-.02em;
+  line-height:1.12;
+  margin:0;
+  text-wrap:balance;
+}
+
+h1{
+  font-size:clamp(2.1rem, 6vw, 3.1rem);
+  font-weight:800;
+  margin:0 0 .6rem;
+  padding-bottom:.7rem;
+  border-bottom:2px solid var(--ember-deep);
+}
+
 h2{
-  font-size:1.5rem;
-  margin:2.5rem 0 1rem;
-  border-left: 3px solid var(--fire-orange);
-  padding-left: 0.75rem;
-  padding-bottom:0.5rem;
-  font-weight:600;
-  color:var(--heading);
-  letter-spacing:-0.02em;
+  font-size:var(--step-3);
+  font-weight:700;
+  margin:3rem 0 1rem;
+  color:var(--bone);
 }
 
-/* Job titles / subsection headings */
+/* the ember tick that marks a section — the only ornament on content pages */
+h2::before{
+  content:"";
+  display:block;
+  width:34px;
+  height:3px;
+  background:var(--ember);
+  margin-bottom:.85rem;
+}
+
 h3{
-  font-size:1.15rem;
-  margin:1.5rem 0 0.5rem;
-  font-weight:600;
-  color:var(--accent-gold);
+  font-size:var(--step-1);
+  font-weight:700;
+  margin:2rem 0 .35rem;
+  color:var(--flame);
 }
 
-/* Subtle background for job blocks */
-h3 + p,
-h3 + ul{
-  padding-left:1.25rem;
-  border-left:3px solid rgba(45, 134, 89, 0.3);
-  margin-left:0;
+h4{
+  font-size:var(--step-0);
+  font-weight:700;
+  margin:1.5rem 0 .3rem;
 }
 
-p,li{
-  font-size:1rem;
-  color:var(--fg);
-  line-height:1.65;
+/* ── body copy ──────────────────────────────────────────── */
+p{
+  margin:0 0 1.15rem;
+  max-width:var(--measure);
 }
 
-ul{
-  margin:0.5rem 0 1.5rem 0;
-  padding-left:2rem;
-  list-style-type:none;
+/* contact / meta line directly under the name */
+h1 + p{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  color:var(--copper);
+  letter-spacing:.02em;
+  margin-top:.9rem;
 }
+h1 + p a{
+  color:var(--copper);
+  border-bottom-color:rgba(168,144,96,.4);
+}
+h1 + p a:hover{color:var(--flame)}
+
+strong,b{
+  font-weight:700;
+  color:var(--bone);
+}
+
+em,i{color:var(--copper)}
+
+small{font-size:var(--step--1); color:var(--copper)}
+
+/* ── lists ──────────────────────────────────────────────── */
+ul,ol{
+  margin:.5rem 0 1.4rem;
+  padding-left:0;
+  max-width:var(--measure);
+}
+ul{list-style:none}
+ol{padding-left:1.4rem}
 
 ul li{
   position:relative;
-  margin-bottom:0.5rem;
   padding-left:1.5rem;
+  margin-bottom:.5rem;
 }
+ol li{margin-bottom:.5rem}
 
 ul li::before{
-  content:"▸";
+  content:"";
   position:absolute;
-  left:0;
-  color:var(--fire-orange);
-  font-weight:bold;
+  left:.15rem;
+  top:.72em;
+  width:6px;
+  height:6px;
+  background:var(--ember);
+  transform:rotate(45deg);
 }
 
-ul ul {
-  margin: 0.35rem 0 0.35rem 0;
-  padding-left: 1.5rem;
+ul ul,ol ol,ul ol,ol ul{
+  margin:.45rem 0 .3rem;
+  padding-left:1.1rem;
+}
+ul ul li::before{
+  background:transparent;
+  border:1px solid var(--copper);
 }
 
-ul ul li {
-  margin-bottom: 0.35rem;
+/* the one-line role summary that follows a job title */
+h3 + p{
+  color:var(--copper);
+  margin-bottom:.7rem;
 }
 
-/* Blockquote (summary) */
+/* ── blockquote ─────────────────────────────────────────── */
 blockquote{
-  margin:1rem 0 2rem;
-  padding:1.25rem 1.5rem;
-  border-left:4px solid var(--fire-orange);
-  color:var(--accent-gold);
-  background: rgba(255, 107, 53, 0.05);
-  font-style:italic;
-  border-radius:0 8px 8px 0;
-  font-size:1.05rem;
+  margin:1.4rem 0 2.2rem;
+  padding:.2rem 0 .2rem 1.4rem;
+  border-left:3px solid var(--ember);
+  color:var(--bone);
+  font-size:var(--step-1);
+  line-height:1.55;
+  font-style:normal;
+  max-width:var(--measure);
 }
+blockquote p:last-child{margin-bottom:0}
 
-/* Images */
-img{
-  max-width:120px;
-  height:auto;
-  border-radius:50%;
-  border: 3px solid var(--salamander-green);
-  display:block;
-  margin:1.5rem 0;
-  box-shadow:0 4px 6px rgba(0,0,0,0.3);
-}
-
-/* Links */
-a{
-  color:var(--link);
-  text-decoration:none;
-  transition:color 0.2s;
-}
-
-a:hover{
-  color:var(--link-hover);
-  text-decoration:underline;
-}
-
-/* Code */
+/* ── code ───────────────────────────────────────────────── */
 code{
-  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
-  background: rgba(26, 92, 58, 0.2);
-  color: var(--salamander-bright-green);
-  padding:0.2em 0.4em;
-  border-radius:3px;
-  font-size:0.9em;
-  border:1px solid rgba(45, 134, 89, 0.3);
+  font-family:var(--util);
+  font-size:.92em;
+  color:var(--flame);
+  background:var(--soot);
+  border:1px solid var(--iron);
+  padding:.1em .35em;
+  border-radius:2px;
 }
 
 pre{
-  background: #0f1a14;
-  color:#e2e8f0;
-  padding:1rem;
-  border-radius:8px;
-  overflow:auto;
-  line-height:1.5;
-  border:1px solid var(--salamander-green);
+  background:var(--soot);
+  border:1px solid var(--iron);
+  border-left:3px solid var(--forge-deep);
+  padding:1.1rem 1.2rem;
+  overflow-x:auto;
+  line-height:1.55;
+  font-size:var(--step--1);
 }
-
 pre code{
-  background:transparent;
-  border:none;
+  background:none;
+  border:0;
   padding:0;
-  color:inherit;
+  color:var(--bone);
 }
 
-/* Bold text in lists (like "Tech:") */
-strong, b{
-  font-weight:600;
-  color:var(--salamander-bright-green);
-}
-
+/* ── rules and media ────────────────────────────────────── */
 hr{
   border:0;
-  border-top:2px solid rgba(45, 134, 89, 0.3);
+  border-top:1px solid var(--iron);
   margin:3rem 0;
 }
 
-/* Back Button Styling */
-.back-button {
-  display: inline-block;
-  margin: 1rem 0;
-  padding: 0.5rem 1rem;
-  background: rgba(26, 92, 58, 0.2);
-  border: 2px solid var(--salamander-green);
-  border-radius: 6px;
-  color: var(--salamander-bright-green) !important;
-  text-decoration: none !important;
-  transition: all 0.3s ease;
-  font-weight: bold;
+img{
+  max-width:100%;
+  height:auto;
+  display:block;
 }
 
-.back-button:hover {
-  background: rgba(45, 134, 89, 0.3);
-  border-color: var(--salamander-bright-green);
-  transform: translateX(-3px);
-  box-shadow: 0 2px 8px rgba(45, 134, 89, 0.3);
+/* ── shared utilities ───────────────────────────────────── */
+.eyebrow{
+  font-family:var(--util);
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:var(--copper);
+  margin:0 0 1.2rem;
+  max-width:none;
 }
 
-/* Responsive */
-@media (max-width: 768px){
-  article{
-    padding: 1.5rem 1.25rem;
-    margin:2rem auto 3rem;
+.back-button{
+  display:inline-block;
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.06em;
+  color:var(--copper);
+  background:none;
+  border:1px solid var(--iron);
+  border-radius:2px;
+  padding:.45rem .9rem;
+  margin:1.2rem 0;
+  transition:border-color .18s ease, color .18s ease, transform .18s ease;
+}
+.back-button:hover{
+  color:var(--flame);
+  border-color:var(--flame);
+  transform:translateX(-3px);
+}
+
+/* ── content page shell (resume, about me, blog posts) ────
+   Direct child only: the diary index carries body.page too, and its
+   post previews are <article> elements that must not inherit this. */
+body.page > article{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:4.5rem 1.5rem 7rem;
+}
+
+/* About Me portrait — framed, not a cropped circle */
+body.page > article img{
+  max-width:220px;
+  border:1px solid var(--iron);
+  padding:6px;
+  background:var(--soot);
+  margin:1.8rem 0;
+}
+
+/* ============================================================
+   Dev diary — index and posts
+   ============================================================ */
+
+/* the diary index isn't wrapped in <article>, so it needs its own shell */
+body.diary{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:4.5rem 1.5rem 6rem;
+}
+
+body.diary .landing-header{
+  margin-bottom:3.5rem;
+  padding-bottom:1.6rem;
+  border-bottom:1px solid var(--iron);
+}
+body.diary .landing-header h1{
+  border-bottom:0;
+  padding-bottom:0;
+  margin-bottom:.5rem;
+}
+body.diary .landing-header .subtitle{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.04em;
+  color:var(--copper);
+  margin:0;
+}
+
+.blog-posts{margin:0}
+
+.blog-post-preview{
+  padding:0 0 2rem;
+  margin-bottom:2rem;
+  border-bottom:1px solid var(--iron);
+}
+.blog-post-preview:last-child{border-bottom:0}
+
+.blog-post-preview header{
+  display:flex;
+  flex-direction:column-reverse;   /* date reads first, title sits below */
+  gap:.45rem;
+  margin-bottom:.7rem;
+}
+
+.blog-post-preview h2{
+  margin:0;
+  font-size:var(--step-2);
+}
+.blog-post-preview h2::before{display:none}
+
+.blog-post-preview h2 a{
+  color:var(--bone);
+  border-bottom:0;
+}
+.blog-post-preview h2 a:hover{color:var(--flame)}
+
+.blog-post-preview time{
+  font-family:var(--util);
+  font-size:.74rem;
+  letter-spacing:.12em;
+  color:var(--copper);
+}
+
+.blog-post-preview .excerpt{
+  margin:0 0 .8rem;
+  opacity:.85;
+}
+
+.blog-post-preview .read-more{
+  font-family:var(--util);
+  font-size:.78rem;
+  letter-spacing:.06em;
+  color:var(--ember);
+  border-bottom:0;
+}
+.blog-post-preview .read-more:hover{color:var(--flame)}
+
+/* ── pagination ─────────────────────────────────────────── */
+.blog-pagination{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  align-items:center;
+  justify-content:center;
+  margin-top:3rem;
+  padding-top:2rem;
+  border-top:1px solid var(--iron);
+  font-family:var(--util);
+  font-size:.8rem;
+}
+
+.blog-pagination .page-link,
+.blog-pagination .nav-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:2.2rem;
+  padding:.4rem .75rem;
+  border:1px solid var(--iron);
+  border-radius:2px;
+  color:var(--copper);
+  transition:color .18s ease, border-color .18s ease;
+}
+.blog-pagination a.page-link:hover,
+.blog-pagination a.nav-link:hover{
+  color:var(--flame);
+  border-color:var(--flame);
+}
+.blog-pagination .current{
+  color:var(--ash);
+  background:var(--copper);
+  border-color:var(--copper);
+}
+.blog-pagination .disabled{
+  opacity:.35;
+  border-style:dashed;
+}
+
+body.diary .landing-footer{
+  margin-top:3rem;
+  padding-top:2rem;
+  border-top:1px solid var(--iron);
+}
+
+@media (max-width:640px){
+  body.diary{padding:2.5rem 1.15rem 4rem}
+}
+
+/* ── motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
   }
-  h1{font-size:2rem}
-  h2{font-size:1.3rem}
-  h3{font-size:1.1rem}
 }
 
-@media (min-width: 900px){
-  h1{font-size:2.75rem}
+/* ── small screens ──────────────────────────────────────── */
+@media (max-width:640px){
+  body{font-size:16px}
+  body.page > article{padding:2.5rem 1.15rem 4rem}
+  h2{margin-top:2.2rem}
 }
 
-/* Print styles */
+/* ── print: the resume has to survive a printer ─────────── */
 @media print{
-  body{background:white;color:black}
-  article{margin:0;max-width:none;padding:0 0.5rem;background:white;border:none}
-  a{color:inherit;text-decoration:none}
-  blockquote{background:transparent;border-color:#999}
-  img{max-width:80px;border:1px solid #ccc}
-  .back-button{display:none}
+  @page{margin:12mm}
+  :root{--measure:none}
+  body{
+    background:#fff;
+    color:#000;
+    font-size:10.5pt;
+    line-height:1.42;
+  }
+  body.page > article{max-width:none; margin:0; padding:0}
+
+  h1,h2,h3,h4{color:#000}
+  h1{font-size:20pt; border-bottom:1.5pt solid #000; padding-bottom:.2rem}
+  h2{font-size:13pt; margin:1.1rem 0 .4rem; break-after:avoid}
+  h2::before{display:none}
+  h3{font-size:11pt; color:#000; margin:.7rem 0 .15rem; break-after:avoid}
+
+  p,li{max-width:none}
+  p{margin-bottom:.4rem}
+  ul{margin:.2rem 0 .6rem}
+  ul li{margin-bottom:.12rem; padding-left:.9rem}
+  ul li::before{background:#000; width:4px; height:4px; top:.62em}
+
+  h3 + p, h3 + ul{border-left:0; padding-left:0; margin-left:0}
+
+  blockquote{
+    border-left:1.5pt solid #666;
+    color:#000;
+    font-size:10.5pt;
+    margin:.5rem 0 .9rem;
+    padding-left:.8rem;
+  }
+
+  a{color:#000; border-bottom:0; text-decoration:none}
+  em,i,strong,b{color:#000}
+  img{max-width:110px}
+
+  /* chrome that should never reach paper */
+  .back-button,
+  .hero,
+  .home-side,
+  .home-footer,
+  .guestbook{display:none !important}
+
+  h2,h3,li,blockquote{break-inside:avoid}
 }

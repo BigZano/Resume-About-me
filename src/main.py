@@ -138,7 +138,7 @@ def copy_static_to_docs():
                 site_config = {
                     "title": "Home - Portfolio",
                     "site_title": "Bret Zanotelli",
-                    "site_description": "Developer | Hobbyist | Creator",
+                    "site_description": "IT consultant. Linux daily driver. I make things talk to each other properly.",
                     "site_author": "Bret Zanotelli",
                     "description": "Personal portfolio featuring development projects, resume, and creative pursuits"
                 }
@@ -179,6 +179,15 @@ def copy_static_to_docs():
 
 def main():
     """Main build function"""
+    # Windows consoles default to cp1252, which can't encode the status glyphs
+    # below (or any non-ASCII page title). Without this the build generates the
+    # site correctly and then dies on the final print, exiting non-zero.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass
+
     success = copy_static_to_docs()
     if success:
         print("\n✓ Site built successfully!")

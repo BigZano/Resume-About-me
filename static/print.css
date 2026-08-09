@@ -1,9 +1,0 @@
-@page{ margin: 12mm }
-body{ color:#000 }
-article{ margin:0; max-width:none; }
-h1{ font-size:20pt; margin-bottom:2mm }
-h2{ font-size:14pt; border:0; padding:0; margin-top:6mm }
-h3{ font-size:12pt; margin-top:3mm }
-ul{ margin-left:5mm }
-img{ max-width:30mm; border-radius:0; }
-a{ color:#000; text-decoration:none }

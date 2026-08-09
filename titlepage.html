@@ -20,123 +20,131 @@
     <!-- Icons / PWA -->
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="./site.webmanifest" />
-    <meta name="theme-color" content="#1a5c3a" />
+    <meta name="theme-color" content="#14100E" />
 
     <!-- Styles -->
-    <link href="./index.css?v=2" rel="stylesheet" />
-    <link href="./landing.css?v=2" rel="stylesheet" />
-    <link href="./print.css" rel="stylesheet" media="print" />
+    <link href="./index.css?v=3" rel="stylesheet" />
+    <link href="./landing.css?v=3" rel="stylesheet" />
   </head>
 
-  <body>
-    <article>
-      <header class="landing-header">
-        <h1>{{ SiteTitle }}</h1>
-        <p>{{ SiteDescription }}</p>
+  <body class="landing">
+    <div class="shell">
+
+      <header class="hero">
+        <canvas id="hero-fire" role="img"
+                aria-label="{{ SiteTitle }}"
+                data-name="{{ SiteTitle }}"></canvas>
+        <p class="hero-tagline">{{ SiteDescription }}</p>
       </header>
 
-      <main class="landing-main">
-        <!-- Portfolio Pages Section -->
-        <section class="landing-section">
-          <h2>
-            <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#2d8659" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M14 2V8H20" stroke="#2d8659" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M16 13H8" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M16 17H8" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M10 9H9H8" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Portfolio
-          </h2>
-          <nav>
+      <main class="home">
+        <div class="home-main">
+
+          <!-- ══ EDIT ME: the short version, in your own words ══ -->
+          <section class="intro">
+            <p class="eyebrow">The short version</p>
+            <p>
+              I'm an IT consultant in Washington — four years of MSP work, Microsoft 365
+              and SharePoint migrations, and keeping small businesses running when things
+              break. I daily-drive Arch, I'm working through a BAS at WGU alongside the
+              boot.dev backend track, and I write Python for a 1,400-person Warhammer
+              community I help run.
+            </p>
+            <p>
+              This site started as a boot.dev project and got out of hand. It's a resume,
+              a dev diary, and a place to put the things I'm into — the way personal sites
+              used to be.
+            </p>
+          </section>
+
+          <nav class="pages" aria-label="Site sections">
+            <p class="eyebrow">Pages</p>
             <ul class="page-links">
-              {{ PageLinks }}
+{{ PageLinks }}
             </ul>
           </nav>
-        </section>
 
-        <!-- Interests Section -->
-        <section class="landing-section">
-          <h2>
-            <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#c9a961" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(201, 169, 97, 0.2)"/>
-            </svg>
-            Interests & Passions
-          </h2>
-          <p class="interests-intro">When I'm not working, you'll find me exploring these worlds:</p>
-          <div class="interests-grid">
-            <!-- Salamanders / Warhammer 40K -->
-            <a href="https://warhammer40k.fandom.com/wiki/Salamanders" class="interest-link" target="_blank" rel="noopener noreferrer">
-              <div class="interest-card">
-                <svg class="icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Crossed Hammers -->
-                  <g transform="translate(32, 32)">
-                    <!-- Left Hammer -->
-                    <g transform="rotate(-45)">
-                      <rect x="-2" y="-20" width="4" height="30" fill="#2d8659"/>
-                      <rect x="-8" y="-26" width="16" height="10" rx="2" fill="#1a5c3a"/>
-                      <path d="M -6 -26 L 6 -26 L 8 -20 L -8 -20 Z" fill="#ff6b35"/>
-                    </g>
-                    <!-- Right Hammer -->
-                    <g transform="rotate(45)">
-                      <rect x="-2" y="-20" width="4" height="30" fill="#2d8659"/>
-                      <rect x="-8" y="-26" width="16" height="10" rx="2" fill="#1a5c3a"/>
-                      <path d="M -6 -26 L 6 -26 L 8 -20 L -8 -20 Z" fill="#d93a2b"/>
-                    </g>
-                  </g>
-                </svg>
+          <!-- ══ EDIT ME: write these three in your own voice ══
+               Each panel takes a heading and a short paragraph.
+               Two or three sentences is plenty — say what you
+               actually like about it, not what it is.            -->
+          <section class="into">
+            <p class="eyebrow">What I'm into</p>
+            <div class="into-grid">
+
+              <article class="into-card">
                 <h3>Warhammer 40K</h3>
-              </div>
-            </a>
+                <p class="into-note">Salamanders. Write me.</p>
+              </article>
 
-            <!-- Video Games -->
-            <a href="https://steamcommunity.com/id/gamesrhard9154" class="interest-link" target="_blank" rel="noopener noreferrer">
-              <div class="interest-card">
-                <svg class="icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="8" y="20" width="48" height="24" rx="4" stroke="#2d8659" stroke-width="2.5" fill="rgba(26, 92, 58, 0.2)"/>
-                  <circle cx="18" cy="32" r="2.5" fill="#ff6b35"/>
-                  <circle cx="26" cy="32" r="2.5" fill="#ff6b35"/>
-                  <circle cx="46" cy="28" r="2" fill="#2d8659"/>
-                  <circle cx="50" cy="32" r="2" fill="#2d8659"/>
-                  <circle cx="42" cy="32" r="2" fill="#2d8659"/>
-                  <circle cx="46" cy="36" r="2" fill="#2d8659"/>
-                </svg>
-                <h3>Video Games</h3>
-              </div>
-            </a>
+              <article class="into-card">
+                <h3>Games</h3>
+                <p class="into-note">Dark Souls, Diablo, Oblivion, League. Write me.</p>
+              </article>
 
-            <!-- Music -->
-            <a href="https://open.spotify.com/user/12152843602" class="interest-link" target="_blank" rel="noopener noreferrer">
-              <div class="interest-card">
-                <svg class="icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <ellipse cx="18" cy="48" rx="8" ry="6" fill="#1a5c3a" stroke="#2d8659" stroke-width="2"/>
-                  <rect x="24" y="12" width="3" height="36" fill="#2d8659"/>
-                  <path d="M 27 12 Q 40 10 46 16 Q 40 14 27 16 Z" fill="#ff6b35"/>
-                  <circle cx="38" cy="26" r="2" fill="#ffb627"/>
-                  <circle cx="42" cy="22" r="2" fill="#ffb627"/>
-                </svg>
-                <h3>Music</h3>
-              </div>
-            </a>
+              <article class="into-card">
+                <h3>Cooking</h3>
+                <p class="into-note">Write me.</p>
+              </article>
 
-            <!-- Development Projects -->
-            <a href="https://github.com/bigzano" class="interest-link" target="_blank" rel="noopener noreferrer">
-              <div class="interest-card">
-                <svg class="icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M 20 24 L 12 32 L 20 40" stroke="#2d8659" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M 44 24 L 52 32 L 44 40" stroke="#2d8659" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M 36 20 L 28 44" stroke="#ff6b35" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-                <h3>Development<br/>Projects</h3>
-              </div>
-            </a>
+            </div>
+          </section>
+
+          <section class="elsewhere">
+            <p class="eyebrow">Elsewhere</p>
+            <ul class="link-row">
+              <li><a href="https://github.com/bigzano" rel="me noopener">GitHub</a></li>
+              <li><a href="https://www.armorybot.win" rel="noopener">Armory Bot</a></li>
+              <li><a href="https://open.spotify.com/user/12152843602" rel="me noopener">Spotify</a></li>
+              <li><a href="mailto:bretzanotelli@yahoo.com">Email</a></li>
+            </ul>
+          </section>
+
+        </div>
+
+        <aside class="home-side" aria-label="What I'm doing now">
+          <div class="now">
+            <p class="now-head">Now</p>
+
+            <!-- ══ Listening gets filled by the build once the Spotify
+                 pipeline lands. Placeholder content until then.     ══ -->
+            <section class="now-block">
+              <h4>Listening</h4>
+              <ul class="now-list now-tracks">
+                <li><span>Tech N9ne</span> Speedom</li>
+                <li><span>Sabrina Carpenter</span> Espresso</li>
+                <li><span>Cannibal Corpse</span> Hammer Smashed Face</li>
+                <li><span>Blake Shelton</span> God's Country</li>
+              </ul>
+              <p class="now-stamp">not yet live</p>
+            </section>
+
+            <section class="now-block">
+              <h4>Building</h4>
+              <ul class="now-list">
+                <li><a href="https://www.armorybot.win" rel="noopener">Armory Bot</a></li>
+                <li>This site</li>
+                <li>boot.dev — Go</li>
+              </ul>
+            </section>
+
+            <!-- ══ EDIT ME: hand-maintained. Swap when you start a new one. ══ -->
+            <section class="now-block">
+              <h4>Reading</h4>
+              <ul class="now-list">
+                <li>Nothing logged yet</li>
+              </ul>
+            </section>
           </div>
-        </section>
+        </aside>
       </main>
 
-      <footer class="landing-footer">
-        <p>&copy; {{ Year }} {{ SiteAuthor }} | Forged in fire, tempered in code</p>
+      <footer class="home-footer">
+        <p>{{ Year }} &middot; {{ SiteAuthor }} &mdash; forged in fire, tempered in code</p>
       </footer>
-    </article>
+
+    </div>
+
+    <script src="./fire.js" defer></script>
   </body>
 </html>
