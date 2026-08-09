@@ -82,15 +82,27 @@ def _inject_page_date(markdown: str, date_str: str) -> str:
     lines.insert(insert_pos, comment.rstrip())
     return '\n'.join(lines)
 
-def _render_markdown(markdown: str) -> str:
+def _render_markdown(markdown: str, page_date: str = None, is_blog_post: bool = False) -> str:
     """Convert markdown to HTML using existing pipeline"""
     import sys
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     from block_to_html import markdown_to_html_node
-    
-    return markdown_to_html_node(markdown).to_html()
 
-def generate_page(from_path, template_path, dest_path):
+    html = markdown_to_html_node(markdown).to_html()
+
+    if is_blog_post and page_date:
+        # Parse ISO date to readable format
+        try:
+            date_obj = datetime.strptime(page_date, '%Y-%m-%d')
+            readable_date = date_obj.strftime('%B %d, %Y')
+            # Inject date after h1 title
+            html = html.replace('</h1>', f'</h1><p class="post-date">{readable_date}</p>', 1)
+        except Exception:
+            pass
+
+    return html
+
+def generate_page(from_path, template_path, dest_path, is_blog_post=False):
     """Generate a single HTML page from markdown"""
     print(f"Generating page from {from_path} to {dest_path}")
     
@@ -120,7 +132,7 @@ def generate_page(from_path, template_path, dest_path):
     base_url = "/"
     canonical = _to_canonical(base_url, dest_path)
 
-    content_html = _render_markdown(markdown_clean)
+    content_html = _render_markdown(markdown_clean, page_date, is_blog_post)
 
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()

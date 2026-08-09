@@ -1,63 +1,69 @@
 <!-- landing-title: Resume -->
-<!-- page-date: 2025-11-11 -->
+<!-- page-date: 2026-06-23 -->
 # Bret Zanotelli
 
 [bretzanotelli@yahoo.com](mailto:bretzanotelli@yahoo.com) • [github.com/bigzano](https://github.com/bigzano) • [About Me](aboutme.html)
 
 <a href="index.html" class="back-button">← Back</a>
 
-> IT Consultant with 4+ years of experience supporting small and medium businesses in MSP environments. Specializes in Windows system administration, Microsoft 365 / SharePoint administration and network troubleshooting. Experienced in SharePoint migrations, 365 migrations, and hybrid environment administration. 
+> IT Systems Administrator and MSP Engineer with 5+ years of end-to-end support experience across MSP and help desk environments. Skilled in Windows and macOS administration, Microsoft 365 / Azure (Entra ID), endpoint security, networking, and PowerShell automation across multi-client SMB environments. U.S. Navy veteran with a zero-error-tolerance background in safety-critical operations.
 
 ## Skills
 
-- Systems: Windows Server, Windows 10/11, macOS, Ubuntu Desktop / Ubuntu server, VM management
-- BCDR: Veeam, Datto
-- Cloud & Productivity: Microsoft Azure, SharePoint, Citrix, VMWare
-- Networking: Router / Switch management, network monitoring and troubleshooting
-- Scripting & Tools: PowerShell, Python, RMM, MDM, custom
-- Languages: PowerShell, Bash, Python, Golang
+- Operating Systems: Windows Server, Windows 10/11, macOS, Ubuntu / Linux, VM management
+- Cloud & Identity: Microsoft 365, Azure / Entra ID, Active Directory, Group Policy, MDM / Intune, Conditional Access, MFA
+- Networking: pfSense, TCP/IP, DNS, DHCP, VLANs, DKIM / DMARC / SPF, network troubleshooting
+- Security & Backup: Bitdefender GravityZone, Veeam Backup & Replication, Datto, BCDR
+- MSP Tooling: ConnectWise Manage, ScreenConnect, Citrix
+- Languages & Scripting: PowerShell, Python, Bash, SQL, Golang
 
 ## Experience
 
-### IT Consultant — Praece Consulting (2022–2025)
-Provided IT support for Small and Medium size businesses in an MSP setting
+### IT Consultant — Praece Consulting, Auburn, WA (2022–2025)
+Delivered remote and onsite support for ~20 SMB clients totaling 100–200 end users and 200–400+ managed endpoints across Windows and macOS environments.
 
-- Delivered onsite and remote troubleshooting in a collaborative environment
-- Responsible for administration of client systems, including:
-  - Routine maintenance
-  - Custom workflows
-  - Disaster recovery
-- Performed server troubleshooting, creating new virtual machines and identifying issues with replication and other services
-- Monitored downtime for services and maintained communication during outages, minimizing downtime
-- Managed Microsoft 365 tenants, including user management and service configuration to assist with adopting cloud services
-- Maintained and monitored backup and recovery options with Veeam VBR and Datto
-- Performed migrations into Azure and 365 cloud services from other providers and local servers 
+- Administered Windows servers and desktops, including patch management, Active Directory, Group Policy, and routine maintenance
+- Managed Microsoft 365 tenants via Azure / Entra ID, including user provisioning, licensing, and service configuration
+- Configured and maintained DNS, DKIM, DMARC, and SPF records to enforce email security and deliverability across client domains
+- Developed a PowerShell script — adopted team-wide — to audit MFA enrollment and authentication methods across client M365 tenants
+- Deployed and configured pfSense firewalls from scratch, including static IP, firewall rules, and VLAN segmentation
+- Managed endpoint security via Bitdefender GravityZone, including agent deployment, policy configuration, and incident response
+- Executed backup and recovery using Veeam Backup & Replication to ensure business continuity
+- Administered SSO and federated identity via Azure / Entra ID, troubleshooting authentication failures and Conditional Access conflicts
+- Supported cloud migrations, MDM / Intune enrollment, virtualization, and end-user training
 
-### Unarmed Security Guard — American Corporate Security (2021–2022)
-Provided security services for shipping terminals in the Puget Sound area.
+### Security Officer — American Corporate Security, Pacific, WA (2021–2022)
+Provided access control and physical security for commercial facilities, maintaining detailed incident logs and supporting safe site operations.
 
-- Access Control and escort duties for shipping terminals
+### IT Support Desk Technician — Avaunt Technologies, Puyallup, WA (2020–2021)
+Remote technical support for business clients across applications and systems in an SMB-focused help desk environment.
 
-- Roving Security patrols
+- Resolved end-user issues using remote desktop tools (Citrix), reducing downtime and maintaining consistent service levels
+- Assisted with domain administration, user account management, and network troubleshooting
+- Configured and troubleshot IP phones to support client business communication systems
 
-### IT Support Desk Technician — Avaunt Technologies (2020–2021)
-Remote technical support for business clients across various applications and systems.
+## Certifications
 
-- Provided remote technical support via Citrix to business clients across various applications and operating systems
-- Assisted with maintaining basic domain structures to support organizational access and user management
-- Used remote desktop tools to resolve end-user issues and performed basic network troubleshooting
-- Configured and troubleshot IP phones to improve client communication systems
-- Support for various day to day applications
+- ITIL 4 Foundation — IT Service Management
 
 ## Projects
 
-- **Asteroids Clone** — Python-based arcade game using PyGame. [Repo](https://github.com/BigZano/Pysteroids)
+- **Armory Bot** — Full-featured Discord server management and entertainment bot serving a community of ~2,000 users. Built with Python (discord.py), Vue.js, and PostgreSQL. Moderation, automod, logging, utility commands, and custom RPG mechanics. [Invite me!](https://www.armorybot.win)
 
-- **Armory Bot** — Full service server assistant, tailored to gaming clans. Features full RPG elements, voice management, custom commands and more. [Invite me!](https://www.armorybot.win)
+- **Asteroids Clone** — Python-based arcade game using PyGame. [Repo](https://github.com/BigZano/Pysteroids)
 
 ## Education
 
-- BAS in Information Technology — Western Governors University (2026 - Present)
-- AAS in Information Technology — Tacoma Community College (2018–2020)
+- BS in Information Technology — Western Governors University (2026 – Present)
+- AAS in Information Technology — Tacoma Community College (2018–2020), GPA 3.6
+
+## Military Service
+
+### Aviation Ordnanceman (AO) — United States Navy (2012–2017)
+Honorably discharged.
+
+- Maintained and operated weapons systems for 10 F/A-18E Super Hornet aircraft, performing safety-critical inspections, diagnostics, and ordnance handling
+- Developed precision troubleshooting discipline and strict adherence to technical documentation and safety procedures in a zero-error-tolerance environment
+- Responsible for beginning and end-of-shift ordnance inventory; assisted with instruction of junior sailors for advancement exams
 
 <a href="index.html" class="back-button">← Back</a>

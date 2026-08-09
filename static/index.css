@@ -121,6 +121,15 @@ h1{
   border-bottom:2px solid var(--ember-deep);
 }
 
+/* blog post date — emitted by generate_page.py directly after the h1 */
+.post-date{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.02em;
+  color:var(--copper);
+  margin:.9rem 0 1.6rem;
+}
+
 h2{
   font-size:var(--step-3);
   font-weight:700;
