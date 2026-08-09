@@ -5,6 +5,11 @@ __pycache__/
 # Project-local Python environment (uv)
 .venv/
 
+# Secrets — this repo is public and Pages serves docs/ from it.
+.env
+.env.*
+!.env.example
+
 log.txt
 
 # Archived code - not in active use
