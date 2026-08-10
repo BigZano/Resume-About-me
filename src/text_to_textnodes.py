@@ -1,6 +1,6 @@
 from split_images_and_links import *
-from textnode import TextNode, TextType
 from split_nodes import split_nodes_delimiter
+from textnode import TextNode, TextType
 
 
 def text_to_textnodes(text):

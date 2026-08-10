@@ -1,4 +1,4 @@
-import unittest 
+import unittest
 
 from markdown_to_blocks import markdown_to_blocks
 

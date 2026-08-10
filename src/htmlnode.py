@@ -1,5 +1,4 @@
-from textnode import TextNode, TextType
-
+from textnode import TextType
 
 
 class HTMLNode:
@@ -50,23 +49,23 @@ class ParentNode(HTMLNode):
         return f"<{self.tag}{attrs}>{children_html}</{self.tag}>"
     
 
-def text_node_to_html_node(TextNode):
-    if TextNode.text_type == TextType.BOLD_TEXT:
-        return LeafNode("b", TextNode.text)
-    elif TextNode.text_type == TextType.ITALIC_TEXT:
-        return LeafNode("i", TextNode.text)
-    elif TextNode.text_type == TextType.PLAIN_TEXT:
-        return LeafNode(None, TextNode.text)
-    elif TextNode.text_type == TextType.CODE_TEXT:
-        return LeafNode("code", TextNode.text)
-    elif TextNode.text_type == TextType.LINKS:
-        if not TextNode.url:
+def text_node_to_html_node(text_node):
+    if text_node.text_type == TextType.BOLD_TEXT:
+        return LeafNode("b", text_node.text)
+    elif text_node.text_type == TextType.ITALIC_TEXT:
+        return LeafNode("i", text_node.text)
+    elif text_node.text_type == TextType.PLAIN_TEXT:
+        return LeafNode(None, text_node.text)
+    elif text_node.text_type == TextType.CODE_TEXT:
+        return LeafNode("code", text_node.text)
+    elif text_node.text_type == TextType.LINKS:
+        if not text_node.url:
             raise ValueError("Link text nodes must have a URL")
-        return LeafNode("a", TextNode.text, props={"href": TextNode.url})
-    elif TextNode.text_type == TextType.IMAGES:
-        if not TextNode.url:
+        return LeafNode("a", text_node.text, props={"href": text_node.url})
+    elif text_node.text_type == TextType.IMAGES:
+        if not text_node.url:
             raise ValueError("Image text nodes must have a URL")
-        return LeafNode("img", "", props={"src": TextNode.url, "alt": TextNode.text})
+        return LeafNode("img", "", props={"src": text_node.url, "alt": text_node.text})
     else:
-        raise ValueError(f"Unknown text type: {TextNode.text_type}")
+        raise ValueError(f"Unknown text type: {text_node.text_type}")
     

@@ -1,8 +1,9 @@
 import re
+
+from htmlnode import LeafNode, ParentNode, text_node_to_html_node
 from markdown_to_blocks import markdown_to_blocks
-from htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node
-from textnode import TextNode, TextType
 from text_to_textnodes import text_to_textnodes
+
 
 def text_to_children(text):
     nodes = text_to_textnodes(text)

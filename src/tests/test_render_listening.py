@@ -131,6 +131,7 @@ class TestLoadListening(unittest.TestCase):
                 json.dump(_data(("A", "B")), handle)
             data, warning = load_listening(path)
             self.assertIsNone(warning)
+            assert data is not None
             self.assertEqual(data["tracks"][0]["artist"], "A")
 
     def test_malformed_json_warns(self):
@@ -140,7 +141,7 @@ class TestLoadListening(unittest.TestCase):
                 handle.write("{not json")
             data, warning = load_listening(path)
             self.assertIsNone(data)
-            self.assertIsNotNone(warning)
+            assert warning is not None
             self.assertIn("Warning", warning)
 
 

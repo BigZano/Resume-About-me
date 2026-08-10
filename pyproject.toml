@@ -20,3 +20,12 @@ imgtools = ["pillow>=12.0"]
 [tool.uv]
 # src/ is a collection of scripts, not an installable package.
 package = false
+
+# Mirrors the sys.path setup in scripts/run_tests.py: tests import via
+# `src.xxx` (repo root on path) *and* modules import each other barely, e.g.
+# `from textnode import ...` (src/ on path), plus scripts/*.py's own test
+# modules (`from fetch_listening import ...`, scripts/ on path). Without
+# this, editors/type-checkers see the runtime-only sys.path.insert() calls
+# as missing imports even though the code runs fine.
+[tool.pyright]
+extraPaths = ["src", "scripts"]

@@ -84,9 +84,8 @@ class TestParseTopTracksRejections(unittest.TestCase):
 
     def test_non_dict_payload_raises(self):
         for bad in [None, "payload", 42, []]:
-            with self.subTest(bad=bad):
-                with self.assertRaises(ValueError):
-                    parse_top_tracks(bad)
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                parse_top_tracks(bad)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import re
 
+
 def extract_markdown_images(text):
     # takes markdown text and returns a list of tuples
     pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"

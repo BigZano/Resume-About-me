@@ -1,8 +1,9 @@
 import os
 import re
+from datetime import UTC, datetime
 from math import ceil
 from pathlib import Path
-from datetime import datetime
+
 
 def _extract_page_date(markdown: str) -> tuple[str, bool]:
     """Extract page date from HTML comment or filename"""
@@ -10,7 +11,7 @@ def _extract_page_date(markdown: str) -> tuple[str, bool]:
     match = re.search(pattern, markdown)
     if match:
         return match.group(1), True
-    return datetime.now().strftime('%Y-%m-%d'), False
+    return datetime.now(UTC).strftime('%Y-%m-%d'), False
 
 def _inject_page_date(markdown: str, date_str: str) -> str:
     """Inject page-date comment at the top of the markdown file"""

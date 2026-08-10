@@ -2,6 +2,7 @@
 import shutil
 from pathlib import Path
 
+
 def clean():
     dirs_to_remove = [
         Path("content/blog"),

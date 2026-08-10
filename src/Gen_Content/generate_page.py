@@ -1,7 +1,8 @@
 import os
 import re
+from datetime import UTC, datetime
 from pathlib import Path
-from datetime import datetime
+
 
 def _strip_html_comments(markdown: str) -> str:
     """Remove HTML comments from markdown"""
@@ -28,8 +29,8 @@ def _to_canonical(base_url: str, dest_path: str) -> str:
     try:
         # Try to get relative path from docs directory
         rel = p.relative_to(Path(dest_path).parent.parent / "docs")
-    except (ValueError, Exception):
-        # Fallback: just use the filename
+    except ValueError:
+        # dest_path isn't under docs/ -- fall back to just the filename
         rel = Path(p.name)
     
     url_path = "/" if rel.as_posix() in ("", ".") else "/" + rel.as_posix()
@@ -51,7 +52,7 @@ def _extract_page_date(markdown: str) -> tuple[str, bool]:
         return match.group(1), True
     else:
         # Return today's date in YYYY-MM-DD format
-        return datetime.now().strftime('%Y-%m-%d'), False
+        return datetime.now(UTC).strftime('%Y-%m-%d'), False
 
 def _inject_page_date(markdown: str, date_str: str) -> str:
     """
@@ -82,7 +83,7 @@ def _inject_page_date(markdown: str, date_str: str) -> str:
     lines.insert(insert_pos, comment.rstrip())
     return '\n'.join(lines)
 
-def _render_markdown(markdown: str, page_date: str = None, is_blog_post: bool = False) -> str:
+def _render_markdown(markdown: str, page_date: str | None = None, is_blog_post: bool = False) -> str:
     """Convert markdown to HTML using existing pipeline"""
     import sys
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -93,12 +94,14 @@ def _render_markdown(markdown: str, page_date: str = None, is_blog_post: bool = 
     if is_blog_post and page_date:
         # Parse ISO date to readable format
         try:
-            date_obj = datetime.strptime(page_date, '%Y-%m-%d')
+            date_obj = datetime.strptime(page_date, '%Y-%m-%d').replace(tzinfo=UTC)
             readable_date = date_obj.strftime('%B %d, %Y')
             # Inject date after h1 title
             html = html.replace('</h1>', f'</h1><p class="post-date">{readable_date}</p>', 1)
-        except Exception:
-            pass
+        except ValueError as exc:
+            # page_date didn't match YYYY-MM-DD -- skip the date stamp
+            # rather than fail the whole page build over it.
+            print(f"  Warning: could not parse page_date {page_date!r}: {exc}")
 
     return html
 
@@ -151,8 +154,8 @@ def generate_page(from_path, template_path, dest_path, is_blog_post=False):
         
         # Create path prefix (../ for each level deep)
         path_prefix = '../' * depth if depth > 0 else './'
-    except (ValueError, Exception):
-        # Fallback to current directory
+    except ValueError:
+        # dest_path isn't under a 'docs' directory -- fall back to current dir
         path_prefix = './'
     
     page_html = (

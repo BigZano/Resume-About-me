@@ -1,11 +1,12 @@
 import datetime
 import os
-import sys
 import shutil
-from pathlib import Path
-from Gen_Content.generate_page import generate_page
-from Gen_Content.generate_landing_page import generate_landing_page
+import sys
+
 from Gen_Content.generate_blog_index import generate_blog_index
+from Gen_Content.generate_landing_page import generate_landing_page
+from Gen_Content.generate_page import generate_page
+
 
 def copy_static_to_docs():
     """
@@ -22,12 +23,13 @@ def copy_static_to_docs():
     log_path = os.path.join(workspace_root, "log.txt")
     
     with open(log_path, "w") as log_file:
-        log_file.write(f"Build Operation - {datetime.datetime.now()}\n")
+        log_file.write(f"Build Operation - {datetime.datetime.now(datetime.UTC)}\n")
         log_file.write("=" * 50 + "\n\n")
-    
+
     def log_message(message):
         with open(log_path, "a") as log_file:
-            log_file.write(f"{datetime.datetime.now().strftime('%H:%M:%S')} - {message}\n")
+            timestamp = datetime.datetime.now(datetime.UTC).strftime('%H:%M:%S')
+            log_file.write(f"{timestamp} - {message}\n")
         print(message)
     
     try:
@@ -84,7 +86,10 @@ def copy_static_to_docs():
             log_message(f"Generating page: {md_name} -> {os.path.basename(out_html)}")
             try:
                 generate_page(src_md, template_path, out_html)
-            except Exception as e:
+            # Broad on purpose: this is the fault-isolation boundary between
+            # one page's markdown and the rest of the build. Every catch
+            # below logs the message and full traceback, so nothing is lost.
+            except Exception as e:  # noqa: BLE001
                 had_errors = True
                 log_message(f"ERROR building {md_name}: {e}")
                 import traceback
@@ -104,7 +109,7 @@ def copy_static_to_docs():
                 log_message(f"  Generating blog post: {md_name}")
                 try:
                     generate_page(src_md, template_path, out_html, is_blog_post=True)
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
                     had_errors = True
                     log_message(f"  ERROR building blog post {md_name}: {e}")
                     import traceback
@@ -118,13 +123,13 @@ def copy_static_to_docs():
                 log_message("Generating blog index page...")
                 try:
                     generate_blog_index(content_path, dev_diary_template, dev_diary_index)
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
                     had_errors = True
                     log_message(f"ERROR generating blog index: {e}")
                     import traceback
                     log_message(traceback.format_exc())
             else:
-                log_message(f"WARNING: dev_diary_template.html not found")
+                log_message("WARNING: dev_diary_template.html not found")
         else:
             log_message("No dev_diary subdirectory found, skipping blog generation")
         
@@ -144,7 +149,7 @@ def copy_static_to_docs():
                 }
                 generate_landing_page(content_path, titlepage_template, index_html, site_config)
                 log_message("Landing page generated successfully as index.html")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
                 had_errors = True
                 log_message(f"ERROR generating landing page: {e}")
                 import traceback
@@ -171,8 +176,8 @@ def copy_static_to_docs():
         log_message("Build completed successfully!")
         return True
         
-    except Exception as e:
-        log_message(f"ERROR: {str(e)}")
+    except Exception as e:  # noqa: BLE001 -- last-resort boundary for the whole build
+        log_message(f"ERROR: {e}")
         import traceback
         log_message(traceback.format_exc())
         return False
@@ -184,7 +189,9 @@ def main():
     # site correctly and then dies on the final print, exiting non-zero.
     for stream in (sys.stdout, sys.stderr):
         try:
-            stream.reconfigure(encoding="utf-8")
+            # TextIO's type stub has no reconfigure(); real stdout/stderr do.
+            # The except below is what actually protects streams that don't.
+            stream.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
         except (AttributeError, ValueError):
             pass
 

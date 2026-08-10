@@ -13,7 +13,7 @@ import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 TRACK_LIMIT = 10
@@ -27,12 +27,16 @@ def parse_top_tracks(payload, limit=TRACK_LIMIT):
     would let the caller write a file that blanks the page, and a bad
     response must never be able to destroy good data.
     """
+    # ValueError, not TypeError, is intentional here (see docstring): callers
+    # -- including the STRICT test_fetch_listening.py suite and the except
+    # clause below -- catch one exception type for "unusable payload"
+    # regardless of whether the cause was a wrong type or a missing key.
     if not isinstance(payload, dict):
-        raise ValueError("top-tracks payload is not a JSON object")
+        raise ValueError("top-tracks payload is not a JSON object")  # noqa: TRY004
 
     items = payload.get("items")
     if not isinstance(items, list):
-        raise ValueError("top-tracks payload has no 'items' list")
+        raise ValueError("top-tracks payload has no 'items' list")  # noqa: TRY004
 
     tracks = []
     for item in items:
@@ -149,7 +153,7 @@ def write_listening(path, tracks):
     os.replace is atomic on POSIX) and only swap it into place once the
     write has fully succeeded.
     """
-    stamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    stamp = datetime.now(UTC).replace(microsecond=0).isoformat()
     stamp = stamp.replace("+00:00", "Z")
     path.parent.mkdir(parents=True, exist_ok=True)
 

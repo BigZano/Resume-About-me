@@ -1,7 +1,6 @@
 import unittest
 
 from src.split_nodes import split_nodes_delimiter
-from src.split_images_and_links import split_nodes_image, split_nodes_link
 from src.textnode import TextNode, TextType
 
 

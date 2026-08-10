@@ -11,7 +11,7 @@ whether to fail the job belongs to the workflow, not here.
 """
 import os
 import sys
-from datetime import date
+from datetime import UTC, date, datetime
 
 REFRESH_TOKEN_LIFETIME_DAYS = 180
 WARN_THRESHOLD_DAYS = 30
@@ -57,7 +57,10 @@ def classify(days):
 def main():
     try:
         auth_date = parse_iso_date(os.environ.get("SPOTIFY_AUTH_DATE", ""))
-        days = days_until_expiry(auth_date, date.today())
+        # date.today() reads the system's local clock; pin to UTC explicitly
+        # so this agrees with the GitHub Actions runner regardless of where
+        # it's invoked from.
+        days = days_until_expiry(auth_date, datetime.now(UTC).date())
     except ValueError as exc:
         # A missing or broken date is itself a maintenance problem, so
         # surface it through the same channel as a real expiry.

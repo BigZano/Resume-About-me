@@ -1,7 +1,6 @@
 import unittest
 
 from src.htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node
-from src.split_images_and_links import split_nodes_image
 from src.textnode import TextNode, TextType
 
 

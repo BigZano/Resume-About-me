@@ -1,7 +1,8 @@
-import os
 import datetime
-from pathlib import Path
+import os
+
 from Gen_Content.render_listening import load_listening, render_listening
+
 
 def generate_landing_page(content_path, template_path, dest_path, site_config=None):
     """
@@ -44,7 +45,7 @@ def generate_landing_page(content_path, template_path, dest_path, site_config=No
                     for line in content.splitlines()[:5]:  # Check first 5 lines
                         if line.strip().startswith('<!-- landing-title:'):
                             # Extract title from comment: <!-- landing-title: Resume -->
-                            page_title = line.strip()[19:].strip().rstrip('-->').strip()
+                            page_title = line.strip()[19:].strip().removesuffix('-->').strip()
                             break
                     
                     # If no override, use extract_title function
@@ -54,7 +55,13 @@ def generate_landing_page(content_path, template_path, dest_path, site_config=No
                             sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
                             from Gen_Content.extract_title_markdown import extract_title
                             page_title = extract_title(content)
-                        except Exception:
+                        # Broad on purpose: this is one link in a best-effort
+                        # title-extraction chain (import/parse -> heading ->
+                        # filename), so any failure here should fall through
+                        # rather than be caught by type.
+                        except Exception as exc:  # noqa: BLE001
+                            print(f"  Note: extract_title failed for {filename}, "
+                                  f"falling back to heading/filename: {exc}")
                             # Fallback: look for first # heading
                             for line in content.splitlines():
                                 if line.strip().startswith('# '):
@@ -69,7 +76,7 @@ def generate_landing_page(content_path, template_path, dest_path, site_config=No
                         'html_name': html_name,
                         'title': page_title
                     })
-                except Exception as e:
+                except (OSError, UnicodeDecodeError) as e:
                     print(f"Warning: Could not process {filename}: {e}")
                     # Add with filename as title
                     md_files.append({
@@ -115,7 +122,7 @@ def generate_landing_page(content_path, template_path, dest_path, site_config=No
         template = f.read()
     
     # Get current year
-    current_year = datetime.datetime.now().year
+    current_year = datetime.datetime.now(datetime.UTC).year
     
     # Generate canonical URL
     base_url = "/"
