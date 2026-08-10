@@ -1,11 +1,16 @@
 {
-  "name": "Your Name — Resume",
+  "name": "Bret Zanotelli — Resume",
   "short_name": "Resume",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0b6efd",
   "icons": [
-    { "src": "favicon.svg", "sizes": "64x64", "type": "image/svg+xml", "purpose": "any" }
+    {
+      "src": "favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
   ]
 }
