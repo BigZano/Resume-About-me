@@ -1,6 +1,7 @@
 import os
 import datetime
 from pathlib import Path
+from Gen_Content.render_listening import load_listening, render_listening
 
 def generate_landing_page(content_path, template_path, dest_path, site_config=None):
     """
@@ -101,6 +102,14 @@ def generate_landing_page(content_path, template_path, dest_path, site_config=No
     else:
         page_links = '              <li>No pages available yet.</li>'
     
+    # Listening data is optional: a fresh clone has never fetched, and the
+    # build must still succeed. See specs/2026-08-09-spotify-listening-design.md
+    listening_path = os.path.join(content_path, "listening.json")
+    listening_data, listening_warning = load_listening(listening_path)
+    if listening_warning:
+        print(listening_warning)
+    listening_tracks, listening_stamp = render_listening(listening_data)
+
     # Read template
     with open(template_path, 'r', encoding='utf-8') as f:
         template = f.read()
@@ -123,6 +132,8 @@ def generate_landing_page(content_path, template_path, dest_path, site_config=No
         .replace("{{ SiteAuthor }}", config["site_author"])
         .replace("{{ Year }}", str(current_year))
         .replace("{{ PageLinks }}", page_links)
+        .replace("{{ ListeningTracks }}", listening_tracks)
+        .replace("{{ ListeningStamp }}", listening_stamp)
     )
     
     # Write output
