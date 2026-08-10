@@ -1,0 +1,126 @@
+name: Refresh Listening
+
+on:
+  schedule:
+    # Mondays at 14:17 UTC. Deliberately off the hour: GitHub delays
+    # scheduled runs that land at the top of an hour under load.
+    - cron: "17 14 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # commit listening.json + docs/
+  issues: write     # open the token-expiry reminder
+
+concurrency:
+  group: refresh-listening
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # keep-alive needs real commit dates
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check refresh-token age
+        id: age
+        env:
+          SPOTIFY_AUTH_DATE: ${{ vars.SPOTIFY_AUTH_DATE }}
+        run: python3 scripts/check_token_age.py
+
+      - name: Ensure the reminder label exists
+        if: steps.age.outputs.status != 'OK'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create spotify-token \
+            --color FBCA04 \
+            --description "Spotify credential maintenance" \
+            --force
+
+      - name: Open the reminder issue
+        if: steps.age.outputs.status != 'OK'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DAYS: ${{ steps.age.outputs.days }}
+          STATUS: ${{ steps.age.outputs.status }}
+        run: |
+          open_count=$(gh issue list --label spotify-token --state open \
+            --json number --jq 'length')
+          if [ "$open_count" -ne 0 ]; then
+            echo "A spotify-token issue is already open; not duplicating."
+            exit 0
+          fi
+          if [ "$STATUS" = "EXPIRED" ]; then
+            title="Spotify refresh token has EXPIRED"
+          else
+            title="Spotify refresh token expires in ${DAYS} days"
+          fi
+          gh issue create --title "$title" --label spotify-token --body "$(cat <<'BODY'
+          The Spotify refresh token is at or near its 6-month hard expiry.
+          Refreshing does not extend that clock, so it must be reissued by hand.
+
+          **To fix:**
+
+          1. Run `python3 scripts/spotify_auth.py` on a machine with a browser,
+             or on the headless host under `ssh -L 7777:localhost:7777`.
+          2. Paste the new token into the `SPOTIFY_REFRESH_TOKEN` secret.
+          3. Set the `SPOTIFY_AUTH_DATE` variable to today (`YYYY-MM-DD`).
+          4. Close this issue.
+
+          Until then the Listening block keeps showing the last good tracks —
+          the site does not break, it just stops updating.
+
+          See `specs/2026-08-09-spotify-listening-design.md`.
+          BODY
+          )"
+
+      - name: Fail if the token has expired
+        if: steps.age.outputs.status == 'EXPIRED'
+        run: |
+          echo "::error::Spotify refresh token expired. See the open issue."
+          exit 1
+
+      - name: Decide whether a keep-alive write is needed
+        id: keepalive
+        run: |
+          last=$(git log -1 --format=%ct)
+          age_days=$(( ( $(date +%s) - last ) / 86400 ))
+          echo "Most recent commit is ${age_days} day(s) old."
+          if [ "$age_days" -ge 45 ]; then
+            echo "flag=--keep-alive" >> "$GITHUB_OUTPUT"
+          else
+            echo "flag=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch top tracks
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+        run: python3 scripts/fetch_listening.py ${{ steps.keepalive.outputs.flag }}
+
+      - name: Build the site
+        run: ./build.sh
+
+      - name: Commit if anything changed
+        run: |
+          # --porcelain rather than `git diff --quiet`: the build recreates
+          # docs/ from scratch, so new files show up untracked and a plain
+          # diff would miss them entirely.
+          if [ -z "$(git status --porcelain -- content/listening.json docs/)" ]; then
+            echo "Nothing changed; no commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/listening.json docs/
+          git commit -m "Refresh listening data"
+          git push
