@@ -9,6 +9,7 @@ import base64
 import json
 import os
 import sys
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -140,12 +141,32 @@ def load_existing_tracks(path):
 
 
 def write_listening(path, tracks):
+    """Write listening.json atomically.
+
+    An interrupted write (OOM kill, disk full, SIGTERM) must never leave a
+    truncated file behind — that would overwrite good data with worse data.
+    So we write to a temp file in the same directory (same filesystem, so
+    os.replace is atomic on POSIX) and only swap it into place once the
+    write has fully succeeded.
+    """
     stamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     stamp = stamp.replace("+00:00", "Z")
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump({"fetched_at": stamp, "tracks": tracks}, handle, indent=2)
-        handle.write("\n")
+
+    fd, tmp_name = tempfile.mkstemp(
+        dir=path.parent, prefix=f".{path.name}.", suffix=".tmp"
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump({"fetched_at": stamp, "tracks": tracks}, handle, indent=2)
+            handle.write("\n")
+        os.replace(tmp_name, path)
+    except BaseException:
+        try:
+            os.remove(tmp_name)
+        except OSError:
+            pass
+        raise
 
 
 def main(argv=None):
@@ -180,7 +201,10 @@ def main(argv=None):
             file=sys.stderr,
         )
 
-    tracks = parse_top_tracks(get_top_tracks(access_token))
+    try:
+        tracks = parse_top_tracks(get_top_tracks(access_token))
+    except ValueError as exc:
+        raise SystemExit(f"Top-tracks response unusable: {exc}") from exc
 
     if tracks == load_existing_tracks(LISTENING_PATH):
         if args.keep_alive:
