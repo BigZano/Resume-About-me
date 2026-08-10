@@ -150,10 +150,19 @@ body.landing .into-card h3{
 }
 
 body.landing .into-card p{
-  margin:0;
+  margin:0 0 .8rem;
   font-size:.95rem;
   line-height:1.6;
   max-width:none;
+}
+
+body.landing .into-card .cat-pic{
+  max-width:100%;
+  height:auto;
+  border:1px solid var(--iron);
+  padding:4px;
+  background:var(--ash);
+  margin:0;
 }
 
 /* placeholder styling — obvious in the source, quiet on the page.
