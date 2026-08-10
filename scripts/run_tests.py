@@ -25,6 +25,7 @@ BASELINE_ERRORS = 9
 # Modules that must be fully green. Each new task appends its module here.
 STRICT: tuple[str, ...] = (
     "test_check_token_age",
+    "test_render_listening",
     "test_fetch_listening",
 )
 
