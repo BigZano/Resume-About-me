@@ -190,11 +190,16 @@ body.landing .link-row a:hover{
 }
 
 /* ── the Now panel ──────────────────────────────────────── */
+/* 10 tracks at two lines each overflow a sticky card on a laptop
+   viewport, which would strand Building and Reading below the fold with
+   no way to reach them. Bound the height and let the card scroll. */
 body.landing .now{
   border:1px solid var(--iron);
   background:var(--soot);
   position:sticky;
   top:2rem;
+  max-height:calc(100vh - 4rem);
+  overflow-y:auto;
 }
 
 body.landing .now-head{
