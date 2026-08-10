@@ -19,3 +19,6 @@ log.txt
 cheat_sheet.md
 css_cheatsheet.md
 BLOG_SYSTEM.md
+
+# Agent worktrees and local harness state
+.claude/
