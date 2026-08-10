@@ -23,7 +23,7 @@ BASELINE_FAILURES = 11
 BASELINE_ERRORS = 9
 
 # Modules that must be fully green. Each new task appends its module here.
-STRICT: tuple[str, ...] = ()
+STRICT: tuple[str, ...] = ("test_render_listening",)
 
 
 def _discover(pattern="test*.py"):
