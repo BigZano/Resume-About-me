@@ -22,6 +22,18 @@ TESTS_DIR = REPO_ROOT / "src" / "tests"
 BASELINE_FAILURES = 11
 BASELINE_ERRORS = 9
 
+# Floor for "discovery clearly worked." Not a suite-size target -- that's
+# what BASELINE_FAILURES/ERRORS and STRICT track. This exists only to catch
+# _discover() silently returning zero (or near-zero) tests without raising
+# (pattern mismatch after a rename, wrong TESTS_DIR, files moved to a
+# non-matching name), which would otherwise report testsRun=failures=
+# errors=0 and pass vacuously since 0 is never > BASELINE_FAILURES/ERRORS.
+# Set comfortably below the original legacy-only baseline (39 tests, before
+# any STRICT modules existed) so it never needs bumping as new STRICT
+# modules are added, but far enough above zero that an empty/near-empty
+# discovery can't slip through.
+MINIMUM_EXPECTED_TESTS = 20
+
 # Modules that must be fully green. Each new task appends its module here.
 STRICT: tuple[str, ...] = (
     "test_check_token_age",
@@ -67,13 +79,20 @@ def main():
     print(f"baseline:   {BASELINE_FAILURES} failures, "
           f"{BASELINE_ERRORS} errors")
 
+    discovery_ok = full.testsRun >= MINIMUM_EXPECTED_TESTS
+    if not discovery_ok:
+        print(f"FAIL: full-suite discovery only found {full.testsRun} "
+              f"tests (expected at least {MINIMUM_EXPECTED_TESTS}) -- "
+              "discovery likely broke silently rather than the suite "
+              "actually improving; treating as a hard failure")
+
     regressed = failures > BASELINE_FAILURES or errors > BASELINE_ERRORS
     if regressed:
         print("FAIL: new failures relative to recorded baseline")
     if not strict_ok:
         print("FAIL: strict modules must be fully green")
 
-    return 1 if (regressed or not strict_ok) else 0
+    return 1 if (regressed or not strict_ok or not discovery_ok) else 0
 
 
 if __name__ == "__main__":
