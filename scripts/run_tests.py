@@ -10,6 +10,16 @@ separate cleanup. This runner therefore enforces two independent rules:
 
 New work always goes in STRICT. Only the stale legacy tests get baseline
 forgiveness.
+
+MUTATION TESTING WARNING
+------------------------
+Clear __pycache__ (or use `python3 -B`) between mutants. CPython invalidates
+bytecode on (mtime, size), so a mutant that does not change the file's SIZE --
+e.g. flipping the constant 30 to 14, both two characters -- can leave the
+interpreter running bytecode compiled from the PREVIOUS source if both edits
+land within the same second. That produces a silent FALSE result: a mutant
+that looks killed but was never actually executed, or vice versa. This bit us
+once already while verifying WARN_THRESHOLD_DAYS.
 """
 import sys
 import unittest
