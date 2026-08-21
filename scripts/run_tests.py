@@ -6,9 +6,11 @@ specs/2026-08-09-spotify-listening-design.md section 12). Fixing them is a
 separate cleanup. This runner therefore enforces two independent rules:
 
   1. No NEW failures: total failures/errors must not exceed BASELINE.
-  2. Modules listed in STRICT must be 100% green, no baseline forgiveness.
+  2. Strict modules must be 100% green, no baseline forgiveness. A module
+     is strict if it is named in STRICT or its name starts with
+     STRICT_PREFIX ("test_gb_").
 
-New work always goes in STRICT. Only the stale legacy tests get baseline
+New work is always strict. Only the stale legacy tests get baseline
 forgiveness.
 
 MUTATION TESTING WARNING
@@ -44,12 +46,31 @@ BASELINE_ERRORS = 9
 # discovery can't slip through.
 MINIMUM_EXPECTED_TESTS = 20
 
-# Modules that must be fully green. Each new task appends its module here.
+# Modules that must be fully green. Two sources:
+#   1. STRICT -- explicit legacy list, from the Spotify work.
+#   2. STRICT_PREFIX -- anything named test_gb_*.py is strict automatically.
+#
+# The prefix rule exists so parallel guestbook tasks never edit this file.
+# Seven worktrees each appending to a shared tuple conflicts every time; a
+# prefix rule costs one edit here and zero afterwards.
 STRICT: tuple[str, ...] = (
     "test_check_token_age",
     "test_render_listening",
     "test_fetch_listening",
 )
+
+STRICT_PREFIX = "test_gb_"
+
+
+def is_strict_module(name: str) -> bool:
+    """True when `name` must be held to 100% green, no baseline forgiveness."""
+    return name in STRICT or name.startswith(STRICT_PREFIX)
+
+
+def _strict_modules() -> list[str]:
+    """Explicit strict modules plus every discovered test_gb_* module."""
+    found = sorted(p.stem for p in TESTS_DIR.glob(f"{STRICT_PREFIX}*.py"))
+    return list(STRICT) + found
 
 
 def _discover(pattern="test*.py"):
@@ -64,15 +85,19 @@ def main():
     # repo root so `from src.xxx import yyy` resolves (most test files use
     # this form); src/ for Gen_Content.* and bare-module imports (e.g.
     # `from markdown_to_blocks import ...`); scripts/ for the fetch and
-    # token modules added by later tasks.
+    # token modules; worker/src/ for the guestbook policy modules, which
+    # import each other bare because the deployed Worker roots itself at
+    # worker/src (see worker/wrangler.toml `main`). An import of
+    # worker.src.X would resolve here and then fail on Worker cold start.
     sys.path.insert(0, str(REPO_ROOT))
     sys.path.insert(0, str(REPO_ROOT / "src"))
     sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    sys.path.insert(0, str(REPO_ROOT / "worker" / "src"))
 
     runner = unittest.TextTestRunner(verbosity=2)
     strict_ok = True
 
-    for name in STRICT:
+    for name in _strict_modules():
         suite = _discover(f"{name}.py")
         if suite.countTestCases() == 0:
             print(f"ERROR: strict module {name!r} contributed zero tests")

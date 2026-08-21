@@ -28,4 +28,4 @@ package = false
 # this, editors/type-checkers see the runtime-only sys.path.insert() calls
 # as missing imports even though the code runs fine.
 [tool.pyright]
-extraPaths = ["src", "scripts"]
+extraPaths = ["src", "scripts", "worker/src"]
