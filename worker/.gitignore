@@ -1,0 +1,4 @@
+# wrangler build + auth artifacts, never committed
+.wrangler/
+node_modules/
+.dev.vars
