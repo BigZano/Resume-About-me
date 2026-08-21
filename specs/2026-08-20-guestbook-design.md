@@ -174,8 +174,15 @@ candidate strings**, not one string:
 1. NFKD normalize
 2. Drop combining marks (`unicodedata.category(c) == 'Mn'`)
 3. Drop zero-width and soft-hyphen chars (`U+200B`–`U+200D`, `U+FEFF`, `U+00AD`)
-4. Map confusables to Latin — Cyrillic `а е о р с х і ѕ`, Greek `α ο ρ ν τ`
-5. `casefold()`
+4. `casefold()`
+5. Map confusables to Latin — Cyrillic `а е о р с х і ѕ`, Greek `α ο ρ ν τ`
+
+**Steps 4 and 5 are in this order for a reason, and an earlier draft of this
+spec had them reversed.** Confusable tables are keyed on lowercase Latin
+targets. Casefolding capital Cyrillic `А` yields lowercase *Cyrillic* `а`, not
+Latin `a` — so mapping before casefolding means the table never sees uppercase
+homoglyphs at all, and `АЕОС` survives normalization as Cyrillic. The homoglyph
+defense then silently fails on any capitalized evasion. Fold first, map second.
 
 That yields the base form. Candidates are then generated from it:
 
@@ -186,6 +193,12 @@ That yields the base form. Candidates are then generated from it:
 | runs of 3+ collapsed to 1 | `fuuuck` → `fuck` |
 | runs of 3+ collapsed to 2 | preserves genuine doubles (`ass`) |
 | all non-alphanumerics stripped | `n.i.g.g.e.r`, `n i g g e r` |
+
+Stripping and collapsing must **interleave**, not run in sequence. Collapsing
+before stripping cannot fold `w o o o o r d`, because at collapse time the
+repeated characters are not adjacent — the separators sit between them. The
+order is strip → collapse → strip, which makes the candidate set a superset of
+the naive one.
 
 Deleet and collapse are **additive variants, never destructive** — the base form
 is always checked too, so `1488`-style numeric terms are not mangled into
@@ -327,8 +340,13 @@ Real `<label>` elements. Focus moves to the status region on response.
 On `code: "blocked"`, the form renders the Bender panel: an image pointing left
 with the message *"Bite my shiny metal ass"*.
 
-- The asset is supplied by the owner at `static/bender-reject.*`. `build.sh`
-  already copies `static/` → `docs/`.
+- **Two** assets, both supplied by the owner. CSS cannot swap an `<img>`
+  `src` nor pause an animated WebP, so reduced-motion needs a second file
+  rather than a media query over one element:
+  - `static/bender-reject.webp` — animated
+  - `static/bender-reject-still.webp` — one poster frame
+
+  `build.sh` already copies `static/` → `docs/`.
 - Ship as animated WebP or MP4, not GIF — roughly 10× smaller.
 - `@media (prefers-reduced-motion: reduce)` serves a static poster frame.
 - Real `alt` text.

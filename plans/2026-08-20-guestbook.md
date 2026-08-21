@@ -53,6 +53,24 @@ Tasks within a wave touch **disjoint file sets** and are safe to run in separate
 
 **Frontend-design skill applies to Tasks 4 and 6 only.**
 
+**Running a single test module.** `python3 -m unittest src.tests.test_gb_<x>`
+does NOT work on its own — `src/` and `worker/src/` are put on the path by
+`scripts/run_tests.py`, not by the test modules. Use either:
+
+```bash
+PYTHONPATH=src:worker/src python3 -m unittest src.tests.test_gb_<x> -v
+./test.sh          # always works; the real gate
+```
+
+Every per-task "Run test" step below assumes one of these.
+
+**Do not use a bare `.guestbook` class in new CSS or markup.**
+`static/index.css` carries a pre-existing print rule,
+`@media print{ .guestbook{display:none !important} }`. Task 4's page already
+lives under `body.guestbook` and carries a scoped print override to undo it.
+Task 6's landing cell must stay `.into-card--guestbook` — adding a bare
+`.guestbook` there would silently blank it in print.
+
 ---
 
 ## Task 0: Make the guestbook test modules strict by pattern
@@ -745,7 +763,7 @@ find . -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null
 | Mutation | Must be killed by |
 |---|---|
 | drop `\b` from the pattern | `test_respects_word_boundaries` |
-| `key=len, reverse=True` → `reverse=False` | add a test with overlapping terms if not already killed |
+| `key=len, reverse=True` → `reverse=False` | **Not killed by an `ass`/`asshole` pair** — verified empirically. `\b` alone already disambiguates plain-alphabetic prefix overlaps, so `re.findall` returns the same result either way. A discriminating pair needs a non-word character in the longer term exactly where the shorter one ends, e.g. `cat` vs `cat-nap`: the hyphen satisfies `\b` for the short match too. |
 | `original.isupper()` → `original.islower()` | `test_preserves_all_caps` |
 | `capitalize()` → `upper()` | `test_preserves_title_case` |
 | `did_swap = True` → `did_swap = False` | `test_swaps_lowercase` |
