@@ -276,6 +276,15 @@ The repo is public. Digests keep the list versioned, diffable, and reviewable
 in PRs without putting a wall of slurs in a repository bearing the owner's name.
 Tests never touch it; they inject benign fakes.
 
+**`hash_terms.py` must canonicalize exactly as the matcher does** — normalize
+*and* strip non-alphanumerics — not merely normalize. The matcher only ever
+compares alphanumeric runs, so a digest of `go away` (with the space) or
+`we-hate-you` (with hyphens) is a digest nothing can ever match. That failure is
+silent: the term appears in the file, the tool reports success, and it never
+blocks anything. The header's length bounds must likewise measure the
+*canonical* form — the `ﬁ` ligature is one character raw and two folded, and a
+raw measurement puts the term outside its own bounds.
+
 ### 6.7 Limits, stated plainly
 
 - **"Punching down" cannot be encoded.** The filter enforces the *slur* rule.
@@ -284,6 +293,14 @@ Tests never touch it; they inject benign fakes.
 - **Coded and tertiary terms are an arms race.** Numeric and symbolic
   dogwhistles evolve faster than any static list. It will lag. `--review` and
   `--hide` are the backstop.
+- **A short term broken by punctuation mid-sentence is missed.** A term below
+  `substr_minlen` split across a sentence (`hey z.q.s there`) passes, though it
+  is still caught when it stands alone. Closing this means running the
+  substring pass at 3 characters, which false-positives `bass`, `classic`, and
+  `peacock`. The miss is the cheaper error.
+- **An `allow.txt` entry that is itself a blocked term silently nullifies it.**
+  Nothing cross-checks the two files. Detectable with
+  `digest(entry) in blocklist.digests` if it becomes a problem.
 - **Reclaimed use is indistinguishable from hostile use.** A friend signing
   affectionately with a reclaimed slur is blocked. This is a known, accepted
   cost of the "same rule for everyone" decision, and the reason blocked entries
@@ -484,6 +501,11 @@ unrecoverable. `hidden=1` costs nothing and makes §10's audit possible.
   is plain Python and portable to any runtime.
 - **Cold starts.** Improved through late 2025, but a first request after idle is
   slower. The fallback chain in §8 already covers a slow or failed fetch.
+- **Matching cost.** `contains_blocked` measures ~17 ms for a 450-char message
+  on CPython — up to 16 candidate forms times O(len x (maxlen - substr_minlen))
+  SHA-256 calls — and Pyodide will be materially slower. This is why §6 checks
+  length *before* the denylist: the 500-character cap is what bounds the cost,
+  and the read path applies the swap only and never matches at all.
 - **`https_enforced` is `false`** on the GitHub Pages config. Cloudflare
   terminates TLS so this is not currently exploitable, but it should be enabled.
   Out of scope here; noted so it is not lost.
