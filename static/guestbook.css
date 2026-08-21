@@ -1,0 +1,428 @@
+/* ============================================================
+   Guestbook — the sign panel and the wall of marks.
+
+   Everything is scoped to body.guestbook so it can't leak into the
+   resume, About Me, or the dev diary. Palette, typefaces, and the
+   1px-gutter grid all come from index.css: this file defines no
+   colour value of its own, only new arrangements of the existing
+   custom properties.
+
+   The one idea here: a mark is struck hot and then cools. The newest
+   entry carries a --flame edge, the next --ember, the next
+   --ember-deep, and everything older has gone cold to --iron. Recency
+   is the only ordering the wall has, so the ornament that already
+   exists on this site (the ember tick) is reused to carry it.
+   ============================================================ */
+
+/* [hidden] has to outrank the display rules below, or the blocked
+   panel and the empty state show up on load. */
+body.guestbook [hidden]{display:none !important}
+
+body.guestbook{
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* the same hearth glow the landing page sits in, kept low and cool
+   so the wall stays the brightest thing on the page */
+body.guestbook::after{
+  content:"";
+  position:fixed;
+  left:50%;
+  bottom:-45vh;
+  width:150vw;
+  height:70vh;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,
+              color-mix(in srgb, var(--ember) 10%, transparent),
+              transparent 65%);
+  pointer-events:none;
+  z-index:0;
+}
+
+body.guestbook .gb-shell{
+  position:relative;
+  z-index:1;
+  max-width:880px;
+  margin:0 auto;
+  padding:0 1.5rem;
+}
+
+/* ── header ─────────────────────────────────────────────── */
+body.guestbook .gb-head{
+  padding:3rem 0 2.6rem;
+}
+
+body.guestbook .gb-head .back-button{margin:0 0 2.4rem}
+
+body.guestbook .gb-head h1{
+  border-bottom:0;
+  padding-bottom:0;
+  margin:0;
+}
+
+/* index.css styles `h1 + p` as the small mono contact line. This is a
+   lede, not a contact line, so it takes the body face back explicitly
+   rather than inheriting that treatment by accident. */
+body.guestbook .gb-lede{
+  font-family:var(--body);
+  font-size:var(--step-0);
+  letter-spacing:0;
+  margin:1.1rem 0 0;
+  max-width:52ch;
+  color:var(--bone);
+  opacity:.85;
+}
+
+body.guestbook .gb-main{
+  border-top:1px solid var(--iron);
+  padding-top:2.6rem;
+}
+
+/* ── the sign panel: a plate on the bench, still hot on top ── */
+body.guestbook .gb-sign{
+  position:relative;
+  background:var(--soot);
+  border:1px solid var(--iron);
+  border-top:3px solid var(--ember);
+  padding:1.5rem 1.4rem 1.6rem;
+  margin-bottom:3.5rem;
+}
+
+body.guestbook .gb-sign .eyebrow{margin-bottom:1.4rem}
+
+body.guestbook .gb-field{margin-bottom:1.2rem}
+
+body.guestbook .gb-field label{
+  display:block;
+  font-family:var(--util);
+  font-size:.68rem;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  color:var(--copper);
+  margin-bottom:.45rem;
+}
+
+body.guestbook .gb-field input,
+body.guestbook .gb-field textarea{
+  display:block;
+  width:100%;
+  font-family:var(--body);
+  font-size:var(--step-0);
+  line-height:1.55;
+  color:var(--bone);
+  background:var(--ash);
+  border:1px solid var(--iron);
+  border-radius:0;
+  padding:.6rem .7rem;
+  transition:border-color .18s ease, background .18s ease;
+}
+
+body.guestbook .gb-field textarea{
+  resize:vertical;
+  min-height:6.5rem;
+}
+
+body.guestbook .gb-field input:hover,
+body.guestbook .gb-field textarea:hover{border-color:var(--copper)}
+
+body.guestbook .gb-field input:focus,
+body.guestbook .gb-field textarea:focus{
+  border-color:var(--flame);
+  outline-offset:1px;
+}
+
+/* ── live counter ───────────────────────────────────────── */
+body.guestbook .gb-counter{
+  font-family:var(--util);
+  font-size:.7rem;
+  letter-spacing:.1em;
+  color:var(--copper);
+  opacity:.7;
+  text-align:right;
+  margin:.4rem 0 0;
+  max-width:none;
+  transition:color .18s ease, opacity .18s ease;
+}
+body.guestbook .gb-counter.is-close{color:var(--flame); opacity:1}
+body.guestbook .gb-counter.is-full{color:var(--ember); opacity:1}
+
+/* ── honeypot ───────────────────────────────────────────── */
+/* Bots fill it; humans never see it. Deliberately NOT hidden with
+   display:none — plenty of bots skip fields hidden that way. Parked
+   offscreen instead, out of the tab order and out of the a11y tree. */
+body.guestbook .gb-hp{
+  position:absolute;
+  left:-9999px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+
+/* ── submit: a stamp, struck ────────────────────────────── */
+body.guestbook .gb-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:1.4rem;
+}
+
+body.guestbook .gb-submit{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--flame);
+  background:transparent;
+  border:1px solid var(--flame);
+  border-radius:0;
+  padding:.62rem 1.5rem;
+  cursor:pointer;
+  transition:background .18s ease, color .18s ease,
+             border-color .18s ease, transform .1s ease;
+}
+body.guestbook .gb-submit:hover{
+  background:var(--flame);
+  color:var(--ash);
+}
+body.guestbook .gb-submit:active{transform:translateY(1px)}
+body.guestbook .gb-submit:disabled{
+  color:var(--copper);
+  border-color:var(--iron);
+  background:transparent;
+  opacity:.55;
+  cursor:progress;
+  transform:none;
+}
+
+/* ── status line ────────────────────────────────────────── */
+body.guestbook .gb-status{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.04em;
+  color:var(--copper);
+  margin:1.2rem 0 0;
+  max-width:none;
+  min-height:1.4em;
+}
+body.guestbook .gb-status.is-ok{color:var(--forge)}
+body.guestbook .gb-status.is-error{color:var(--ember)}
+
+/* ── the blocked panel ──────────────────────────────────── */
+body.guestbook .gb-bender{
+  margin-top:1.4rem;
+  padding:1.1rem 1.1rem 1.2rem;
+  border:1px solid var(--ember-deep);
+  background:var(--ash);
+}
+
+body.guestbook .gb-bender img{
+  max-width:280px;
+  width:100%;
+  border:1px solid var(--iron);
+  background:var(--soot);
+  margin:0 0 .9rem;
+}
+
+/* One animated asset, one static poster frame. CSS cannot pause an
+   animated WebP, so reduced motion swaps the element rather than the
+   playback. display:none also drops the spare copy out of the a11y
+   tree, so the alt text is never announced twice. */
+body.guestbook .gb-bender-still{display:none}
+
+body.guestbook .gb-bender-line{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:var(--step-1);
+  letter-spacing:-.02em;
+  color:var(--flame);
+  margin:0;
+  max-width:none;
+}
+
+@media (prefers-reduced-motion: reduce){
+  body.guestbook .gb-bender-motion{display:none}
+  body.guestbook .gb-bender-still{display:block}
+}
+
+/* ── the wall ───────────────────────────────────────────── */
+body.guestbook .gb-wall .eyebrow{margin-bottom:.5rem}
+
+body.guestbook .gb-legend{
+  font-family:var(--util);
+  font-size:.7rem;
+  letter-spacing:.06em;
+  color:var(--copper);
+  opacity:.55;
+  margin:0 0 1.3rem;
+  max-width:none;
+}
+
+body.guestbook .gb-entries{
+  margin:0;
+  padding:0;
+  max-width:none;
+  border-top:1px solid var(--iron);
+  opacity:0;
+  transition:opacity .28s ease;
+}
+body.guestbook .gb-entries.is-ready{opacity:1}
+
+body.guestbook .gb-entries li{
+  position:relative;
+  margin:0;
+  padding:1.05rem 1.15rem 1.15rem 1.5rem;
+  border-bottom:1px solid var(--iron);
+  background:var(--ash);
+  transition:background .2s ease;
+}
+body.guestbook .gb-entries li:hover{background:var(--soot)}
+
+/* index.css turns every list bullet into a small rotated ember
+   diamond. Here that same ornament is stretched into the heat edge —
+   the temperature of the mark, not a bullet. */
+body.guestbook .gb-entries li::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:3px;
+  height:auto;
+  transform:none;
+  background:var(--iron);
+}
+body.guestbook .gb-entries li:nth-child(1)::before{background:var(--flame)}
+body.guestbook .gb-entries li:nth-child(2)::before{background:var(--ember)}
+body.guestbook .gb-entries li:nth-child(3)::before{background:var(--ember-deep)}
+
+body.guestbook .gb-entry-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:.35rem 1rem;
+  margin-bottom:.5rem;
+}
+
+body.guestbook .gb-name{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:var(--step-1);
+  letter-spacing:-.02em;
+  color:var(--bone);
+  /* a 40-character name with no spaces must not push the date off */
+  overflow-wrap:anywhere;
+}
+
+body.guestbook .gb-time{
+  font-family:var(--util);
+  font-size:.72rem;
+  letter-spacing:.12em;
+  color:var(--copper);
+  opacity:.75;
+  flex-shrink:0;
+}
+
+body.guestbook .gb-message{
+  margin:0;
+  max-width:62ch;
+  line-height:1.62;
+  color:var(--bone);
+  white-space:pre-wrap;
+  /* 500 characters with no space in them is a valid submission */
+  overflow-wrap:anywhere;
+}
+
+/* ── reveal toggle for a swapped message ────────────────── */
+body.guestbook .gb-reveal{
+  display:inline-block;
+  font-family:var(--util);
+  font-size:.68rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--copper);
+  background:transparent;
+  border:1px solid var(--iron);
+  border-radius:0;
+  padding:.28rem .6rem;
+  margin-top:.75rem;
+  cursor:pointer;
+  transition:color .18s ease, border-color .18s ease, background .18s ease;
+}
+body.guestbook .gb-reveal:hover{
+  color:var(--flame);
+  border-color:var(--flame);
+}
+body.guestbook .gb-reveal[aria-pressed="true"]{
+  color:var(--ash);
+  background:var(--copper);
+  border-color:var(--copper);
+}
+
+/* ── empty state / outage ───────────────────────────────── */
+body.guestbook .gb-empty{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.04em;
+  color:var(--copper);
+  border:1px dashed var(--iron);
+  padding:1.4rem 1.2rem;
+  margin:0;
+  max-width:none;
+}
+
+/* ── footer ─────────────────────────────────────────────── */
+body.guestbook .gb-footer{
+  border-top:1px solid var(--iron);
+  margin-top:4rem;
+  padding:2rem 0 4rem;
+}
+body.guestbook .gb-footer p{
+  font-family:var(--util);
+  font-size:.74rem;
+  letter-spacing:.06em;
+  color:var(--copper);
+  opacity:.65;
+  margin:0;
+  max-width:none;
+}
+
+/* ── small screens ──────────────────────────────────────── */
+@media (max-width:640px){
+  body.guestbook .gb-shell{padding:0 1.15rem}
+  body.guestbook .gb-head{padding:2rem 0 2rem}
+  body.guestbook .gb-head .back-button{margin-bottom:1.6rem}
+  body.guestbook .gb-main{padding-top:2rem}
+  body.guestbook .gb-sign{padding:1.2rem 1.1rem 1.3rem; margin-bottom:2.75rem}
+  body.guestbook .gb-actions{justify-content:stretch}
+  body.guestbook .gb-submit{width:100%}
+  body.guestbook .gb-entries li{padding:1rem .9rem 1.05rem 1.25rem}
+}
+
+/* ── print ──────────────────────────────────────────────── */
+/* index.css hides .guestbook on paper, which is right for the landing
+   cell and wrong for this page. Restore the page, drop the chrome,
+   and let the marks print as a plain list. */
+@media print{
+  body.guestbook{display:block !important}
+  body.guestbook::after{display:none}
+  body.guestbook .back-button,
+  body.guestbook .gb-sign,
+  body.guestbook .gb-legend,
+  body.guestbook .gb-footer,
+  body.guestbook .gb-reveal{display:none !important}
+
+  body.guestbook .gb-shell{max-width:none; padding:0}
+  body.guestbook .gb-entries{opacity:1; border-top:1px solid}
+  body.guestbook .gb-entries li{
+    background:none;
+    padding-left:0;
+    break-inside:avoid;
+  }
+  body.guestbook .gb-entries li::before{display:none}
+  body.guestbook .gb-name,
+  body.guestbook .gb-time,
+  body.guestbook .gb-message,
+  body.guestbook .gb-lede{color:inherit; opacity:1}
+}
