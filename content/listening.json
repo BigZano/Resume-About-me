@@ -1,21 +1,13 @@
 {
-  "fetched_at": "2026-08-10T04:25:22Z",
+  "fetched_at": "2026-08-17T14:24:39Z",
   "tracks": [
     {
-      "artist": "Tech N9ne",
-      "title": "B.I.T.C.H. (feat. T-Pain)"
+      "artist": "Fit For An Autopsy",
+      "title": "Hostage"
     },
     {
-      "artist": "Demon Hunter",
-      "title": "I Will Fail You (Resurrected)"
-    },
-    {
-      "artist": "Buckethead",
-      "title": "Big Sur Moon"
-    },
-    {
-      "artist": "Trivium",
-      "title": "Dead and Gone"
+      "artist": "Rammstein",
+      "title": "Te quiero puta!"
     },
     {
       "artist": "Rob Zombie",
@@ -34,12 +26,20 @@
       "title": "Kafir!"
     },
     {
-      "artist": "Incubus",
-      "title": "New Skin"
+      "artist": "Fit For An Autopsy",
+      "title": "Weaker Wolves"
     },
     {
-      "artist": "Puscifer",
-      "title": "Momma Sed"
+      "artist": "Mick Gordon",
+      "title": "Rip & Tear"
+    },
+    {
+      "artist": "Behemoth",
+      "title": "Slaves Shall Serve"
+    },
+    {
+      "artist": "Fit For An Autopsy",
+      "title": "Spoils Of The Horde"
     }
   ]
 }
