@@ -1,0 +1,9 @@
+name = "guestbook"
+main = "src/entry.py"
+compatibility_date = "2026-08-01"
+
+# Python Workers are in open beta and require this flag. See
+# specs/2026-08-20-guestbook-design.md section 12 for the accepted risk.
+compatibility_flags = ["python_workers"]
+
+# Task 8 appends [[d1_databases]] and the vars block here.
