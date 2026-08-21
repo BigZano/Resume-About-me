@@ -1855,7 +1855,7 @@ Denylist ships as SHA-256 digests; this repo is public."
 **REQUIRED SUB-SKILL: `frontend-design:frontend-design`.** The blackout fallback is a deliberate design state, not an error state — the palette is already a forge, so a cooled card must read as intentional. Treat it as a visual design problem.
 
 **Files:**
-- Modify: `titlepage.html:75-88` (the `.into-grid` block — add a 4th card after Cooking)
+- Modify: `titlepage.html` — the `.into-grid` block, adding a 4th card immediately after the `<h3>Cooking</h3>` article. (Do not trust a line number here: `origin/main` commit `181206e` already shifted this block once. Anchor on the Cooking heading.)
 - Modify: `static/landing.css` (append `.into-card--guestbook` rules)
 - Create: `static/guestbook-cell.js`
 - Modify: `src/Gen_Content/generate_landing_page.py` (add the Guestbook link to `PageLinks`)
@@ -3130,4 +3130,4 @@ git commit -m "Add deploy and moderation runbook"
 - [ ] Write the live now-playing spec. One route on this Worker, reusing the `user-read-currently-playing` scope already granted in the Spotify work.
 - [ ] Workshop Turnstile via the `verify_challenge` seam in `entry.py`.
 - [ ] Supply `static/bender-reject.webp` if it was not ready during Task 4.
-- [ ] Delete `MIGRATION_NOTES.txt` — still outstanding from the Spotify plan.
+- [x] ~~Delete `MIGRATION_NOTES.txt`~~ — done by Bret in `origin/main` commit `181206e`.
