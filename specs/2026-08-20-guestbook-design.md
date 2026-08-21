@@ -365,10 +365,25 @@ The landing page is the front door and now carries a live dependency. It must
 fail as a design state, never as a broken box.
 
 ```
-1. fetch OK    → render latest signature, write cache
-2. fetch fails → read localStorage cache, render last known good
-3. no cache    → blacked-out card
+1. fetch OK, entries present → render latest signature, write cache
+2. fetch OK, entries EMPTY   → authoritative. CLEAR cache, go cold
+3. fetch fails               → read localStorage cache, render last known good
+4. no usable cache           → blacked-out card
 ```
+
+**Case 2 is not the same as case 3, and conflating them defeats moderation.**
+A successful response saying there are no visible entries is authoritative: it
+is what the server actually believes. Falling through to the cache there would
+resurface a just-hidden entry for up to the full 24h TTL, which is exactly the
+window `--hide` exists to close. An empty answer must clear the cache, not read
+it.
+
+**Cold state uses `--ash`, not `--soot`.** In this palette `--ash` (`#14100E`)
+is the page ground and `--soot` (`#1F1A17`) is *raised* surfaces — `--soot` is
+lighter, and `.into-card:hover` is already `background:var(--soot)`. Painting a
+"blacked-out" card `--soot` would render it brighter than its neighbours and
+permanently hovered. Cool toward the ground, and cool the heading to `--copper`
+rather than `--iron`, which does not clear AA on `--ash`.
 
 The blackout is deliberate, not an error state: the palette is already a forge
 (`--soot`, `--ash`, `--iron`, `--flame`), so a cooled card reads as intentional

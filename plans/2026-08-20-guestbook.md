@@ -2091,7 +2091,7 @@ const TTL_MS = 24 * 60 * 60 * 1000;
 python3 -m unittest src.tests.test_gb_cell -v
 ./test.sh
 ./build.sh
-grep -c "into-card--guestbook" docs/index.html   # expect 1
+grep -c "into-card--guestbook" docs/index.html   # expect 2 (card + its comment)
 grep -c "{{" docs/index.html                      # expect 0
 ```
 
