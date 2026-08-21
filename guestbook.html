@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ Title }}</title>
+
+    <!-- Basic SEO -->
+    <meta name="description" content="{{ Description }}" />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ Title }}" />
+    <meta property="og:description" content="{{ Description }}" />
+    <meta property="og:url" content="{{ Canonical }}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ Title }}" />
+    <meta name="twitter:description" content="{{ Description }}" />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <meta name="theme-color" content="#14100E" />
+
+    <!-- Styles -->
+    <link href="./index.css?v=3" rel="stylesheet" />
+    <link href="./guestbook.css?v=1" rel="stylesheet" />
+  </head>
+
+  <body class="guestbook">
+    <div class="gb-shell">
+
+      <header class="gb-head">
+        <a class="back-button" href="./index.html">&larr; {{ SiteTitle }}</a>
+        <p class="eyebrow"> ~ > sign </p>
+        <h1>{{ Title }}</h1>
+        <p class="gb-lede">
+          Leave a mark. Names and messages are public, they go up straight
+          away, and they stay up unless I take them down.
+        </p>
+      </header>
+
+      <main class="gb-main">
+
+        <section class="gb-sign" aria-labelledby="gb-sign-head">
+          <p class="eyebrow" id="gb-sign-head">Your mark</p>
+
+          <form id="gb-form" novalidate>
+            <div class="gb-field">
+              <label for="gb-name">Name</label>
+              <input id="gb-name" name="name" type="text" maxlength="40"
+                     required autocomplete="nickname" spellcheck="false" />
+            </div>
+
+            <div class="gb-field">
+              <label for="gb-message">Message</label>
+              <textarea id="gb-message" name="message" maxlength="500"
+                        rows="4" required
+                        aria-describedby="gb-counter"></textarea>
+              <p class="gb-counter" id="gb-counter">
+                <span id="gb-count">0</span>/500
+              </p>
+            </div>
+
+            <!-- Honeypot. Bots fill it; humans never see it. Not display:none —
+                 some bots skip those. Positioned offscreen instead. -->
+            <div class="gb-hp" aria-hidden="true">
+              <label for="gb-website">Website</label>
+              <input id="gb-website" name="website" type="text"
+                     tabindex="-1" autocomplete="off" />
+            </div>
+
+            <div class="gb-actions">
+              <button id="gb-submit" class="gb-submit" type="submit">Sign it</button>
+            </div>
+          </form>
+
+          <p id="gb-status" class="gb-status" aria-live="polite" role="status"
+             tabindex="-1"></p>
+
+          <!-- Shown only on a `blocked` response. Both images are supplied by
+               the site owner and are not produced by the build:
+                 static/bender-reject.webp        animated (WebP or MP4, not GIF)
+                 static/bender-reject-still.webp  one static poster frame
+               Either may be absent — the alt text stands in on its own. -->
+          <div id="gb-bender" class="gb-bender" tabindex="-1" hidden>
+            <img class="gb-bender-motion" src="./bender-reject.webp"
+                 alt="Bender from Futurama, pointing and laughing." />
+            <img class="gb-bender-still" src="./bender-reject-still.webp"
+                 alt="Bender from Futurama, pointing and laughing." />
+            <p class="gb-bender-line">Bite my shiny metal ass.</p>
+          </div>
+        </section>
+
+        <section class="gb-wall" aria-labelledby="gb-wall-head">
+          <p class="eyebrow" id="gb-wall-head">Marks</p>
+          <p class="gb-legend">Newest first. The edge cools as a mark ages.</p>
+          <ul id="gb-entries" class="gb-entries"></ul>
+          <p id="gb-empty" class="gb-empty" hidden></p>
+          <noscript>
+            <p class="gb-empty">
+              The guestbook needs JavaScript to load marks and to sign.
+              The rest of the site works without it.
+            </p>
+          </noscript>
+        </section>
+
+      </main>
+
+      <footer class="gb-footer">
+        <p>{{ Year }} &middot; {{ SiteAuthor }} &mdash; forged in fire, tempered in code</p>
+      </footer>
+
+    </div>
+
+    <script src="./guestbook.js" defer></script>
+  </body>
+</html>

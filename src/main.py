@@ -4,6 +4,7 @@ import shutil
 import sys
 
 from Gen_Content.generate_blog_index import generate_blog_index
+from Gen_Content.generate_guestbook_page import generate_guestbook_page
 from Gen_Content.generate_landing_page import generate_landing_page
 from Gen_Content.generate_page import generate_page
 
@@ -136,17 +137,20 @@ def copy_static_to_docs():
         # Generate landing page as index.html
         titlepage_template = os.path.join(workspace_root, "titlepage.html")
         index_html = os.path.join(docs_path, "index.html")
-        
+
+        # Hoisted out of the try below: the guestbook block reads it too,
+        # and it must not disappear because the landing page failed.
+        site_config = {
+            "title": "Home - Portfolio",
+            "site_title": "Bret Zanotelli",
+            "site_description": "IT consultant. Linux daily driver. I make things talk to each other properly.",
+            "site_author": "Bret Zanotelli",
+            "description": "Personal portfolio featuring development projects, resume, and creative pursuits"
+        }
+
         if os.path.exists(titlepage_template):
             log_message("Generating landing page...")
             try:
-                site_config = {
-                    "title": "Home - Portfolio",
-                    "site_title": "Bret Zanotelli",
-                    "site_description": "IT consultant. Linux daily driver. I make things talk to each other properly.",
-                    "site_author": "Bret Zanotelli",
-                    "description": "Personal portfolio featuring development projects, resume, and creative pursuits"
-                }
                 generate_landing_page(content_path, titlepage_template, index_html, site_config)
                 log_message("Landing page generated successfully as index.html")
             except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
@@ -169,7 +173,33 @@ def copy_static_to_docs():
                     log_message(f"Set homepage: index.html copied from {os.path.basename(generated[0])} (fallback)")
                 else:
                     log_message("WARNING: No pages generated to set as index.html")
-        
+
+        # Guestbook page. Templating only — entries are fetched in the
+        # browser, never at build time, so the build stays offline.
+        guestbook_template = os.path.join(workspace_root, "guestbook.html")
+        guestbook_html = os.path.join(docs_path, "guestbook.html")
+        if os.path.exists(guestbook_template):
+            log_message("Generating guestbook page...")
+            try:
+                generate_guestbook_page(
+                    guestbook_template,
+                    guestbook_html,
+                    {
+                        "title": "Guestbook",
+                        "site_title": site_config["site_title"],
+                        "site_author": site_config["site_author"],
+                        "description": "Sign the guestbook.",
+                    },
+                )
+                log_message("Guestbook page generated successfully")
+            except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
+                had_errors = True
+                log_message(f"ERROR generating guestbook page: {e}")
+                import traceback
+                log_message(traceback.format_exc())
+        else:
+            log_message("WARNING: guestbook.html template not found")
+
         if had_errors:
             log_message("Build completed with errors (see above).")
             return False
