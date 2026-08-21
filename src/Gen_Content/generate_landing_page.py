@@ -90,25 +90,32 @@ def generate_landing_page(content_path, template_path, dest_path, site_config=No
     has_dev_diary = os.path.exists(dev_diary_path) and os.path.isdir(dev_diary_path)
     
     # Generate page links HTML
-    if md_files or has_dev_diary:
-        page_links_html = []
-        
-        # Presentation lives in landing.css — keep this markup bare.
-        # Add Dev Diary first if it exists
-        if has_dev_diary:
-            page_links_html.append(
-                '              <li><a href="dev_diary.html">Dev Diary</a></li>'
-            )
+    page_links_html = []
 
-        # Add regular pages
-        for page in md_files:
-            page_links_html.append(
-                f'              <li><a href="{page["html_name"]}">{page["title"]}</a></li>'
-            )
-        page_links = '\n'.join(page_links_html)
-    else:
-        page_links = '              <li>No pages available yet.</li>'
-    
+    # Presentation lives in landing.css — keep this markup bare.
+    # Add Dev Diary first if it exists
+    if has_dev_diary:
+        page_links_html.append(
+            '              <li><a href="dev_diary.html">Dev Diary</a></li>'
+        )
+
+    # The guestbook is generated from guestbook.html, not from a markdown
+    # file, so the scan above never discovers it. It ships on every build,
+    # so it is listed unconditionally — the landing nav is the only way in,
+    # and a conditional here would hide the page on a clone with no content
+    # directory. This is also why there is no longer an "empty" branch: the
+    # list always has at least this one entry.
+    page_links_html.append(
+        '              <li><a href="guestbook.html">Guestbook</a></li>'
+    )
+
+    # Add regular pages
+    for page in md_files:
+        page_links_html.append(
+            f'              <li><a href="{page["html_name"]}">{page["title"]}</a></li>'
+        )
+    page_links = '\n'.join(page_links_html)
+
     # Listening data is optional: a fresh clone has never fetched, and the
     # build must still succeed. See specs/2026-08-09-spotify-listening-design.md
     listening_path = os.path.join(content_path, "listening.json")
