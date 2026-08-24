@@ -169,10 +169,14 @@
     flourish.textContent = line;
     fire.classList.add("is-blooming");
 
+    /* Must outlast the bloom animation itself (3.4s in the stylesheet).
+       Removing the class early cuts the animation mid-flight and the
+       flame snaps back in one frame -- the exact thing the keyframes
+       were rewritten to avoid. */
     bloomTimer = window.setTimeout(function () {
       fire.classList.remove("is-blooming");
       flourish.textContent = "";
-    }, 3100);
+    }, 3450);
   }
 
   /* ── entry rendering ──────────────────────────────────── */

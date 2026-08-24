@@ -401,36 +401,79 @@ body.guestbook .gb-fire.is-blooming .gb-fire-flourish{
 /* ── heat states ────────────────────────────────────────── */
 /* The fire is always lit -- a bonfire that goes out is a page that
    looks broken. Heat still scales with the number of marks, but it
-   carries no label now: it is texture, not a readout. */
-body.guestbook .gb-fire[data-heat="low"] .gb-fire-flames{
-  opacity:1;
-  transform:scaleY(.55);
-}
-body.guestbook .gb-fire[data-heat="low"] .gb-fire-core{opacity:.45}
+   carries no label now: it is texture, not a readout.
 
-body.guestbook .gb-fire[data-heat="warm"] .gb-fire-flames{
+   Heat is a custom property rather than a transform, so the bloom can
+   multiply it. Baking scaleY into the heat rule and scale(1) into the
+   bloom made the flame snap back to a different size than it grew from
+   the moment the animation ended -- the animation ended at 1, the rule
+   resolved to .55, and the difference landed in a single frame. */
+body.guestbook .gb-fire{--heat-scale:.62}
+body.guestbook .gb-fire[data-heat="warm"]{--heat-scale:.84}
+body.guestbook .gb-fire[data-heat="high"]{--heat-scale:1}
+
+body.guestbook .gb-fire .gb-fire-flames{
   opacity:1;
-  transform:scaleY(.8);
+  transform:scaleY(var(--heat-scale));
 }
+
+body.guestbook .gb-fire[data-heat="low"] .gb-fire-core{opacity:.45}
 body.guestbook .gb-fire[data-heat="warm"] .gb-fire-core{opacity:.7}
 
-body.guestbook .gb-fire[data-heat="high"] .gb-fire-flames{
-  opacity:1;
-  transform:scaleY(1);
-}
+/* A mark just landed. The fire catches, swells, and settles -- three
+   movements rather than one spike, which is how a fire actually takes
+   fuel. Every keyframe resolves against --heat-scale, so it grows from
+   and returns to exactly the size it was.
 
-/* A mark just landed. The fire blooms wide and tall, holds, then
-   settles back to whatever heat the wall is at. */
+   Per-keyframe easing does the smoothing: fast out of the catch, slow
+   through the swell, and a long gentle settle with one small secondary
+   rise so the flame does not simply deflate. */
 body.guestbook .gb-fire.is-blooming .gb-fire-flames{
-  animation:gb-bloom 3.1s cubic-bezier(.2,.8,.3,1);
+  animation:gb-bloom 3.4s both;
 }
 
 @keyframes gb-bloom{
-  0%   {transform:scale(1)}
-  12%  {transform:scale(1.5, 1.62)}
-  30%  {transform:scale(1.32, 1.4)}
-  60%  {transform:scale(1.14, 1.18)}
-  100% {transform:scale(1)}
+  0%{
+    transform:scale(1, var(--heat-scale));
+    animation-timing-function:cubic-bezier(.34,.06,.64,1);
+  }
+  9%{
+    transform:scale(1.12, calc(var(--heat-scale) * 1.34));
+    animation-timing-function:cubic-bezier(.22,.61,.36,1);
+  }
+  26%{
+    transform:scale(1.3, calc(var(--heat-scale) * 1.72));
+    animation-timing-function:cubic-bezier(.4,0,.5,1);
+  }
+  44%{
+    transform:scale(1.19, calc(var(--heat-scale) * 1.45));
+    animation-timing-function:cubic-bezier(.3,.3,.5,1);
+  }
+  62%{
+    transform:scale(1.24, calc(var(--heat-scale) * 1.56));
+    animation-timing-function:cubic-bezier(.36,0,.28,1);
+  }
+  100%{
+    transform:scale(1, var(--heat-scale));
+  }
+}
+
+/* The core comes up with the bloom and eases back down, so the fire
+   brightens rather than only growing. */
+body.guestbook .gb-fire.is-blooming .gb-fire-core{
+  animation:gb-bloom-core 3.4s ease-in-out;
+}
+
+@keyframes gb-bloom-core{
+  0%   {opacity:.45}
+  26%  {opacity:1}
+  62%  {opacity:.9}
+  100% {opacity:.45}
+}
+
+/* Embers lift on the updraught, then return to their own pace. */
+body.guestbook .gb-fire.is-blooming .gb-fire-mote{
+  animation-duration:1.9s;
 }
 
 /* The words rise as they fade, the way the games play them. */
@@ -528,7 +571,9 @@ body.guestbook .gb-fire .gb-fire-mote:nth-child(4){animation-delay:.6s}
   body.guestbook .gb-fire-front-outer,
   body.guestbook .gb-fire-front-mid,
   body.guestbook .gb-fire-mote,
-  body.guestbook .gb-fire.is-blooming .gb-fire-flames{
+  body.guestbook .gb-fire.is-blooming .gb-fire-flames,
+  body.guestbook .gb-fire.is-blooming .gb-fire-core,
+  body.guestbook .gb-fire.is-blooming .gb-fire-mote{
     animation:none;
   }
 
