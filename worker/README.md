@@ -195,6 +195,13 @@ Dashboard only; the deploy token deliberately has no Access permissions.
    CLI. The secret is shown once. Put both halves in the credentials
    file above.
 
+   The dashboard presents them as `CF-Access-Client-Id: <value>`, and
+   copying the whole line puts the header name inside the value. Access
+   then rejects the request and every call redirects to the login page,
+   which looks exactly like a policy misconfiguration and is not one. A
+   correct client id is ~39 characters ending in `.access`; a correct
+   secret is 64 hex characters.
+
 **Verify which layer answers first, because it decides what this buys
 you.** Workers and Access both run at the edge, and which one sees a
 request first depends on how the route is bound:
@@ -211,7 +218,35 @@ curl -s -o /dev/null -w '%{http_code}\n' https://api.bretzanotelli.work/admin/en
   validate the `Cf-Access-Jwt-Assertion` header itself against the
   team's public keys.
 
-Then confirm the CLI still works:
+Then check each layer refuses on its own. All four lines must match, or
+one of the two gates is decorative:
+
+```bash
+API=https://api.bretzanotelli.work/admin/entries
+ID=... ; SECRET=... ; TOKEN=...
+
+curl -s -o /dev/null -w 'nothing        %{http_code}\n' $API
+curl -s -o /dev/null -w 'service only   %{http_code}\n' \
+  -H "CF-Access-Client-Id: $ID" -H "CF-Access-Client-Secret: $SECRET" $API
+curl -s -o /dev/null -w 'bearer only    %{http_code}\n' \
+  -H "Authorization: Bearer $TOKEN" $API
+curl -s -o /dev/null -w 'both           %{http_code}\n' \
+  -H "CF-Access-Client-Id: $ID" -H "CF-Access-Client-Secret: $SECRET" \
+  -H "Authorization: Bearer $TOKEN" $API
+```
+
+Expected: `302`, `401`, `302`, `200`. The middle two are the ones worth
+reading -- they prove Access and the bearer check refuse independently
+rather than one of them carrying both.
+
+And confirm the public wall is still open to everyone, which is what
+the `admin` path scoping protects:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' https://api.bretzanotelli.work/entries   # 200
+```
+
+Then the CLI itself:
 
 ```bash
 python3 ../scripts/guestbook_admin.py --review
