@@ -7,3 +7,16 @@ compatibility_date = "2026-08-01"
 compatibility_flags = ["python_workers"]
 
 # Task 8 appends [[d1_databases]] and the vars block here.
+
+[[d1_databases]]
+binding = "DB"
+database_name = "guestbook"
+# TODO(Task 3 Step 3): replace with the id printed by `wrangler d1 create guestbook`.
+database_id = "PASTE_THE_ID_FROM_TASK_3"
+
+[vars]
+ALLOWED_ORIGIN = "https://bretzanotelli.work"
+
+[[routes]]
+pattern = "api.bretzanotelli.work/*"
+zone_name = "bretzanotelli.work"
