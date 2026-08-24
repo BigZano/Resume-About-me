@@ -117,3 +117,51 @@ is not subscriptable — `row["n"]` raises `TypeError`. `_to_py()` in
 `entry.py` converts them. Relatedly, Python `None` crosses into JS as
 `undefined`, which D1 rejects with `D1_TYPE_ERROR`; write SQL `NULL` as
 a literal rather than binding `None`.
+
+## Deploy
+
+Node 22+ and `CLOUDFLARE_API_TOKEN` in the environment. The token needs
+Workers Scripts:Edit, D1:Edit, Account Settings:Read on the account, and
+Workers Routes:Edit + Zone:Read on `bretzanotelli.work`.
+
+```bash
+cd worker && npx wrangler deploy
+```
+
+The `api` hostname is an `AAAA` record pointing at `100::`, **proxied**
+(orange cloud). The Worker route intercepts before it resolves; the
+address is a discard prefix and is never actually reached. Adding that
+record needs DNS:Edit, which the deploy token deliberately lacks — do it
+in the dashboard.
+
+## Moderation
+
+```bash
+export GUESTBOOK_ADMIN_TOKEN=...
+python3 ../scripts/guestbook_admin.py --review   # filter-blocked entries
+python3 ../scripts/guestbook_admin.py --hide 41
+```
+
+`--review` is the filter's feedback loop. If it shows a real person was
+caught, add the word to `src/data/allow.txt` and redeploy. Never weaken
+the matcher to fix one false positive.
+
+## Updating the denylist
+
+The plaintext term list is NEVER committed. Keep it outside the repo:
+
+```bash
+python3 ../scripts/hash_terms.py ~/gb-terms.txt src/data/blocked.txt
+npx wrangler deploy
+```
+
+## Known limits
+
+- Python Workers are in open beta. The logic worth protecting lives in the
+  four pure modules and is portable to any runtime.
+- "Punching down" is not encodable. The filter enforces the slur rule; the
+  owner enforces the rest with `--hide`.
+- Coded and tertiary terms evolve faster than a static list. `--review` is
+  the backstop.
+- Two `disable_*` compatibility flags are load-bearing. See "Runtime
+  constraints" above before changing `compatibility_date`.
