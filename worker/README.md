@@ -146,6 +146,77 @@ python3 ../scripts/guestbook_admin.py --hide 41
 caught, add the word to `src/data/allow.txt` and redeploy. Never weaken
 the matcher to fix one false positive.
 
+## Credentials for the CLI
+
+`scripts/guestbook_admin.py` reads, in order: the environment, then
+`~/.config/guestbook/credentials`. The file exists so moderating does
+not require pasting a secret every session -- the paste is the step
+that gets skipped, and a moderation tool that is annoying to run does
+not get run.
+
+```bash
+mkdir -p ~/.config/guestbook
+install -m 600 /dev/null ~/.config/guestbook/credentials
+cat >> ~/.config/guestbook/credentials <<'EOF'
+GUESTBOOK_ADMIN_TOKEN=...
+CF_ACCESS_CLIENT_ID=...
+CF_ACCESS_CLIENT_SECRET=...
+EOF
+```
+
+The file is refused outright if anyone but its owner can read it. A
+silently-honoured world-readable secret would defeat the point of
+moving it off the command line. The two Access values are optional and
+are only sent when both are present: half a service token reads to
+Access as a failed authentication rather than an unauthenticated call.
+
+## Cloudflare Access on /admin
+
+Optional, and stronger than the bearer token alone: unauthenticated
+requests are turned away at Cloudflare's edge, revocation is a dashboard
+click rather than a redeploy, and every admin access is logged. The
+bearer check in `entry.py` stays regardless -- it is the gate that does
+not depend on a dashboard setting being correct.
+
+Dashboard only; the deploy token deliberately has no Access permissions.
+
+1. **Zero Trust -> Settings**, pick a team name. Access must be enabled
+   on the account before its API answers at all.
+2. **Access -> Applications -> Add -> Self-hosted.**
+   Domain `api.bretzanotelli.work`, path `admin`. Session duration to
+   taste.
+3. **Two policies:**
+   - `me` -- action *Allow*, include *Emails* -> your address. One-time
+     PIN needs no identity provider.
+   - `cli` -- action *Service Auth*, include *Service Token* -> the one
+     created below. Service Auth, not Allow: an Allow policy expects a
+     human session.
+4. **Access -> Service Auth -> Create Service Token**, named for the
+   CLI. The secret is shown once. Put both halves in the credentials
+   file above.
+
+**Verify which layer answers first, because it decides what this buys
+you.** Workers and Access both run at the edge, and which one sees a
+request first depends on how the route is bound:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' https://api.bretzanotelli.work/admin/entries
+```
+
+- `302` or an Access login page: Access is in front. Unauthenticated
+  traffic never reaches the Worker or D1, which is the whole point.
+- `401` with `{"ok":false,"code":"unauthorized"}`: the Worker ran first
+  and Access is not protecting this path. The bearer token is still the
+  real gate. To get edge enforcement in that case, the Worker must
+  validate the `Cf-Access-Jwt-Assertion` header itself against the
+  team's public keys.
+
+Then confirm the CLI still works:
+
+```bash
+python3 ../scripts/guestbook_admin.py --review
+```
+
 ## Updating the denylist
 
 The plaintext term list is NEVER committed. Keep it outside the repo:

@@ -30,6 +30,18 @@ API = os.environ.get("GUESTBOOK_API", "https://api.bretzanotelli.work")
 TOKEN_VAR = "GUESTBOOK_ADMIN_TOKEN"
 USER_AGENT = "guestbook-admin/1.0 (+https://bretzanotelli.work)"
 
+# Credentials, in precedence order: environment first, then this file.
+# The file exists so moderating does not require pasting a secret into a
+# shell every session -- the paste is the step that gets skipped, and a
+# moderation tool that is annoying to run does not get run.
+CREDENTIALS_PATH = Path.home() / ".config" / "guestbook" / "credentials"
+
+# Cloudflare Access service-token headers. Sent only when both halves are
+# present: one half alone is a misconfiguration, and sending it would
+# read as an authentication attempt rather than an unauthenticated call.
+ACCESS_ID_VAR = "CF_ACCESS_CLIENT_ID"
+ACCESS_SECRET_VAR = "CF_ACCESS_CLIENT_SECRET"
+
 # worker/src/data/{allow,blocked}.txt, relative to this file. Read-only, and
 # only consulted by --review; a missing repo checkout (script copied
 # elsewhere, per the standalone contract above) just skips the check.
@@ -105,16 +117,59 @@ def check_allow_overlap(allow_path=ALLOW_PATH, blocked_path=BLOCKED_PATH):
     ]
 
 
-def _call(path, method="GET"):
-    token = os.environ.get(TOKEN_VAR)
-    if not token:
-        print(f"ERROR: {TOKEN_VAR} is not set", file=sys.stderr)
+def _read_credentials_file(path=None):
+    """KEY=VALUE lines from the credentials file, or {} if there is none.
+
+    A file readable by anyone but its owner is refused rather than used.
+    Silently reading a world-readable secret would defeat the point of
+    having moved it off the command line.
+    """
+    path = CREDENTIALS_PATH if path is None else Path(path)
+    if not path.exists():
+        return {}
+
+    mode = path.stat().st_mode
+    if mode & 0o077:
+        print(f"ERROR: {path} is readable by others "
+              f"(mode {mode & 0o777:03o}). Run: chmod 600 {path}",
+              file=sys.stderr)
         raise SystemExit(2)
+
+    values = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        values[key.strip()] = value.strip().strip('"').strip("'")
+    return values
+
+
+def _credential(name, stored):
+    """Environment wins, then the file. Empty is the same as absent."""
+    return (os.environ.get(name) or stored.get(name) or "").strip()
+
+
+def _call(path, method="GET"):
+    stored = _read_credentials_file()
+    token = _credential(TOKEN_VAR, stored)
+    if not token:
+        print(f"ERROR: {TOKEN_VAR} is not set, and no value for it in "
+              f"{CREDENTIALS_PATH}", file=sys.stderr)
+        raise SystemExit(2)
+
+    headers = {}
+    access_id = _credential(ACCESS_ID_VAR, stored)
+    access_secret = _credential(ACCESS_SECRET_VAR, stored)
+    if access_id and access_secret:
+        headers["CF-Access-Client-Id"] = access_id
+        headers["CF-Access-Client-Secret"] = access_secret
 
     request = urllib.request.Request(
         f"{API}{path}",
         method=method,
         headers={
+            **headers,
             "Authorization": f"Bearer {token}",
             # Cloudflare's bot protection 403s urllib's default agent
             # with error 1010, before the request reaches the Worker at

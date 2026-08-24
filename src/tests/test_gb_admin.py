@@ -24,12 +24,14 @@ import http.server
 import io
 import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
 import tempfile
 import threading
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import guestbook_admin
@@ -278,7 +280,7 @@ class _StubHandler(http.server.BaseHTTPRequestHandler):
 
     def _authorized(self):
         expected = f"Bearer {self.server.state.token}"
-        return self.headers.get("Authorization") == expected
+        return self.headers.get("authorization") == expected
 
     def _respond(self, status, payload):
         body = json.dumps(payload).encode("utf-8")
@@ -289,8 +291,13 @@ class _StubHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _handle(self, method):
+        # Lowercased keys: header names are case-insensitive on the
+        # wire, and urllib normalises "CF-Access-Client-Id" to
+        # "Cf-access-client-id". Asserting on exact case would test
+        # urllib's capitalisation rather than this tool's behaviour.
         self.server.state.requests.append(
-            (method, self.path, dict(self.headers.items()))
+            (method, self.path,
+             {k.lower(): v for k, v in self.headers.items()})
         )
         if not self._authorized():
             self._respond(401, {"ok": False, "code": "unauthorized"})
@@ -331,6 +338,87 @@ def _closed_port_url():
     port = sock.getsockname()[1]
     sock.close()
     return f"http://127.0.0.1:{port}"
+
+
+class TestCredentialLoading(unittest.TestCase):
+    """Where the tool gets its secrets, and what it refuses.
+
+    The credentials file exists so moderating does not require pasting a
+    secret every session. That convenience is only worth having if the
+    file cannot quietly become a liability, so the permission check is
+    part of the contract, not a nicety.
+    """
+
+    def _write(self, body, mode=0o600):
+        directory = tempfile.mkdtemp()
+        path = Path(directory) / "credentials"
+        path.write_text(body, encoding="utf-8")
+        path.chmod(mode)
+        self.addCleanup(shutil.rmtree, directory)
+        return path
+
+    def test_reads_key_value_pairs(self):
+        path = self._write("GUESTBOOK_ADMIN_TOKEN=abc123\n")
+        self.assertEqual(
+            guestbook_admin._read_credentials_file(path),
+            {"GUESTBOOK_ADMIN_TOKEN": "abc123"},
+        )
+
+    def test_ignores_comments_blanks_and_junk(self):
+        path = self._write("# a note\n\nGUESTBOOK_ADMIN_TOKEN=abc\nnonsense\n")
+        self.assertEqual(
+            guestbook_admin._read_credentials_file(path),
+            {"GUESTBOOK_ADMIN_TOKEN": "abc"},
+        )
+
+    def test_strips_surrounding_quotes(self):
+        """A pasted value often arrives quoted; the quotes are not the secret."""
+        path = self._write('GUESTBOOK_ADMIN_TOKEN="abc123"\n')
+        self.assertEqual(
+            guestbook_admin._read_credentials_file(path)["GUESTBOOK_ADMIN_TOKEN"],
+            "abc123",
+        )
+
+    def test_missing_file_is_not_an_error(self):
+        """Environment-only use must keep working with no file present."""
+        missing = Path(tempfile.mkdtemp()) / "nope" / "credentials"
+        self.assertEqual(guestbook_admin._read_credentials_file(missing), {})
+
+    def test_refuses_a_file_others_can_read(self):
+        path = self._write("GUESTBOOK_ADMIN_TOKEN=abc\n", mode=0o644)
+        with self.assertRaises(SystemExit) as caught:
+            guestbook_admin._read_credentials_file(path)
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_refuses_a_group_readable_file(self):
+        path = self._write("GUESTBOOK_ADMIN_TOKEN=abc\n", mode=0o640)
+        with self.assertRaises(SystemExit):
+            guestbook_admin._read_credentials_file(path)
+
+    def test_environment_beats_the_file(self):
+        stored = {"GUESTBOOK_ADMIN_TOKEN": "from-file"}
+        with mock.patch.dict(os.environ, {"GUESTBOOK_ADMIN_TOKEN": "from-env"}):
+            self.assertEqual(
+                guestbook_admin._credential("GUESTBOOK_ADMIN_TOKEN", stored),
+                "from-env",
+            )
+
+    def test_file_is_used_when_the_environment_is_unset(self):
+        stored = {"GUESTBOOK_ADMIN_TOKEN": "from-file"}
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(
+                guestbook_admin._credential("GUESTBOOK_ADMIN_TOKEN", stored),
+                "from-file",
+            )
+
+    def test_empty_environment_value_falls_through_to_the_file(self):
+        """`export TOKEN=` is a mistake, not a decision to send nothing."""
+        stored = {"GUESTBOOK_ADMIN_TOKEN": "from-file"}
+        with mock.patch.dict(os.environ, {"GUESTBOOK_ADMIN_TOKEN": ""}):
+            self.assertEqual(
+                guestbook_admin._credential("GUESTBOOK_ADMIN_TOKEN", stored),
+                "from-file",
+            )
 
 
 class TestCliAgainstStubServer(unittest.TestCase):
@@ -410,7 +498,32 @@ class TestCliAgainstStubServer(unittest.TestCase):
     def test_authorization_header_is_sent(self):
         self._run(["--list"])
         _method, _path, headers = self.server.state.requests[-1]
-        self.assertEqual(headers.get("Authorization"), f"Bearer {self.token}")
+        self.assertEqual(headers.get("authorization"), f"Bearer {self.token}")
+
+    def test_sends_access_service_token_when_both_halves_are_present(self):
+        with mock.patch.dict(os.environ, {
+            "CF_ACCESS_CLIENT_ID": "id-value",
+            "CF_ACCESS_CLIENT_SECRET": "secret-value",
+        }):
+            self._run(["--list"])
+        _method, _path, headers = self.server.state.requests[-1]
+        self.assertEqual(headers.get("cf-access-client-id"), "id-value")
+        self.assertEqual(headers.get("cf-access-client-secret"), "secret-value")
+
+    def test_sends_neither_half_when_only_one_is_configured(self):
+        """Half a service token is a misconfiguration, not a credential.
+
+        Sending the id alone would present the request to Access as an
+        authentication attempt and be rejected, which is a worse and more
+        confusing failure than not attempting one.
+        """
+        with mock.patch.dict(os.environ, {"CF_ACCESS_CLIENT_ID": "id-only"},
+                             clear=False):
+            os.environ.pop("CF_ACCESS_CLIENT_SECRET", None)
+            self._run(["--list"])
+        _method, _path, headers = self.server.state.requests[-1]
+        self.assertIsNone(headers.get("cf-access-client-id"))
+        self.assertIsNone(headers.get("cf-access-client-secret"))
 
     def test_identifies_itself_by_user_agent(self):
         """urllib's default agent is 403'd by Cloudflare bot protection.
@@ -422,7 +535,7 @@ class TestCliAgainstStubServer(unittest.TestCase):
         """
         self._run(["--list"])
         _method, _path, headers = self.server.state.requests[-1]
-        agent = headers.get("User-Agent", "")
+        agent = headers.get("user-agent", "")
         self.assertIn("guestbook-admin", agent)
         self.assertNotIn("Python-urllib", agent)
 
