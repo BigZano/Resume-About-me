@@ -355,7 +355,12 @@ body.landing .into-card--guestbook::before{
   background:var(--iron);
   transition:background .2s ease;
 }
-body.landing .into-card--guestbook.is-live::before{background:var(--flame)}
+/* Live: the rail reads as heat rising off the wall, the same idea the
+   guestbook page's bonfire carries. Cached and cold stay flat — a
+   gradient there would claim a liveness the data does not have. */
+body.landing .into-card--guestbook.is-live::before{
+  background:linear-gradient(to top, var(--ember-deep), var(--flame));
+}
 body.landing .into-card--guestbook.is-cached::before{background:var(--ember)}
 
 /* the signature slot — the only node the script rewrites */

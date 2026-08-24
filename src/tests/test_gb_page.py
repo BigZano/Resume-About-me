@@ -175,6 +175,27 @@ class TestRealTemplate(unittest.TestCase):
         img = panel.split("<img", 1)[1].split(">", 1)[0]
         self.assertRegex(img, r'alt="[^"]+"')
 
+    def test_has_the_bonfire(self):
+        self.assertIn('id="gb-fire"', self.markup)
+
+    def test_bonfire_starts_cold(self):
+        """Cold is the only honest pre-load state.
+
+        The page ships before any entry has been fetched, and the no-JS
+        and offline paths never fetch at all. A default of anything but
+        cold would show a fire the wall cannot account for.
+        """
+        panel = self.markup.split('id="gb-fire"', 1)[1].split(">", 1)[0]
+        self.assertIn('data-heat="cold"', panel)
+
+    def test_bonfire_art_is_hidden_from_assistive_tech(self):
+        """The drawing is decorative; the figcaption carries the state."""
+        svg = self.markup.split("<svg", 1)[1].split(">", 1)[0]
+        self.assertIn('aria-hidden="true"', svg)
+
+    def test_bonfire_state_has_a_text_node(self):
+        self.assertIn('id="gb-fire-state"', self.markup)
+
     def test_has_the_live_counter_node(self):
         self.assertIn('id="gb-count"', self.markup)
 

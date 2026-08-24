@@ -53,6 +53,8 @@
   var reject = document.getElementById("gb-reject");
   var list = document.getElementById("gb-entries");
   var empty = document.getElementById("gb-empty");
+  var fire = document.getElementById("gb-fire");
+  var fireState = document.getElementById("gb-fire-state");
 
   if (!form || !list) {
     return;
@@ -71,14 +73,63 @@
     }
   }
 
-  function showBender() {
+  function showReject() {
     setStatus("");
     reject.hidden = false;
     reject.focus();
   }
 
-  function hideBender() {
+  function hideReject() {
     reject.hidden = true;
+  }
+
+  /* ── the fire ─────────────────────────────────────────── */
+
+  /* Heat is the wall's state, redrawn. Cold is not a styling choice:
+     it is what an empty guestbook and an unreachable API both are, and
+     the fire must never claim a warmth the wall cannot show. */
+  var HEAT = [
+    { at: 15, name: "high", label: "Roaring" },
+    { at: 5, name: "warm", label: "Burning" },
+    { at: 1, name: "low", label: "Embers" },
+    { at: 0, name: "cold", label: "Cold" }
+  ];
+
+  var stokeTimer = 0;
+
+  function setHeat(marks) {
+    if (!fire || !fireState) {
+      return;
+    }
+    var total = typeof marks === "number" && marks > 0 ? marks : 0;
+    var step = HEAT[HEAT.length - 1];
+    for (var i = 0; i < HEAT.length; i += 1) {
+      if (total >= HEAT[i].at) {
+        step = HEAT[i];
+        break;
+      }
+    }
+    fire.dataset.heat = step.name;
+    fireState.textContent = total === 0
+      ? step.label
+      : step.label + " \u00b7 " + total + (total === 1 ? " mark" : " marks");
+  }
+
+  /* One flare when a mark lands. The class is removed on the way out
+     so a second signing in the same session flares again. */
+  function stoke() {
+    if (!fire) {
+      return;
+    }
+    fire.classList.remove("is-stoked");
+    /* force a reflow so the animation restarts rather than being
+       treated as still-running */
+    void fire.offsetWidth;
+    fire.classList.add("is-stoked");
+    window.clearTimeout(stokeTimer);
+    stokeTimer = window.setTimeout(function () {
+      fire.classList.remove("is-stoked");
+    }, 1200);
   }
 
   /* ── entry rendering ──────────────────────────────────── */
@@ -155,6 +206,7 @@
       list.appendChild(entryNode(entries[i]));
     }
     list.classList.add("is-ready");
+    setHeat(entries.length);
     if (entries.length === 0) {
       showEmpty(COPY.no_marks);
     } else {
@@ -189,6 +241,7 @@
         /* Never leave a spinner running. Say what happened. */
         list.replaceChildren();
         list.classList.add("is-ready");
+        setHeat(0);
         showEmpty(COPY.unreadable);
       });
   }
@@ -221,12 +274,14 @@
         list.prepend(entryNode(data.entry));
         list.classList.add("is-ready");
         empty.hidden = true;
+        setHeat(list.children.length);
+        stoke();
       }
       return;
     }
 
     if (code === "blocked") {
-      showBender();
+      showReject();
       return;
     }
 
@@ -238,7 +293,7 @@
   function onSubmit(event) {
     event.preventDefault();
 
-    hideBender();
+    hideReject();
     setStatus("");
 
     var name = nameInput.value.trim();
