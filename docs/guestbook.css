@@ -280,6 +280,32 @@ body.guestbook .gb-fire-skull{
 
 body.guestbook .gb-fire-socket{fill:var(--ash)}
 
+/* Ribs are stroked, not filled: at this size a filled rib is a smudge. */
+body.guestbook .gb-fire-rib{
+  fill:none;
+  stroke:color-mix(in srgb, var(--copper) 42%, var(--iron));
+  stroke-width:1.6;
+  stroke-linecap:round;
+}
+
+/* The gradient the steel fades through. Colour lives in one place, so
+   the stops take the same mix the rest of the blade does. */
+body.guestbook .gb-steel-stop{
+  stop-color:color-mix(in srgb, var(--copper) 32%, var(--iron));
+}
+
+/* Front tongues sit in front of the blade and stay translucent, so the
+   steel is obscured by fire rather than erased by a shape. */
+body.guestbook .gb-fire-front-outer{
+  fill:var(--ember-deep);
+  opacity:.85;
+}
+
+body.guestbook .gb-fire-front-mid{
+  fill:var(--ember);
+  opacity:.8;
+}
+
 /* The steel sits one step off the ash so the cold state still reads as
    an object rather than a smudge. Mixed, not a new hex: this file does
    not get to invent colour. */
@@ -385,6 +411,16 @@ body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-core{
   animation:gb-lick-core 1.3s ease-in-out infinite;
 }
 
+body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-front-outer{
+  transform-origin:60px 118px;
+  animation:gb-lick-mid 2.3s ease-in-out infinite;
+}
+
+body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-front-mid{
+  transform-origin:60px 118px;
+  animation:gb-lick-core 1.7s ease-in-out infinite;
+}
+
 body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-mote{
   animation:gb-rise 3.4s linear infinite;
 }
@@ -434,6 +470,8 @@ body.guestbook .gb-fire .gb-fire-mote:nth-child(4){animation-delay:.6s}
   body.guestbook .gb-fire-outer,
   body.guestbook .gb-fire-mid,
   body.guestbook .gb-fire-core,
+  body.guestbook .gb-fire-front-outer,
+  body.guestbook .gb-fire-front-mid,
   body.guestbook .gb-fire-mote,
   body.guestbook .gb-fire.is-stoked .gb-fire-flames{
     animation:none;
