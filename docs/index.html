@@ -59,6 +59,7 @@
             <p class="eyebrow">Pages</p>
             <ul class="page-links">
               <li><a href="dev_diary.html">Dev Diary</a></li>
+              <li><a href="guestbook.html">Guestbook</a></li>
               <li><a href="aboutme.html">About Me</a></li>
               <li><a href="resume.html">Resume</a></li>
             </ul>
@@ -96,6 +97,19 @@
                   for our cat Crumb. Here is a picture of him screaming:
                 </p>
                 <img src="./crumb.png" alt="Crumb the cat screaming" class="cat-pic">
+              </article>
+
+              <!-- The only live dependency on the front door. Everything
+                   below is layer 3 of the fallback, already rendered: if
+                   guestbook-cell.js never runs, or runs and finds nothing,
+                   this is exactly what stays on the page. The script only
+                   ever replaces the contents of .gb-sig.
+                   Class is `into-card--guestbook`, never a bare
+                   `guestbook` — index.css hides that one in print. -->
+              <article class="into-card into-card--guestbook" id="gb-latest">
+                <h3>Guestbook</h3>
+                <p class="gb-sig"><span class="gb-invite">Leave a mark.</span></p>
+                <p class="gb-cta"><a href="guestbook.html">Sign it &rarr;</a></p>
               </article>
 
             </div>
@@ -168,5 +182,6 @@
     </div>
 
     <script src="./fire.js" defer></script>
+    <script src="./guestbook-cell.js" defer></script>
   </body>
 </html>
