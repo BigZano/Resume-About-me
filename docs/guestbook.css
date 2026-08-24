@@ -262,14 +262,23 @@ body.guestbook .gb-fire{
 
 body.guestbook .gb-fire-art{
   display:block;
-  width:120px;
+  width:136px;
   height:auto;
   overflow:visible;
 }
 
 body.guestbook .gb-fire-ash{fill:var(--soot)}
 body.guestbook .gb-fire-mound{fill:var(--iron)}
-body.guestbook .gb-fire-chip{fill:var(--soot)}
+/* Bone reads as aged, not white: a step warmer than the ash it sits in,
+   a step darker than the flame behind it, so it silhouettes rather than
+   competes. Sockets are punched in page ground, which is the only way
+   they stay dark against a lit flame. */
+body.guestbook .gb-fire-bone,
+body.guestbook .gb-fire-skull{
+  fill:color-mix(in srgb, var(--copper) 42%, var(--iron));
+}
+
+body.guestbook .gb-fire-socket{fill:var(--ash)}
 
 /* The steel sits one step off the ash so the cold state still reads as
    an object rather than a smudge. Mixed, not a new hex: this file does
