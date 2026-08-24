@@ -11,8 +11,7 @@ compatibility_flags = ["python_workers", "disable_python_external_sdk", "disable
 [[d1_databases]]
 binding = "DB"
 database_name = "guestbook"
-# TODO(Task 3 Step 3): replace with the id printed by `wrangler d1 create guestbook`.
-database_id = "PASTE_THE_ID_FROM_TASK_3"
+database_id = "9f6a9e26-187a-4a70-9f9a-cf25272dbe51"
 
 [vars]
 ALLOWED_ORIGIN = "https://bretzanotelli.work"
