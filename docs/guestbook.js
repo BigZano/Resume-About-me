@@ -55,6 +55,7 @@
   var empty = document.getElementById("gb-empty");
   var fire = document.getElementById("gb-fire");
   var flourish = document.getElementById("gb-fire-flourish");
+  var rejectClose = document.getElementById("gb-reject-close");
 
   if (!form || !list) {
     return;
@@ -73,14 +74,45 @@
     }
   }
 
+  /* Modal where the browser supports it, inline where it does not.
+     showModal gives focus trapping, Escape, and the backdrop for free;
+     the fallback keeps the panel usable without reimplementing any of
+     that badly. */
   function showReject() {
     setStatus("");
-    reject.hidden = false;
+    if (typeof reject.showModal === "function") {
+      if (!reject.open) {
+        reject.showModal();
+      }
+      return;
+    }
+    /* The open ATTRIBUTE, not the hidden property: a dialog without
+       [open] is display:none, so hidden=false would show nothing. */
+    reject.setAttribute("open", "");
     reject.focus();
   }
 
   function hideReject() {
-    reject.hidden = true;
+    if (typeof reject.close === "function" && reject.open) {
+      reject.close();
+      return;
+    }
+    reject.removeAttribute("open");
+  }
+
+  if (rejectClose) {
+    rejectClose.addEventListener("click", hideReject);
+  }
+
+  /* A click on the backdrop lands on the dialog itself, never on its
+     children, so this closes on outside-click without a second overlay
+     element to manage. */
+  if (reject) {
+    reject.addEventListener("click", function (event) {
+      if (event.target === reject) {
+        hideReject();
+      }
+    });
   }
 
   /* ── the fire ─────────────────────────────────────────── */

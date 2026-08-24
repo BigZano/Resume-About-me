@@ -209,11 +209,29 @@ body.guestbook .gb-status.is-ok{color:var(--forge)}
 body.guestbook .gb-status.is-error{color:var(--ember)}
 
 /* ── the blocked panel ──────────────────────────────────── */
+/* A modal, not a strip in the form. Inline, a rejection shoves the wall
+   down the page and reads as part of the form; as a dialog it is an
+   answer to what you just did, and it leaves when you dismiss it.
+   [hidden] and [open] both have to be honoured, because the fallback
+   path shows it inline when showModal is unavailable. */
+/* Explicit, not inherited from the UA sheet. A browser without <dialog>
+   support treats this as an unknown element, which has no default
+   display:none -- so without this rule the rejection panel is visible on
+   every page load, to exactly the readers least able to cope with it. */
+body.guestbook .gb-reject:not([open]){display:none}
+
 body.guestbook .gb-reject{
-  margin-top:1.4rem;
-  padding:1.1rem 1.1rem 1.2rem;
+  margin:auto;
+  max-width:340px;
+  padding:1.3rem 1.3rem 1.4rem;
   border:1px solid var(--ember-deep);
-  background:var(--ash);
+  background:var(--soot);
+  color:var(--bone);
+  text-align:center;
+}
+
+body.guestbook .gb-reject::backdrop{
+  background:color-mix(in srgb, var(--ash) 82%, transparent);
 }
 
 body.guestbook .gb-reject img{
@@ -236,8 +254,30 @@ body.guestbook .gb-reject-line{
   font-size:var(--step-1);
   letter-spacing:-.02em;
   color:var(--flame);
-  margin:0;
+  margin:0 0 1.1rem;
   max-width:none;
+}
+
+body.guestbook .gb-reject-close{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--bone);
+  background:transparent;
+  border:1px solid var(--iron);
+  padding:.5rem 1.6rem;
+  cursor:pointer;
+}
+
+body.guestbook .gb-reject-close:hover{
+  color:var(--flame);
+  border-color:var(--ember-deep);
+}
+
+body.guestbook .gb-reject-close:focus-visible{
+  outline:2px solid var(--flame);
+  outline-offset:2px;
 }
 
 @media (prefers-reduced-motion: reduce){

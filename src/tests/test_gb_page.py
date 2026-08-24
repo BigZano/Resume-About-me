@@ -175,6 +175,21 @@ class TestRealTemplate(unittest.TestCase):
         img = panel.split("<img", 1)[1].split(">", 1)[0]
         self.assertRegex(img, r'alt="[^"]+"')
 
+    def test_blocked_panel_is_a_modal(self):
+        """A rejection that shoves the wall down the page reads as form.
+
+        <dialog> also buys focus trapping, Escape, and a backdrop from
+        the browser rather than from hand-written script.
+        """
+        tag = re.search(r"<dialog\s[^>]*>", self.markup)
+        self.assertIsNotNone(tag, "no <dialog> element in the page")
+        self.assertIn('id="gb-reject"', tag.group(0))
+
+    def test_blocked_panel_is_labelled(self):
+        tag = re.search(r"<dialog\s[^>]*>", self.markup)
+        self.assertIsNotNone(tag)
+        self.assertIn("aria-labelledby=", tag.group(0))
+
     def test_has_the_bonfire(self):
         self.assertIn('id="gb-fire"', self.markup)
 
@@ -268,6 +283,19 @@ class TestStylesheet(unittest.TestCase):
         self.assertIsNone(re.search(r"#[0-9a-fA-F]{3,8}\b", self.css))
         self.assertNotIn("rgb(", self.css)
         self.assertNotIn("hsl(", self.css)
+
+
+    def test_closed_dialog_is_hidden_explicitly(self):
+        """Not left to the UA stylesheet.
+
+        A browser without <dialog> support treats it as an unknown
+        element, which carries no default display:none -- so the panel
+        would sit open on every page load unless this file says
+        otherwise.
+        """
+        self.assertRegex(
+            self.css, r"\.gb-reject:not\(\[open\]\)\s*\{[^}]*display:\s*none"
+        )
 
 
 class TestFrontendScript(unittest.TestCase):
