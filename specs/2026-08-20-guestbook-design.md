@@ -506,6 +506,28 @@ unrecoverable. `hidden=1` costs nothing and makes §10's audit possible.
   SHA-256 calls — and Pyodide will be materially slower. This is why §6 checks
   length *before* the denylist: the 500-character cap is what bounds the cost,
   and the read path applies the swap only and never matches at all.
+- **The wordlists are only loaded if they sit inside the module root.** Wrangler
+  bundles relative to the directory holding `main`, so `worker/data/` was absent
+  at runtime while every unit test — which reads the files from disk — stayed
+  green. The loaders treat an unreadable file as an empty list by design, so the
+  Worker came up healthy with the swap and the entire denylist inert. Moved to
+  `worker/src/data/`, pulled in by a `[[rules]] type = "Text"` block. Any future
+  data file must live under `src/` and match that glob.
+- **Two `disable_*` compatibility flags are load-bearing.**
+  `disable_python_external_sdk` is required because the `workers-py` SDK cannot
+  be vendored here: it depends on `pyjson5`, which ships no Pyodide wheel, and
+  building it from source needs an emsdk toolchain. `disable_python_no_global_handlers`
+  is required because at this `compatibility_date` the runtime no longer
+  discovers module-level handlers, so `on_fetch` is invisible and every request
+  500s. Both are deprecation shims; the forward path is a `WorkerEntrypoint`
+  subclass plus a working `workers-py` install, and neither is available yet.
+- **The JS boundary is not transparent.** D1 rows arrive as
+  `pyodide.ffi.JsProxy`, which is not subscriptable — `row["n"]` raises
+  `TypeError` — and Python `None` crosses as `undefined`, which D1 rejects with
+  `D1_TYPE_ERROR` instead of storing NULL. Both were invisible to unit tests and
+  to a stub harness; only `wrangler dev` surfaced them. This is the concrete
+  reason the thin-shell rule matters: everything above the boundary is testable
+  offline, everything at it is not.
 - **`https_enforced` is `false`** on the GitHub Pages config. Cloudflare
   terminates TLS so this is not currently exploitable, but it should be enabled.
   Out of scope here; noted so it is not lost.

@@ -11,7 +11,7 @@ Standalone: stdlib only, no src/ imports, runs anywhere.
 
 --review shows entries the FILTER blocked. It is the only place a
 Scunthorpe-class misfire becomes visible. When it shows a real person,
-add their word to worker/data/allow.txt -- do not weaken the filter.
+add their word to worker/src/data/allow.txt -- do not weaken the filter.
 
 The token is read from the environment, never a CLI argument: arguments
 leak into shell history and `ps`.
@@ -29,12 +29,12 @@ from pathlib import Path
 API = os.environ.get("GUESTBOOK_API", "https://api.bretzanotelli.work")
 TOKEN_VAR = "GUESTBOOK_ADMIN_TOKEN"
 
-# worker/data/{allow,blocked}.txt, relative to this file. Read-only, and
+# worker/src/data/{allow,blocked}.txt, relative to this file. Read-only, and
 # only consulted by --review; a missing repo checkout (script copied
 # elsewhere, per the standalone contract above) just skips the check.
 REPO_ROOT = Path(__file__).resolve().parent.parent
-ALLOW_PATH = REPO_ROOT / "worker" / "data" / "allow.txt"
-BLOCKED_PATH = REPO_ROOT / "worker" / "data" / "blocked.txt"
+ALLOW_PATH = REPO_ROOT / "worker" / "src" / "data" / "allow.txt"
+BLOCKED_PATH = REPO_ROOT / "worker" / "src" / "data" / "blocked.txt"
 
 # Mirrors worker/src/normalize.py's normalize(), restricted to the parts
 # digest() actually exercises (NFKD fold, mark strip, zero-width strip,
@@ -170,10 +170,10 @@ def main():
         _print(blocked)
         if blocked:
             print("\nIf any of these are real people, add the word to "
-                  "worker/data/allow.txt. Do not weaken the filter.")
+                  "worker/src/data/allow.txt. Do not weaken the filter.")
         overlap = check_allow_overlap()
         if overlap:
-            print("\nWARNING: these worker/data/allow.txt entries hash to "
+            print("\nWARNING: these worker/src/data/allow.txt entries hash to "
                   "an already-blocked term, silently nullifying that "
                   "block. This is a bug in the term lists, not the "
                   "matcher -- fix by removing the term from one list:")

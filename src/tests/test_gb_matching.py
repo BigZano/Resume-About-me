@@ -16,7 +16,7 @@ Two kinds of term appear here, and neither is a slur:
      'Cockburn', 'assassin', 'analysis', 'bass', 'peacock', 'titles' and
      'cumulative' false-positive in naive filters.
 
-worker/data/blocked.txt ships with a header and ZERO digests: the repo
+worker/src/data/blocked.txt ships with a header and ZERO digests: the repo
 owner supplies the plaintext terms and runs scripts/hash_terms.py
 themselves, and the plaintext never enters the repo. An empty blocklist
 makes contains_blocked() return False for everything, so a Scunthorpe
@@ -44,7 +44,7 @@ from matching import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DATA = REPO_ROOT / "worker" / "data"
+DATA = REPO_ROOT / "worker" / "src" / "data"
 
 # Fake terms, one per length class the algorithm cares about:
 #   zqblocked (9) -- long, reachable by both passes

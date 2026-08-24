@@ -12,7 +12,7 @@ Design: `../specs/2026-08-20-guestbook-design.md`
 | `src/swaps.py` | Render-time profanity swap. Pure. |
 | `src/policy.py` | Orchestration: check_name / check_message. Pure. |
 | `src/entry.py` | HTTP routing, D1, rate limiting. Thin shell. |
-| `data/` | Wordlists. `blocked.txt` is SHA-256 digests only. |
+| `src/data/` | Wordlists. `blocked.txt` is SHA-256 digests only. |
 
 The four pure modules import stdlib only and are tested by the repo's
 normal `./test.sh` — no wrangler, no network, no Cloudflare account.
@@ -77,6 +77,43 @@ npx wrangler secret put RATE_SALT
 
 ## Local development
 
+Requires Node 22+; wrangler refuses to start on 20.
+
 ```bash
 npx wrangler dev
 ```
+
+## Runtime constraints
+
+Three things about this Worker are not free choices. Changing any of
+them breaks it in a way local unit tests cannot see, because the pure
+modules never touch the runtime.
+
+**`src/data/`, not `data/`.** Wrangler bundles files relative to the
+module root, which is the directory holding `main` — `src/`. Wordlists
+outside it are silently absent at runtime, and the loaders treat an
+unreadable file as an empty list. The failure mode is not a crash: it is
+a Worker that accepts everything, with the profanity swap and the entire
+denylist inert. The `[[rules]]` block with `type = "Text"` is what pulls
+the `.txt` files into the bundle; without it they are dropped even from
+`src/`.
+
+**`disable_python_external_sdk`.** Without it the runtime looks for the
+`workers` package from `workers-py`, which must be vendored by
+`pywrangler sync`. That resolution fails here: `workers-py` depends on
+`pyjson5`, which publishes no Pyodide/emscripten wheel, and building it
+from source needs an emsdk toolchain. The flag selects the runtime's
+built-in SDK instead, which supplies the same `Response` import.
+
+**`disable_python_no_global_handlers`.** At this `compatibility_date`
+the runtime no longer discovers module-level handlers, so `on_fetch`
+is invisible and every request 500s with "we lack a handler for
+FetchEvents". The flag restores discovery. The alternative is porting
+`entry.py` to a `WorkerEntrypoint` subclass, which is the forward path
+once `workers-py` can actually be installed.
+
+**D1 rows are JS objects.** They arrive as `pyodide.ffi.JsProxy`, which
+is not subscriptable — `row["n"]` raises `TypeError`. `_to_py()` in
+`entry.py` converts them. Relatedly, Python `None` crosses into JS as
+`undefined`, which D1 rejects with `D1_TYPE_ERROR`; write SQL `NULL` as
+a literal rather than binding `None`.

@@ -5,7 +5,7 @@ The repo is public. The plaintext input is NEVER committed — write it to a
 path outside the repo, run this, commit only the output.
 
 Usage:
-    python3 scripts/hash_terms.py ~/terms.txt worker/data/blocked.txt
+    python3 scripts/hash_terms.py ~/terms.txt worker/src/data/blocked.txt
 """
 import sys
 from pathlib import Path

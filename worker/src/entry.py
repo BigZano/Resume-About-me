@@ -17,7 +17,7 @@ from policy import check_message, check_name
 from swaps import apply_swaps, load_swaps
 from workers import Response
 
-_DATA = Path(__file__).resolve().parent.parent / "data"
+_DATA = Path(__file__).resolve().parent / "data"
 
 # Loaded once per isolate, not per request.
 BLOCKLIST = load_blocked(str(_DATA / "blocked.txt"))
@@ -32,6 +32,17 @@ BURST_WINDOW = timedelta(minutes=10)
 BURST_MAX = 3
 DAILY_WINDOW = timedelta(hours=24)
 DAILY_MAX = 10
+
+
+def _to_py(value):
+    """Convert a D1 result across the JS boundary.
+
+    D1 hands back JS objects, which arrive as `pyodide.ffi.JsProxy`.
+    A JsProxy is not subscriptable, so `row["n"]` raises TypeError and
+    the request 500s. Marshalling, not policy — nothing here decides
+    anything about content.
+    """
+    return value.to_py() if hasattr(value, "to_py") else value
 
 
 def _cors(env):
@@ -84,6 +95,7 @@ async def _rate_limited(env, ip_hash) -> bool:
             .bind(ip_hash, since)
             .first()
         )
+        row = _to_py(row)
         if row and row["n"] >= cap:
             return True
     return False
@@ -97,7 +109,7 @@ async def _list_entries(env, limit, include_hidden=False):
         + "ORDER BY id DESC LIMIT ?"
     )
     result = await env.DB.prepare(sql).bind(limit).all()
-    return result.results or []
+    return _to_py(result).get("results") or []
 
 
 async def _get_entries(request, env):
@@ -218,15 +230,18 @@ async def _admin(request, env, path):
     if len(parts) == 4 and parts[1] == "entries":
         entry_id, action = parts[2], parts[3]
         if action in ("hide", "unhide"):
-            hidden = 1 if action == "hide" else 0
-            reason = "manual" if hidden else None
-            await (
-                env.DB.prepare(
-                    "UPDATE entries SET hidden = ?, block_reason = ? WHERE id = ?"
-                )
-                .bind(hidden, reason, entry_id)
-                .run()
+            # NULL is written as a SQL literal, not a binding. Python None
+            # crosses into JS as `undefined`, and D1 rejects that with
+            # D1_TYPE_ERROR rather than storing NULL -- which made unhide
+            # 500 and leave the entry hidden.
+            sql = (
+                "UPDATE entries SET hidden = 1, block_reason = 'manual' "
+                "WHERE id = ?"
+                if action == "hide"
+                else "UPDATE entries SET hidden = 0, block_reason = NULL "
+                "WHERE id = ?"
             )
+            await env.DB.prepare(sql).bind(entry_id).run()
             return _json(env, {"ok": True})
 
     return _json(env, {"ok": False, "code": "not_found"}, 404)

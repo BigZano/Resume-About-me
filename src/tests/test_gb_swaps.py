@@ -124,5 +124,5 @@ class TestLoadSwaps(unittest.TestCase):
         self.assertEqual(load_swaps(path), {"fuck": "flip"})
 
     def test_real_swaps_file_parses(self):
-        real = Path(__file__).resolve().parents[2] / "worker" / "data" / "swaps.txt"
+        real = Path(__file__).resolve().parents[2] / "worker" / "src" / "data" / "swaps.txt"
         self.assertGreater(len(load_swaps(str(real))), 0)
