@@ -209,14 +209,14 @@ body.guestbook .gb-status.is-ok{color:var(--forge)}
 body.guestbook .gb-status.is-error{color:var(--ember)}
 
 /* ── the blocked panel ──────────────────────────────────── */
-body.guestbook .gb-bender{
+body.guestbook .gb-reject{
   margin-top:1.4rem;
   padding:1.1rem 1.1rem 1.2rem;
   border:1px solid var(--ember-deep);
   background:var(--ash);
 }
 
-body.guestbook .gb-bender img{
+body.guestbook .gb-reject img{
   max-width:280px;
   width:100%;
   border:1px solid var(--iron);
@@ -228,9 +228,9 @@ body.guestbook .gb-bender img{
    animated WebP, so reduced motion swaps the element rather than the
    playback. display:none also drops the spare copy out of the a11y
    tree, so the alt text is never announced twice. */
-body.guestbook .gb-bender-still{display:none}
+body.guestbook .gb-reject-still{display:none}
 
-body.guestbook .gb-bender-line{
+body.guestbook .gb-reject-line{
   font-family:var(--display);
   font-weight:700;
   font-size:var(--step-1);
@@ -241,8 +241,8 @@ body.guestbook .gb-bender-line{
 }
 
 @media (prefers-reduced-motion: reduce){
-  body.guestbook .gb-bender-motion{display:none}
-  body.guestbook .gb-bender-still{display:block}
+  body.guestbook .gb-reject-motion{display:none}
+  body.guestbook .gb-reject-still{display:block}
 }
 
 /* ── the wall ───────────────────────────────────────────── */

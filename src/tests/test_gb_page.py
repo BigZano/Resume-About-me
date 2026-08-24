@@ -168,10 +168,10 @@ class TestRealTemplate(unittest.TestCase):
         self.assertIn('id="gb-status"', self.markup)
 
     def test_has_the_blocked_panel(self):
-        self.assertIn('id="gb-bender"', self.markup)
+        self.assertIn('id="gb-reject"', self.markup)
 
     def test_blocked_panel_image_has_alt_text(self):
-        panel = self.markup.split('id="gb-bender"', 1)[1]
+        panel = self.markup.split('id="gb-reject"', 1)[1]
         img = panel.split("<img", 1)[1].split(">", 1)[0]
         self.assertRegex(img, r'alt="[^"]+"')
 

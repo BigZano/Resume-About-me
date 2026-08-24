@@ -50,7 +50,7 @@
   var counter = document.getElementById("gb-counter");
   var count = document.getElementById("gb-count");
   var status = document.getElementById("gb-status");
-  var bender = document.getElementById("gb-bender");
+  var reject = document.getElementById("gb-reject");
   var list = document.getElementById("gb-entries");
   var empty = document.getElementById("gb-empty");
 
@@ -73,12 +73,12 @@
 
   function showBender() {
     setStatus("");
-    bender.hidden = false;
-    bender.focus();
+    reject.hidden = false;
+    reject.focus();
   }
 
   function hideBender() {
-    bender.hidden = true;
+    reject.hidden = true;
   }
 
   /* ── entry rendering ──────────────────────────────────── */
