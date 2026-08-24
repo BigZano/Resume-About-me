@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Guestbook</title>
+
+    <!-- Basic SEO -->
+    <meta name="description" content="Sign the guestbook." />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Guestbook" />
+    <meta property="og:description" content="Sign the guestbook." />
+    <meta property="og:url" content="/guestbook.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Guestbook" />
+    <meta name="twitter:description" content="Sign the guestbook." />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <meta name="theme-color" content="#14100E" />
+
+    <!-- Styles -->
+    <link href="./index.css?v=3" rel="stylesheet" />
+    <link href="./guestbook.css?v=1" rel="stylesheet" />
+  </head>
+
+  <body class="guestbook">
+    <div class="gb-shell">
+
+      <header class="gb-head">
+        <a class="back-button" href="./index.html">&larr; Bret Zanotelli</a>
+        <p class="eyebrow"> ~ > sign </p>
+        <h1>Guestbook</h1>
+        <p class="gb-lede">
+          Leave a mark. Names and messages are public, they go up straight
+          away, and they stay up unless I take them down.
+        </p>
+      </header>
+
+      <main class="gb-main">
+
+        <section class="gb-sign" aria-labelledby="gb-sign-head">
+          <p class="eyebrow" id="gb-sign-head">Your mark</p>
+
+          <form id="gb-form" novalidate>
+            <div class="gb-field">
+              <label for="gb-name">Name</label>
+              <input id="gb-name" name="name" type="text" maxlength="40"
+                     required autocomplete="nickname" spellcheck="false" />
+            </div>
+
+            <div class="gb-field">
+              <label for="gb-message">Message</label>
+              <textarea id="gb-message" name="message" maxlength="500"
+                        rows="4" required
+                        aria-describedby="gb-counter"></textarea>
+              <p class="gb-counter" id="gb-counter">
+                <span id="gb-count">0</span>/500
+              </p>
+            </div>
+
+            <!-- Honeypot. Bots fill it; humans never see it. Not display:none —
+                 some bots skip those. Positioned offscreen instead. -->
+            <div class="gb-hp" aria-hidden="true">
+              <label for="gb-website">Website</label>
+              <input id="gb-website" name="website" type="text"
+                     tabindex="-1" autocomplete="off" />
+            </div>
+
+            <div class="gb-actions">
+              <button id="gb-submit" class="gb-submit" type="submit">Sign it</button>
+            </div>
+          </form>
+
+          <p id="gb-status" class="gb-status" aria-live="polite" role="status"
+             tabindex="-1"></p>
+
+          <!-- Shown only on a `blocked` response, as a modal rather
+               than inline: a rejection that pushes the form down the
+               page reads as part of the form. A native <dialog> is used
+               so focus trapping, Escape, and the backdrop come from the
+               browser instead of from us; the script falls back to
+               showing it inline if showModal is unavailable.
+
+               Both images live in static/ and are copied by the build:
+                 static/fry-reject.webp        animated (WebP, not GIF)
+                 static/fry-reject-still.webp  one static poster frame
+               Either may be absent -- the alt text stands in on its
+               own. Self-hosted on purpose: the Tenor embed would run a
+               third-party script, hand every blocked visitor's IP to
+               Tenor, render nothing offline, and defeat the
+               reduced-motion swap. -->
+          <dialog id="gb-reject" class="gb-reject"
+                  aria-labelledby="gb-reject-line">
+            <img class="gb-reject-motion" src="./fry-reject.webp"
+                 alt="Fry from Futurama moons the Mom Corp executives, captioned take that." />
+            <img class="gb-reject-still" src="./fry-reject-still.webp"
+                 alt="Fry from Futurama moons the Mom Corp executives, captioned take that." />
+            <p class="gb-reject-line" id="gb-reject-line">That's against the rules.</p>
+            <button type="button" class="gb-reject-close" id="gb-reject-close">
+              Fine
+            </button>
+          </dialog>
+        </section>
+
+        <!-- The hinge between signing and the wall. It burns whenever
+             the page is up; `data-heat` still scales it with the number
+             of marks, quietly, with no label on it. Signing blooms the
+             fire and speaks once, the way the games acknowledge a
+             bonfire. The blade is drawn, not photographed — no game
+             asset is used or needed. -->
+        <figure class="gb-fire" id="gb-fire" data-heat="low">
+          <svg class="gb-fire-art" viewBox="0 0 120 148" width="120"
+               height="148" aria-hidden="true" focusable="false">
+            <defs>
+              <!-- The steel does not stop at the flame line, it stops
+                   being visible. Solid down to the guard, gone by the
+                   time it reaches the bed. -->
+              <linearGradient id="gb-steel-fade" x1="0" y1="0" x2="0" y2="1">
+                <stop class="gb-steel-stop" offset="0" stop-opacity="1" />
+                <stop class="gb-steel-stop" offset="0.52" stop-opacity="1" />
+                <stop class="gb-steel-stop" offset="0.74" stop-opacity="0.45" />
+                <stop class="gb-steel-stop" offset="0.9" stop-opacity="0.12" />
+                <stop class="gb-steel-stop" offset="1" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+
+            <!-- ash bed -->
+            <ellipse class="gb-fire-ash" cx="60" cy="133" rx="46" ry="8" />
+            <path class="gb-fire-mound"
+                  d="M18 133c5-10 15-15 27-17 8-1 13-4 15-7 2 3 7 6 15 7 12 2 22 7 27 17z" />
+            <!-- flame, drawn behind the blade so the steel reads cold -->
+            <g class="gb-fire-flames">
+              <path class="gb-fire-outer"
+                    d="M48 118C38 106 38 88 45 72c6-14 11-28 13-46 6 18 12 30 17 44 7 16 7 34-3 48z" />
+              <path class="gb-fire-mid"
+                    d="M54 118c-6-10-6-26 0-38 4-9 7-18 8-30 4 12 7 20 9 29 4 13 2 29-4 39z" />
+              <path class="gb-fire-core"
+                    d="M60 118c-4-7-4-18 0-28 4 10 5 21 1 28z" />
+            </g>
+            <!-- What the ash is made of. Every bonfire in that world is
+                 built on the people who did not make it past it. -->
+            <g class="gb-fire-bones">
+              <!-- long bones, knuckled at both ends -->
+              <g class="gb-fire-bone">
+                <rect x="24" y="125" width="20" height="3" rx="1.5"
+                      transform="rotate(-8 34 126)" />
+                <circle cx="24" cy="125" r="2.2" />
+                <circle cx="24" cy="128" r="2.2" />
+                <circle cx="45" cy="122" r="2.2" />
+                <circle cx="45" cy="125" r="2.2" />
+              </g>
+              <g class="gb-fire-bone">
+                <rect x="78" y="124" width="17" height="2.6" rx="1.3"
+                      transform="rotate(7 86 125)" />
+                <circle cx="78" cy="124" r="1.9" />
+                <circle cx="78" cy="126.6" r="1.9" />
+                <circle cx="95" cy="126" r="1.9" />
+                <circle cx="95" cy="128.6" r="1.9" />
+              </g>
+              <!-- skulls: cranium, brow, two sockets, a hint of jaw -->
+              <g class="gb-fire-skull">
+                <path d="M38 118c4.6 0 7.4 3.1 7.4 7 0 2.6-1.2 4.4-2.9 5.4l.3 2.6h-9.6l.3-2.6c-1.7-1-2.9-2.8-2.9-5.4 0-3.9 2.8-7 7.4-7z" />
+                <circle class="gb-fire-socket" cx="35.1" cy="124.4" r="1.9" />
+                <circle class="gb-fire-socket" cx="40.9" cy="124.4" r="1.9" />
+                <path class="gb-fire-socket" d="M37.1 128.4h1.8v2h-1.8z" />
+              </g>
+              <g class="gb-fire-skull">
+                <path d="M75 122c3.4 0 5.5 2.3 5.5 5.2 0 1.9-.9 3.3-2.2 4l.2 1.9h-7.1l.2-1.9c-1.3-.7-2.2-2.1-2.2-4 0-2.9 2.1-5.2 5.5-5.2z" />
+                <circle class="gb-fire-socket" cx="72.8" cy="126.7" r="1.4" />
+                <circle class="gb-fire-socket" cx="77.2" cy="126.7" r="1.4" />
+              </g>
+              <!-- a third skull, half sunk, facing away -->
+              <g class="gb-fire-skull">
+                <path d="M53 127c3 0 4.8 2 4.8 4.5 0 1-.3 1.9-.8 2.5h-8c-.5-.6-.8-1.5-.8-2.5 0-2.5 1.8-4.5 4.8-4.5z" />
+                <circle class="gb-fire-socket" cx="51.2" cy="130.6" r="1.2" />
+                <circle class="gb-fire-socket" cx="54.8" cy="130.6" r="1.2" />
+              </g>
+              <!-- more of the pile: a femur across the front, a shorter
+                   bone at the left edge, and two ribs curving out of it -->
+              <g class="gb-fire-bone">
+                <rect x="56" y="133" width="24" height="2.8" rx="1.4"
+                      transform="rotate(-3 68 134)" />
+                <circle cx="56" cy="133" r="2" />
+                <circle cx="56" cy="135.6" r="2" />
+                <circle cx="80" cy="131.8" r="2" />
+                <circle cx="80" cy="134.4" r="2" />
+              </g>
+              <g class="gb-fire-bone">
+                <rect x="18" y="131" width="13" height="2.4" rx="1.2"
+                      transform="rotate(9 24 132)" />
+                <circle cx="18" cy="131" r="1.7" />
+                <circle cx="31" cy="133" r="1.7" />
+              </g>
+              <path class="gb-fire-rib"
+                    d="M30 120c6-4 13-5 18-3" />
+              <path class="gb-fire-rib"
+                    d="M86 118c-5-3-11-4-16-2" />
+            </g>
+
+            <!-- the mark someone drove into the ash and left standing -->
+            <g class="gb-fire-blade">
+              <path class="gb-fire-steel" fill="url(#gb-steel-fade)"
+                    d="M58.4 44h3.2l1.2 78-2.8 7-2.8-7z" />
+              <rect class="gb-fire-guard" x="49" y="40" width="22" height="3.5" rx="1" />
+              <rect class="gb-fire-grip" x="57.6" y="24" width="4.8" height="16" rx="1.5" />
+              <circle class="gb-fire-pommel" cx="60" cy="21" r="3.4" />
+            </g>
+            <!-- Front tongues. Drawn after the blade on purpose: fire
+                 passes in front of the steel as well as behind it, which
+                 is what stops the sword reading as a decal laid on top
+                 of a flame. -->
+            <g class="gb-fire-flames gb-fire-front">
+              <path class="gb-fire-front-outer"
+                    d="M52 118c-5-9-4-21 2-31 1 11 3 17 6 23 3 8 2 14-1 18z" />
+              <path class="gb-fire-front-mid"
+                    d="M66 118c4-8 4-18 0-27 2 10 6 15 7 21 1 5 0 5-1 6z" />
+            </g>
+
+            <!-- embers, only in motion once the fire is lit -->
+            <g class="gb-fire-motes">
+              <circle class="gb-fire-mote" cx="44" cy="62" r="1.6" />
+              <circle class="gb-fire-mote" cx="79" cy="52" r="1.3" />
+              <circle class="gb-fire-mote" cx="66" cy="34" r="1.1" />
+              <circle class="gb-fire-mote" cx="84" cy="76" r="1.5" />
+            </g>
+          </svg>
+          <!-- Empty until a mark lands, and hidden from assistive tech:
+               the status line above is the accessible confirmation, and
+               announcing both would say the same thing twice. -->
+          <figcaption class="gb-fire-flourish" id="gb-fire-flourish"
+                      aria-hidden="true"></figcaption>
+        </figure>
+
+        <section class="gb-wall" aria-labelledby="gb-wall-head">
+          <p class="eyebrow" id="gb-wall-head">Marks</p>
+          <p class="gb-legend">Newest first. The edge cools as a mark ages.</p>
+          <ul id="gb-entries" class="gb-entries"></ul>
+          <p id="gb-empty" class="gb-empty" hidden></p>
+          <noscript>
+            <p class="gb-empty">
+              The guestbook needs JavaScript to load marks and to sign.
+              The rest of the site works without it.
+            </p>
+          </noscript>
+        </section>
+
+      </main>
+
+      <footer class="gb-footer">
+        <p>2026 &middot; Bret Zanotelli &mdash; forged in fire, tempered in code</p>
+      </footer>
+
+    </div>
+
+    <script src="./guestbook.js" defer></script>
+  </body>
+</html>

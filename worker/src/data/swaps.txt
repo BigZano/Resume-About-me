@@ -1,0 +1,17 @@
+# Profanity is allowed on this site. This file only softens how it RENDERS.
+# Format: term = replacement
+# Replacements are shown by default; the reader can reveal the original.
+# Tune freely — Salamanders/Nocturne flavour fits the site's theme.
+
+fuck = flip
+fucking = flipping
+shit = shoot
+bullshit = bullhockey
+bitch = bantha
+bastard = blackguard
+asshole = ashhole
+dickhead = drakehead
+cunt = crucible
+piss = puddle
+damn = dang
+goddamn = throne-cursed

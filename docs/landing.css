@@ -319,3 +319,144 @@ body.landing .home-footer p{
   body.landing .home-main > nav{margin-bottom:2.75rem}
   body.landing .page-links a{font-size:var(--step-1)}
 }
+
+/* ── guestbook cell ─────────────────────────────────────── */
+/* The 4th card is the only live thing on the front door, so it borrows
+   the guestbook's own ornament to say how live it is. On that page a
+   mark is struck hot and then cools: --flame, --ember, --ember-deep,
+   --iron. The rail down this card's left edge is that same scale read
+   at a single value — the temperature of the newest mark:
+
+     is-live     straight from the Worker      --flame
+     is-cached   last known good, under 24h    --ember
+     (neither)   the script never ran          --iron
+     is-cold     there is nothing to show      --iron, content cools
+
+   `is-cold` is layer 3 of the fallback and a design state, not an error
+   state. The forge is out: the heading cools off the flame, the sig
+   area goes to --iron and reads as a hole in the grid, the hover warmth
+   is switched off, and the one thing left lit is the link to sign. No
+   colour value is defined here; index.css owns the palette.
+
+   Never a bare `.guestbook` class — index.css prints that one as
+   display:none. */
+body.landing .into-card--guestbook{
+  position:relative;
+  padding-left:1.55rem;                 /* clears the rail */
+}
+
+body.landing .into-card--guestbook::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:var(--iron);
+  transition:background .2s ease;
+}
+/* Live: the rail reads as heat rising off the wall, the same idea the
+   guestbook page's bonfire carries. Cached and cold stay flat — a
+   gradient there would claim a liveness the data does not have. */
+body.landing .into-card--guestbook.is-live::before{
+  background:linear-gradient(to top, var(--ember-deep), var(--flame));
+}
+body.landing .into-card--guestbook.is-cached::before{background:var(--ember)}
+
+/* the signature slot — the only node the script rewrites */
+body.landing .into-card--guestbook .gb-sig{
+  margin:0 0 .95rem;
+  font-size:.95rem;
+  line-height:1.6;
+  max-width:none;
+}
+
+/* the standing invitation: shown before the script runs, kept when
+   there is nothing to show. Same register as the other cards' notes. */
+body.landing .into-card--guestbook .gb-invite{
+  color:var(--copper);
+  opacity:.55;
+  font-style:italic;
+}
+
+body.landing .into-card--guestbook .gb-who{
+  display:block;
+  font-family:var(--display);
+  font-weight:700;
+  font-size:var(--step-0);
+  letter-spacing:-.02em;
+  color:var(--bone);
+  /* a 40-character name with no spaces must not blow out the cell */
+  overflow-wrap:anywhere;
+}
+
+body.landing .into-card--guestbook .gb-said{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  line-clamp:3;
+  overflow:hidden;
+  margin-top:.3rem;
+  color:var(--bone);
+  opacity:.82;
+  /* 500 characters with no space in them is a valid submission */
+  overflow-wrap:anywhere;
+}
+
+body.landing .into-card--guestbook .gb-when{
+  display:block;
+  margin-top:.5rem;
+  font-family:var(--util);
+  font-size:.7rem;
+  letter-spacing:.12em;
+  color:var(--copper);
+  opacity:.75;
+}
+
+/* the call to action, in the same utility register as Elsewhere */
+body.landing .into-card--guestbook .gb-cta{
+  margin:0;
+  max-width:none;
+}
+body.landing .into-card--guestbook .gb-cta a{
+  font-family:var(--util);
+  font-size:.78rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--copper);
+  border-bottom:1px solid transparent;
+}
+body.landing .into-card--guestbook .gb-cta a:hover,
+body.landing .into-card--guestbook .gb-cta a:focus-visible{
+  color:var(--flame);
+  border-bottom-color:var(--flame);
+}
+
+/* ── the cold card ──────────────────────────────────────── */
+body.landing .into-card--guestbook.is-cold,
+body.landing .into-card--guestbook.is-cold:hover{
+  background:var(--ash);                /* no warming on hover */
+}
+body.landing .into-card--guestbook.is-cold h3{color:var(--copper)}
+body.landing .into-card--guestbook.is-cold .gb-invite{
+  color:var(--iron);
+  opacity:1;
+}
+/* the link stays lit: the forge is out, the anvil is not */
+body.landing .into-card--guestbook.is-cold .gb-cta a{color:var(--copper)}
+
+/* ── print ──────────────────────────────────────────────── */
+/* index.css prints black on white. A cooled card left at --iron would
+   print as an empty box, so the cold state hands its colours back. */
+@media print{
+  body.landing .into-card--guestbook::before{display:none}
+  body.landing .into-card--guestbook{padding-left:1.25rem}
+  body.landing .into-card--guestbook.is-cold h3,
+  body.landing .into-card--guestbook.is-cold .gb-invite,
+  body.landing .into-card--guestbook.is-cold .gb-cta a,
+  body.landing .into-card--guestbook .gb-said,
+  body.landing .into-card--guestbook .gb-when{
+    color:inherit;
+    opacity:1;
+  }
+}

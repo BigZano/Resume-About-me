@@ -1,0 +1,778 @@
+/* ============================================================
+   Guestbook — the sign panel and the wall of marks.
+
+   Everything is scoped to body.guestbook so it can't leak into the
+   resume, About Me, or the dev diary. Palette, typefaces, and the
+   1px-gutter grid all come from index.css: this file defines no
+   colour value of its own, only new arrangements of the existing
+   custom properties.
+
+   The one idea here: a mark is struck hot and then cools. The newest
+   entry carries a --flame edge, the next --ember, the next
+   --ember-deep, and everything older has gone cold to --iron. Recency
+   is the only ordering the wall has, so the ornament that already
+   exists on this site (the ember tick) is reused to carry it.
+   ============================================================ */
+
+/* [hidden] has to outrank the display rules below, or the blocked
+   panel and the empty state show up on load. */
+body.guestbook [hidden]{display:none !important}
+
+body.guestbook{
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* the same hearth glow the landing page sits in, kept low and cool
+   so the wall stays the brightest thing on the page */
+body.guestbook::after{
+  content:"";
+  position:fixed;
+  left:50%;
+  bottom:-45vh;
+  width:150vw;
+  height:70vh;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,
+              color-mix(in srgb, var(--ember) 10%, transparent),
+              transparent 65%);
+  pointer-events:none;
+  z-index:0;
+}
+
+body.guestbook .gb-shell{
+  position:relative;
+  z-index:1;
+  max-width:880px;
+  margin:0 auto;
+  padding:0 1.5rem;
+}
+
+/* ── header ─────────────────────────────────────────────── */
+body.guestbook .gb-head{
+  padding:3rem 0 2.6rem;
+}
+
+body.guestbook .gb-head .back-button{margin:0 0 2.4rem}
+
+body.guestbook .gb-head h1{
+  border-bottom:0;
+  padding-bottom:0;
+  margin:0;
+}
+
+/* index.css styles `h1 + p` as the small mono contact line. This is a
+   lede, not a contact line, so it takes the body face back explicitly
+   rather than inheriting that treatment by accident. */
+body.guestbook .gb-lede{
+  font-family:var(--body);
+  font-size:var(--step-0);
+  letter-spacing:0;
+  margin:1.1rem 0 0;
+  max-width:52ch;
+  color:var(--bone);
+  opacity:.85;
+}
+
+body.guestbook .gb-main{
+  border-top:1px solid var(--iron);
+  padding-top:2.6rem;
+}
+
+/* ── the sign panel: a plate on the bench, still hot on top ── */
+body.guestbook .gb-sign{
+  position:relative;
+  background:var(--soot);
+  border:1px solid var(--iron);
+  border-top:3px solid var(--ember);
+  padding:1.5rem 1.4rem 1.6rem;
+  margin-bottom:3.5rem;
+}
+
+body.guestbook .gb-sign .eyebrow{margin-bottom:1.4rem}
+
+body.guestbook .gb-field{margin-bottom:1.2rem}
+
+body.guestbook .gb-field label{
+  display:block;
+  font-family:var(--util);
+  font-size:.68rem;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  color:var(--copper);
+  margin-bottom:.45rem;
+}
+
+body.guestbook .gb-field input,
+body.guestbook .gb-field textarea{
+  display:block;
+  width:100%;
+  font-family:var(--body);
+  font-size:var(--step-0);
+  line-height:1.55;
+  color:var(--bone);
+  background:var(--ash);
+  border:1px solid var(--iron);
+  border-radius:0;
+  padding:.6rem .7rem;
+  transition:border-color .18s ease, background .18s ease;
+}
+
+body.guestbook .gb-field textarea{
+  resize:vertical;
+  min-height:6.5rem;
+}
+
+body.guestbook .gb-field input:hover,
+body.guestbook .gb-field textarea:hover{border-color:var(--copper)}
+
+body.guestbook .gb-field input:focus,
+body.guestbook .gb-field textarea:focus{
+  border-color:var(--flame);
+  outline-offset:1px;
+}
+
+/* ── live counter ───────────────────────────────────────── */
+body.guestbook .gb-counter{
+  font-family:var(--util);
+  font-size:.7rem;
+  letter-spacing:.1em;
+  color:var(--copper);
+  opacity:.7;
+  text-align:right;
+  margin:.4rem 0 0;
+  max-width:none;
+  transition:color .18s ease, opacity .18s ease;
+}
+body.guestbook .gb-counter.is-close{color:var(--flame); opacity:1}
+body.guestbook .gb-counter.is-full{color:var(--ember); opacity:1}
+
+/* ── honeypot ───────────────────────────────────────────── */
+/* Bots fill it; humans never see it. Deliberately NOT hidden with
+   display:none — plenty of bots skip fields hidden that way. Parked
+   offscreen instead, out of the tab order and out of the a11y tree. */
+body.guestbook .gb-hp{
+  position:absolute;
+  left:-9999px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+
+/* ── submit: a stamp, struck ────────────────────────────── */
+body.guestbook .gb-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:1.4rem;
+}
+
+body.guestbook .gb-submit{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--flame);
+  background:transparent;
+  border:1px solid var(--flame);
+  border-radius:0;
+  padding:.62rem 1.5rem;
+  cursor:pointer;
+  transition:background .18s ease, color .18s ease,
+             border-color .18s ease, transform .1s ease;
+}
+body.guestbook .gb-submit:hover{
+  background:var(--flame);
+  color:var(--ash);
+}
+body.guestbook .gb-submit:active{transform:translateY(1px)}
+body.guestbook .gb-submit:disabled{
+  color:var(--copper);
+  border-color:var(--iron);
+  background:transparent;
+  opacity:.55;
+  cursor:progress;
+  transform:none;
+}
+
+/* ── status line ────────────────────────────────────────── */
+body.guestbook .gb-status{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.04em;
+  color:var(--copper);
+  margin:1.2rem 0 0;
+  max-width:none;
+  min-height:1.4em;
+}
+body.guestbook .gb-status.is-ok{color:var(--forge)}
+body.guestbook .gb-status.is-error{color:var(--ember)}
+
+/* ── the blocked panel ──────────────────────────────────── */
+/* A modal, not a strip in the form. Inline, a rejection shoves the wall
+   down the page and reads as part of the form; as a dialog it is an
+   answer to what you just did, and it leaves when you dismiss it.
+   [hidden] and [open] both have to be honoured, because the fallback
+   path shows it inline when showModal is unavailable. */
+/* Explicit, not inherited from the UA sheet. A browser without <dialog>
+   support treats this as an unknown element, which has no default
+   display:none -- so without this rule the rejection panel is visible on
+   every page load, to exactly the readers least able to cope with it. */
+body.guestbook .gb-reject:not([open]){display:none}
+
+body.guestbook .gb-reject{
+  margin:auto;
+  max-width:340px;
+  padding:1.3rem 1.3rem 1.4rem;
+  border:1px solid var(--ember-deep);
+  background:var(--soot);
+  color:var(--bone);
+  text-align:center;
+}
+
+body.guestbook .gb-reject::backdrop{
+  background:color-mix(in srgb, var(--ash) 82%, transparent);
+}
+
+body.guestbook .gb-reject img{
+  max-width:280px;
+  width:100%;
+  border:1px solid var(--iron);
+  background:var(--soot);
+  margin:0 0 .9rem;
+}
+
+/* One animated asset, one static poster frame. CSS cannot pause an
+   animated WebP, so reduced motion swaps the element rather than the
+   playback. display:none also drops the spare copy out of the a11y
+   tree, so the alt text is never announced twice. */
+body.guestbook .gb-reject-still{display:none}
+
+body.guestbook .gb-reject-line{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:var(--step-1);
+  letter-spacing:-.02em;
+  color:var(--flame);
+  margin:0 0 1.1rem;
+  max-width:none;
+}
+
+body.guestbook .gb-reject-close{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--bone);
+  background:transparent;
+  border:1px solid var(--iron);
+  padding:.5rem 1.6rem;
+  cursor:pointer;
+}
+
+body.guestbook .gb-reject-close:hover{
+  color:var(--flame);
+  border-color:var(--ember-deep);
+}
+
+body.guestbook .gb-reject-close:focus-visible{
+  outline:2px solid var(--flame);
+  outline-offset:2px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  body.guestbook .gb-reject-motion{display:none}
+  body.guestbook .gb-reject-still{display:block}
+}
+
+/* ── the bonfire ────────────────────────────────────────── */
+/* The one loud thing on the page, so everything around it stays
+   quiet. Heat is data: guestbook.js sets [data-heat] from the number
+   of marks, and every visual difference below hangs off that one
+   attribute. The flame's core needed a token the palette did not
+   have; it was added to index.css, where colour lives, rather than
+   here. */
+body.guestbook .gb-fire{
+  margin:2.6rem auto 2.2rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.6rem;
+}
+
+body.guestbook .gb-fire-art{
+  display:block;
+  width:136px;
+  height:auto;
+  overflow:visible;
+}
+
+body.guestbook .gb-fire-ash{fill:var(--soot)}
+body.guestbook .gb-fire-mound{fill:var(--iron)}
+/* Bone reads as aged, not white: a step warmer than the ash it sits in,
+   a step darker than the flame behind it, so it silhouettes rather than
+   competes. Sockets are punched in page ground, which is the only way
+   they stay dark against a lit flame. */
+body.guestbook .gb-fire-bone,
+body.guestbook .gb-fire-skull{
+  fill:color-mix(in srgb, var(--copper) 42%, var(--iron));
+}
+
+body.guestbook .gb-fire-socket{fill:var(--ash)}
+
+/* Ribs are stroked, not filled: at this size a filled rib is a smudge. */
+body.guestbook .gb-fire-rib{
+  fill:none;
+  stroke:color-mix(in srgb, var(--copper) 42%, var(--iron));
+  stroke-width:1.6;
+  stroke-linecap:round;
+}
+
+/* The gradient the steel fades through. Colour lives in one place, so
+   the stops take the same mix the rest of the blade does. */
+body.guestbook .gb-steel-stop{
+  stop-color:color-mix(in srgb, var(--copper) 32%, var(--iron));
+}
+
+/* Front tongues sit in front of the blade and stay translucent, so the
+   steel is obscured by fire rather than erased by a shape. */
+body.guestbook .gb-fire-front-outer{
+  fill:var(--ember-deep);
+  opacity:.85;
+}
+
+body.guestbook .gb-fire-front-mid{
+  fill:var(--ember);
+  opacity:.8;
+}
+
+/* The steel sits one step off the ash so the cold state still reads as
+   an object rather than a smudge. Mixed, not a new hex: this file does
+   not get to invent colour. */
+body.guestbook .gb-fire-steel,
+body.guestbook .gb-fire-guard,
+body.guestbook .gb-fire-grip{
+  fill:color-mix(in srgb, var(--copper) 32%, var(--iron));
+}
+body.guestbook .gb-fire-pommel{fill:var(--soot);stroke:var(--iron);stroke-width:1.5}
+
+/* Flames scale from the ash up, so a low fire sits in its bed rather
+   than floating above it. */
+body.guestbook .gb-fire-flames{
+  transform-origin:60px 118px;
+  transition:transform .8s ease, opacity .8s ease;
+}
+
+body.guestbook .gb-fire-outer{fill:var(--ember-deep)}
+body.guestbook .gb-fire-mid{fill:var(--ember)}
+body.guestbook .gb-fire-core{fill:var(--flame-core)}
+
+body.guestbook .gb-fire-outer,
+body.guestbook .gb-fire-mid,
+body.guestbook .gb-fire-core{
+  transition:opacity .8s ease;
+}
+
+body.guestbook .gb-fire-mote{
+  fill:var(--flame);
+  opacity:0;
+}
+
+/* The flourish. Empty and invisible until a mark lands, then it says
+   one thing and goes. Reserved height, so the wall below never jumps
+   when it appears. */
+body.guestbook .gb-fire-flourish{
+  min-height:1.9rem;
+  font-family:var(--body);
+  font-size:var(--step-1);
+  font-style:italic;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--flame-core);
+  text-shadow:0 0 14px color-mix(in srgb, var(--ember) 65%, transparent);
+  opacity:0;
+  pointer-events:none;
+}
+
+body.guestbook .gb-fire.is-blooming .gb-fire-flourish{
+  animation:gb-speak 3.1s ease-out;
+}
+
+/* ── heat states ────────────────────────────────────────── */
+/* The fire is always lit -- a bonfire that goes out is a page that
+   looks broken. Heat still scales with the number of marks, but it
+   carries no label now: it is texture, not a readout.
+
+   Heat is a custom property rather than a transform, so the bloom can
+   multiply it. Baking scaleY into the heat rule and scale(1) into the
+   bloom made the flame snap back to a different size than it grew from
+   the moment the animation ended -- the animation ended at 1, the rule
+   resolved to .55, and the difference landed in a single frame. */
+body.guestbook .gb-fire{--heat-scale:.62}
+body.guestbook .gb-fire[data-heat="warm"]{--heat-scale:.84}
+body.guestbook .gb-fire[data-heat="high"]{--heat-scale:1}
+
+body.guestbook .gb-fire .gb-fire-flames{
+  opacity:1;
+  transform:scaleY(var(--heat-scale));
+}
+
+body.guestbook .gb-fire[data-heat="low"] .gb-fire-core{opacity:.45}
+body.guestbook .gb-fire[data-heat="warm"] .gb-fire-core{opacity:.7}
+
+/* A mark just landed. The fire catches, swells, and settles -- three
+   movements rather than one spike, which is how a fire actually takes
+   fuel. Every keyframe resolves against --heat-scale, so it grows from
+   and returns to exactly the size it was.
+
+   Per-keyframe easing does the smoothing: fast out of the catch, slow
+   through the swell, and a long gentle settle with one small secondary
+   rise so the flame does not simply deflate. */
+body.guestbook .gb-fire.is-blooming .gb-fire-flames{
+  animation:gb-bloom 3.4s both;
+}
+
+@keyframes gb-bloom{
+  0%{
+    transform:scale(1, var(--heat-scale));
+    animation-timing-function:cubic-bezier(.34,.06,.64,1);
+  }
+  9%{
+    transform:scale(1.12, calc(var(--heat-scale) * 1.34));
+    animation-timing-function:cubic-bezier(.22,.61,.36,1);
+  }
+  26%{
+    transform:scale(1.3, calc(var(--heat-scale) * 1.72));
+    animation-timing-function:cubic-bezier(.4,0,.5,1);
+  }
+  44%{
+    transform:scale(1.19, calc(var(--heat-scale) * 1.45));
+    animation-timing-function:cubic-bezier(.3,.3,.5,1);
+  }
+  62%{
+    transform:scale(1.24, calc(var(--heat-scale) * 1.56));
+    animation-timing-function:cubic-bezier(.36,0,.28,1);
+  }
+  100%{
+    transform:scale(1, var(--heat-scale));
+  }
+}
+
+/* The core comes up with the bloom and eases back down, so the fire
+   brightens rather than only growing. */
+body.guestbook .gb-fire.is-blooming .gb-fire-core{
+  animation:gb-bloom-core 3.4s ease-in-out;
+}
+
+@keyframes gb-bloom-core{
+  0%   {opacity:.45}
+  26%  {opacity:1}
+  62%  {opacity:.9}
+  100% {opacity:.45}
+}
+
+/* Embers lift on the updraught, then return to their own pace. */
+body.guestbook .gb-fire.is-blooming .gb-fire-mote{
+  animation-duration:1.9s;
+}
+
+/* The words rise as they fade, the way the games play them. */
+@keyframes gb-speak{
+  0%   {opacity:0; transform:translateY(6px) scale(.96); letter-spacing:.02em}
+  18%  {opacity:1; transform:translateY(0)   scale(1);   letter-spacing:.12em}
+  70%  {opacity:1; transform:translateY(0)   scale(1)}
+  100% {opacity:0; transform:translateY(-5px) scale(1.02)}
+}
+
+/* ── motion ─────────────────────────────────────────────── */
+/* Amplitudes are measured from a Firelink reference clip, not guessed:
+   across 27 frames the flame tip varies 17% of the flame's own width
+   while the body drifts sideways only 2.7%, on a ~1.6s loop. Fire licks
+   vertically and barely sways -- animating it the other way round is
+   what makes CSS flames read as wobbling leaves.
+
+   Each layer pivots on the fuel, runs at its own duration, and steps
+   through irregular keyframes, so the composite never lands on a
+   visible repeat. */
+body.guestbook .gb-fire.gb-fire-outer{
+  transform-origin:60px 118px;
+  animation:gb-lick-outer 2.9s ease-in-out infinite;
+}
+
+body.guestbook .gb-fire.gb-fire-mid{
+  transform-origin:60px 118px;
+  animation:gb-lick-mid 1.9s ease-in-out infinite;
+}
+
+body.guestbook .gb-fire.gb-fire-core{
+  transform-origin:60px 118px;
+  animation:gb-lick-core 1.3s ease-in-out infinite;
+}
+
+body.guestbook .gb-fire.gb-fire-front-outer{
+  transform-origin:60px 118px;
+  animation:gb-lick-mid 2.3s ease-in-out infinite;
+}
+
+body.guestbook .gb-fire.gb-fire-front-mid{
+  transform-origin:60px 118px;
+  animation:gb-lick-core 1.7s ease-in-out infinite;
+}
+
+body.guestbook .gb-fire.gb-fire-mote{
+  animation:gb-rise 3.4s linear infinite;
+}
+
+body.guestbook .gb-fire .gb-fire-mote:nth-child(2){animation-delay:1.1s}
+body.guestbook .gb-fire .gb-fire-mote:nth-child(3){animation-delay:2.2s}
+body.guestbook .gb-fire .gb-fire-mote:nth-child(4){animation-delay:.6s}
+
+/* The envelope moves least -- it is the shape the fire keeps. */
+@keyframes gb-lick-outer{
+  0%   {transform:translateX(0)     scaleY(1)}
+  30%  {transform:translateX(.4px)  scaleY(1.04)}
+  55%  {transform:translateX(0)     scaleY(.98)}
+  80%  {transform:translateX(-.3px) scaleY(1.03)}
+  100% {transform:translateX(0)     scaleY(1)}
+}
+
+/* The body carries most of the licking. */
+@keyframes gb-lick-mid{
+  0%   {transform:translateX(0)     scaleY(1)    skewX(0deg)}
+  20%  {transform:translateX(.5px)  scaleY(1.09) skewX(-1.2deg)}
+  45%  {transform:translateX(-.2px) scaleY(.94)  skewX(.8deg)}
+  70%  {transform:translateX(.3px)  scaleY(1.06) skewX(-.6deg)}
+  100% {transform:translateX(0)     scaleY(1)    skewX(0deg)}
+}
+
+/* The core is fastest and least stable, the way the hot centre reads. */
+@keyframes gb-lick-core{
+  0%   {transform:translateX(0)     scaleY(1)}
+  25%  {transform:translateX(-.4px) scaleY(1.12)}
+  50%  {transform:translateX(.3px)  scaleY(.9)}
+  75%  {transform:translateX(.2px)  scaleY(1.07)}
+  100% {transform:translateX(0)     scaleY(1)}
+}
+
+/* Embers drift as they rise; a dead-straight climb reads as a bug. */
+@keyframes gb-rise{
+  0%   {opacity:0;  transform:translate(0, 0)}
+  15%  {opacity:.9}
+  60%  {transform:translate(2px, -32px)}
+  100% {opacity:0;  transform:translate(-1px, -54px)}
+}
+
+/* Reduced motion keeps the fire lit and stops it moving. The heat
+   states are information, so they stay; only the animation goes. */
+@media (prefers-reduced-motion: reduce){
+  body.guestbook .gb-fire-outer,
+  body.guestbook .gb-fire-mid,
+  body.guestbook .gb-fire-core,
+  body.guestbook .gb-fire-front-outer,
+  body.guestbook .gb-fire-front-mid,
+  body.guestbook .gb-fire-mote,
+  body.guestbook .gb-fire.is-blooming .gb-fire-flames,
+  body.guestbook .gb-fire.is-blooming .gb-fire-core,
+  body.guestbook .gb-fire.is-blooming .gb-fire-mote{
+    animation:none;
+  }
+
+  /* The flourish still speaks -- it is the acknowledgement, not
+     decoration -- it just does not travel to say it. */
+  body.guestbook .gb-fire.is-blooming .gb-fire-flourish{
+    animation:gb-speak-still 3.1s steps(1, end);
+  }
+
+  @keyframes gb-speak-still{
+    0%, 100% {opacity:0}
+    2%, 88%  {opacity:1}
+  }
+  body.guestbook .gb-fire-flames{transition:none}
+  body.guestbook .gb-fire-mote{opacity:.55}
+}
+
+@media print{
+  body.guestbook .gb-fire{display:none}
+}
+
+/* ── the wall ───────────────────────────────────────────── */
+body.guestbook .gb-wall .eyebrow{margin-bottom:.5rem}
+
+body.guestbook .gb-legend{
+  font-family:var(--util);
+  font-size:.7rem;
+  letter-spacing:.06em;
+  color:var(--copper);
+  opacity:.55;
+  margin:0 0 1.3rem;
+  max-width:none;
+}
+
+body.guestbook .gb-entries{
+  margin:0;
+  padding:0;
+  max-width:none;
+  border-top:1px solid var(--iron);
+  opacity:0;
+  transition:opacity .28s ease;
+}
+body.guestbook .gb-entries.is-ready{opacity:1}
+
+body.guestbook .gb-entries li{
+  position:relative;
+  margin:0;
+  padding:1.05rem 1.15rem 1.15rem 1.5rem;
+  border-bottom:1px solid var(--iron);
+  background:var(--ash);
+  transition:background .2s ease;
+}
+body.guestbook .gb-entries li:hover{background:var(--soot)}
+
+/* index.css turns every list bullet into a small rotated ember
+   diamond. Here that same ornament is stretched into the heat edge —
+   the temperature of the mark, not a bullet. */
+body.guestbook .gb-entries li::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:3px;
+  height:auto;
+  transform:none;
+  background:var(--iron);
+}
+body.guestbook .gb-entries li:nth-child(1)::before{background:var(--flame)}
+body.guestbook .gb-entries li:nth-child(2)::before{background:var(--ember)}
+body.guestbook .gb-entries li:nth-child(3)::before{background:var(--ember-deep)}
+
+body.guestbook .gb-entry-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:.35rem 1rem;
+  margin-bottom:.5rem;
+}
+
+body.guestbook .gb-name{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:var(--step-1);
+  letter-spacing:-.02em;
+  color:var(--bone);
+  /* a 40-character name with no spaces must not push the date off */
+  overflow-wrap:anywhere;
+}
+
+body.guestbook .gb-time{
+  font-family:var(--util);
+  font-size:.72rem;
+  letter-spacing:.12em;
+  color:var(--copper);
+  opacity:.75;
+  flex-shrink:0;
+}
+
+body.guestbook .gb-message{
+  margin:0;
+  max-width:62ch;
+  line-height:1.62;
+  color:var(--bone);
+  white-space:pre-wrap;
+  /* 500 characters with no space in them is a valid submission */
+  overflow-wrap:anywhere;
+}
+
+/* ── reveal toggle for a swapped message ────────────────── */
+body.guestbook .gb-reveal{
+  display:inline-block;
+  font-family:var(--util);
+  font-size:.68rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--copper);
+  background:transparent;
+  border:1px solid var(--iron);
+  border-radius:0;
+  padding:.28rem .6rem;
+  margin-top:.75rem;
+  cursor:pointer;
+  transition:color .18s ease, border-color .18s ease, background .18s ease;
+}
+body.guestbook .gb-reveal:hover{
+  color:var(--flame);
+  border-color:var(--flame);
+}
+body.guestbook .gb-reveal[aria-pressed="true"]{
+  color:var(--ash);
+  background:var(--copper);
+  border-color:var(--copper);
+}
+
+/* ── empty state / outage ───────────────────────────────── */
+body.guestbook .gb-empty{
+  font-family:var(--util);
+  font-size:var(--step--1);
+  letter-spacing:.04em;
+  color:var(--copper);
+  border:1px dashed var(--iron);
+  padding:1.4rem 1.2rem;
+  margin:0;
+  max-width:none;
+}
+
+/* ── footer ─────────────────────────────────────────────── */
+body.guestbook .gb-footer{
+  border-top:1px solid var(--iron);
+  margin-top:4rem;
+  padding:2rem 0 4rem;
+}
+body.guestbook .gb-footer p{
+  font-family:var(--util);
+  font-size:.74rem;
+  letter-spacing:.06em;
+  color:var(--copper);
+  opacity:.65;
+  margin:0;
+  max-width:none;
+}
+
+/* ── small screens ──────────────────────────────────────── */
+@media (max-width:640px){
+  body.guestbook .gb-shell{padding:0 1.15rem}
+  body.guestbook .gb-head{padding:2rem 0 2rem}
+  body.guestbook .gb-head .back-button{margin-bottom:1.6rem}
+  body.guestbook .gb-main{padding-top:2rem}
+  body.guestbook .gb-sign{padding:1.2rem 1.1rem 1.3rem; margin-bottom:2.75rem}
+  body.guestbook .gb-actions{justify-content:stretch}
+  body.guestbook .gb-submit{width:100%}
+  body.guestbook .gb-entries li{padding:1rem .9rem 1.05rem 1.25rem}
+}
+
+/* ── print ──────────────────────────────────────────────── */
+/* index.css hides .guestbook on paper, which is right for the landing
+   cell and wrong for this page. Restore the page, drop the chrome,
+   and let the marks print as a plain list. */
+@media print{
+  body.guestbook{display:block !important}
+  body.guestbook::after{display:none}
+  body.guestbook .back-button,
+  body.guestbook .gb-sign,
+  body.guestbook .gb-legend,
+  body.guestbook .gb-footer,
+  body.guestbook .gb-reveal{display:none !important}
+
+  body.guestbook .gb-shell{max-width:none; padding:0}
+  body.guestbook .gb-entries{opacity:1; border-top:1px solid}
+  body.guestbook .gb-entries li{
+    background:none;
+    padding-left:0;
+    break-inside:avoid;
+  }
+  body.guestbook .gb-entries li::before{display:none}
+  body.guestbook .gb-name,
+  body.guestbook .gb-time,
+  body.guestbook .gb-message,
+  body.guestbook .gb-lede{color:inherit; opacity:1}
+}

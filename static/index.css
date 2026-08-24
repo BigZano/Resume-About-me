@@ -47,6 +47,11 @@
   --forge-deep:#3C6349;
   --ember-deep:#8E3211;
 
+  /* the hot centre of a flame — fills only, never text. Nothing on the
+     site burns hot enough to need this except the guestbook bonfire,
+     but the palette is defined here or it is not defined at all. */
+  --flame-core:#FFD9A0;
+
   /* ── type ──────────────────────────────────────────────── */
   --display:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --body:"Literata", Georgia, "Times New Roman", serif;

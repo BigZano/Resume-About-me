@@ -1,0 +1,57 @@
+# False-positive allowlist. Real words and names that contain a flagged
+# substring. Subtracted from the text BEFORE candidate generation, so the
+# separator-stripped pass never sees them.
+#
+# Entries are matched as whole words, case- and accent-insensitively, and
+# are treated as literals rather than patterns.
+#
+# Add to this file whenever `guestbook_admin.py --review` shows a real
+# person was caught. That is the feedback loop; use it.
+
+scunthorpe
+penistone
+cockburn
+cockburns
+assassin
+assassinate
+assassination
+analysis
+analyse
+analyze
+analyst
+classic
+classical
+class
+classes
+bass
+pass
+passage
+grass
+mass
+massive
+sussex
+essex
+middlesex
+shiitake
+lipschitz
+uranus
+therapist
+matsushita
+cumulative
+cumulate
+titles
+dickinson
+dickens
+weiner
+weber
+kuntz
+kunz
+hoare
+bumgarner
+hancock
+babcock
+peacock
+leacock
+woodcock
+adcock
+glasscock
