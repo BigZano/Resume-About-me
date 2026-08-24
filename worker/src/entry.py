@@ -229,7 +229,12 @@ async def _admin(request, env, path):
     # admin / entries / <id> / <action>
     if len(parts) == 4 and parts[1] == "entries":
         entry_id, action = parts[2], parts[3]
-        if action in ("hide", "unhide"):
+        # POST only. A GET that mutates is reachable by anything that can
+        # make the browser issue one -- an image tag, a prefetch, a link
+        # in a page. The bearer token is not sent by those, so this is
+        # defence in depth rather than a live hole, but a moderation
+        # endpoint should never be a URL you can merely visit.
+        if action in ("hide", "unhide") and request.method == "POST":
             # NULL is written as a SQL literal, not a binding. Python None
             # crosses into JS as `undefined`, and D1 rejects that with
             # D1_TYPE_ERROR rather than storing NULL -- which made unhide
