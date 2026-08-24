@@ -96,14 +96,13 @@
           </div>
         </section>
 
-        <!-- The hinge between signing and the wall. The fire is not
-             ornament: `data-heat` is set by guestbook.js from the number
-             of marks on the wall, so an empty guestbook shows cold ash
-             and a busy one burns. Cold is the honest default for a page
-             that has not loaded its entries yet, and the state the
-             no-JS and offline paths keep. The blade is drawn, not
-             photographed — no game asset is used or needed. -->
-        <figure class="gb-fire" id="gb-fire" data-heat="cold">
+        <!-- The hinge between signing and the wall. It burns whenever
+             the page is up; `data-heat` still scales it with the number
+             of marks, quietly, with no label on it. Signing blooms the
+             fire and speaks once, the way the games acknowledge a
+             bonfire. The blade is drawn, not photographed — no game
+             asset is used or needed. -->
+        <figure class="gb-fire" id="gb-fire" data-heat="low">
           <svg class="gb-fire-art" viewBox="0 0 120 148" width="120"
                height="148" aria-hidden="true" focusable="false">
             <defs>
@@ -219,7 +218,11 @@
               <circle class="gb-fire-mote" cx="84" cy="76" r="1.5" />
             </g>
           </svg>
-          <figcaption class="gb-fire-state" id="gb-fire-state">Cold</figcaption>
+          <!-- Empty until a mark lands, and hidden from assistive tech:
+               the status line above is the accessible confirmation, and
+               announcing both would say the same thing twice. -->
+          <figcaption class="gb-fire-flourish" id="gb-fire-flourish"
+                      aria-hidden="true"></figcaption>
         </figure>
 
         <section class="gb-wall" aria-labelledby="gb-wall-head">

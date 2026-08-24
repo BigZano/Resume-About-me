@@ -338,28 +338,35 @@ body.guestbook .gb-fire-mote{
   opacity:0;
 }
 
-body.guestbook .gb-fire-state{
-  font-family:var(--util);
-  font-size:var(--step--1);
-  letter-spacing:.08em;
+/* The flourish. Empty and invisible until a mark lands, then it says
+   one thing and goes. Reserved height, so the wall below never jumps
+   when it appears. */
+body.guestbook .gb-fire-flourish{
+  min-height:1.9rem;
+  font-family:var(--body);
+  font-size:var(--step-1);
+  font-style:italic;
+  letter-spacing:.12em;
   text-transform:uppercase;
-  color:var(--copper);
+  color:var(--flame-core);
+  text-shadow:0 0 14px color-mix(in srgb, var(--ember) 65%, transparent);
+  opacity:0;
+  pointer-events:none;
+}
+
+body.guestbook .gb-fire.is-blooming .gb-fire-flourish{
+  animation:gb-speak 3.1s ease-out;
 }
 
 /* ── heat states ────────────────────────────────────────── */
-/* cold: no fire at all. The steel is the only thing left standing,
-   which is also what an unreachable API shows -- deliberately, since
-   "nothing is here" and "nothing answered" are the same to a reader. */
-body.guestbook .gb-fire[data-heat="cold"] .gb-fire-flames{
-  opacity:0;
-  transform:scaleY(.2);
-}
-
+/* The fire is always lit -- a bonfire that goes out is a page that
+   looks broken. Heat still scales with the number of marks, but it
+   carries no label now: it is texture, not a readout. */
 body.guestbook .gb-fire[data-heat="low"] .gb-fire-flames{
   opacity:1;
   transform:scaleY(.55);
 }
-body.guestbook .gb-fire[data-heat="low"] .gb-fire-core{opacity:0}
+body.guestbook .gb-fire[data-heat="low"] .gb-fire-core{opacity:.45}
 
 body.guestbook .gb-fire[data-heat="warm"] .gb-fire-flames{
   opacity:1;
@@ -372,18 +379,26 @@ body.guestbook .gb-fire[data-heat="high"] .gb-fire-flames{
   transform:scaleY(1);
 }
 
-body.guestbook .gb-fire[data-heat="high"] .gb-fire-state,
-body.guestbook .gb-fire[data-heat="warm"] .gb-fire-state{color:var(--flame)}
-
-/* a mark just landed: one flare, then back to whatever heat it is */
-body.guestbook .gb-fire.is-stoked .gb-fire-flames{
-  animation:gb-stoke 1.1s ease-out;
+/* A mark just landed. The fire blooms wide and tall, holds, then
+   settles back to whatever heat the wall is at. */
+body.guestbook .gb-fire.is-blooming .gb-fire-flames{
+  animation:gb-bloom 3.1s cubic-bezier(.2,.8,.3,1);
 }
 
-@keyframes gb-stoke{
-  0%{transform:scaleY(1.35)}
-  40%{transform:scaleY(1.12)}
-  100%{}
+@keyframes gb-bloom{
+  0%   {transform:scale(1)}
+  12%  {transform:scale(1.5, 1.62)}
+  30%  {transform:scale(1.32, 1.4)}
+  60%  {transform:scale(1.14, 1.18)}
+  100% {transform:scale(1)}
+}
+
+/* The words rise as they fade, the way the games play them. */
+@keyframes gb-speak{
+  0%   {opacity:0; transform:translateY(6px) scale(.96); letter-spacing:.02em}
+  18%  {opacity:1; transform:translateY(0)   scale(1);   letter-spacing:.12em}
+  70%  {opacity:1; transform:translateY(0)   scale(1)}
+  100% {opacity:0; transform:translateY(-5px) scale(1.02)}
 }
 
 /* ── motion ─────────────────────────────────────────────── */
@@ -396,32 +411,32 @@ body.guestbook .gb-fire.is-stoked .gb-fire-flames{
    Each layer pivots on the fuel, runs at its own duration, and steps
    through irregular keyframes, so the composite never lands on a
    visible repeat. */
-body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-outer{
+body.guestbook .gb-fire.gb-fire-outer{
   transform-origin:60px 118px;
   animation:gb-lick-outer 2.9s ease-in-out infinite;
 }
 
-body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-mid{
+body.guestbook .gb-fire.gb-fire-mid{
   transform-origin:60px 118px;
   animation:gb-lick-mid 1.9s ease-in-out infinite;
 }
 
-body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-core{
+body.guestbook .gb-fire.gb-fire-core{
   transform-origin:60px 118px;
   animation:gb-lick-core 1.3s ease-in-out infinite;
 }
 
-body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-front-outer{
+body.guestbook .gb-fire.gb-fire-front-outer{
   transform-origin:60px 118px;
   animation:gb-lick-mid 2.3s ease-in-out infinite;
 }
 
-body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-front-mid{
+body.guestbook .gb-fire.gb-fire-front-mid{
   transform-origin:60px 118px;
   animation:gb-lick-core 1.7s ease-in-out infinite;
 }
 
-body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-mote{
+body.guestbook .gb-fire.gb-fire-mote{
   animation:gb-rise 3.4s linear infinite;
 }
 
@@ -473,8 +488,19 @@ body.guestbook .gb-fire .gb-fire-mote:nth-child(4){animation-delay:.6s}
   body.guestbook .gb-fire-front-outer,
   body.guestbook .gb-fire-front-mid,
   body.guestbook .gb-fire-mote,
-  body.guestbook .gb-fire.is-stoked .gb-fire-flames{
+  body.guestbook .gb-fire.is-blooming .gb-fire-flames{
     animation:none;
+  }
+
+  /* The flourish still speaks -- it is the acknowledgement, not
+     decoration -- it just does not travel to say it. */
+  body.guestbook .gb-fire.is-blooming .gb-fire-flourish{
+    animation:gb-speak-still 3.1s steps(1, end);
+  }
+
+  @keyframes gb-speak-still{
+    0%, 100% {opacity:0}
+    2%, 88%  {opacity:1}
   }
   body.guestbook .gb-fire-flames{transition:none}
   body.guestbook .gb-fire-mote{opacity:.55}

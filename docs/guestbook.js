@@ -54,7 +54,7 @@
   var list = document.getElementById("gb-entries");
   var empty = document.getElementById("gb-empty");
   var fire = document.getElementById("gb-fire");
-  var fireState = document.getElementById("gb-fire-state");
+  var flourish = document.getElementById("gb-fire-flourish");
 
   if (!form || !list) {
     return;
@@ -85,51 +85,62 @@
 
   /* ── the fire ─────────────────────────────────────────── */
 
-  /* Heat is the wall's state, redrawn. Cold is not a styling choice:
-     it is what an empty guestbook and an unreachable API both are, and
-     the fire must never claim a warmth the wall cannot show. */
+  /* Heat scales the flame with the number of marks. It carries no text
+     any more -- it is texture, and the fire is always lit, because a
+     bonfire that goes out reads as a broken page rather than an empty
+     guestbook. */
   var HEAT = [
-    { at: 15, name: "high", label: "Roaring" },
-    { at: 5, name: "warm", label: "Burning" },
-    { at: 1, name: "low", label: "Embers" },
-    { at: 0, name: "cold", label: "Cold" }
+    { at: 15, name: "high" },
+    { at: 5, name: "warm" },
+    { at: 0, name: "low" }
   ];
 
-  var stokeTimer = 0;
+  /* What the fire says when a mark lands, one per submission. The three
+     games acknowledge the same act in their own words; which one shows
+     is luck of the draw. */
+  var FLOURISHES = [
+    "Humanity Restored",
+    "Ember Restored",
+    "Great Rune Restored"
+  ];
+
+  var bloomTimer = 0;
 
   function setHeat(marks) {
-    if (!fire || !fireState) {
-      return;
-    }
-    var total = typeof marks === "number" && marks > 0 ? marks : 0;
-    var step = HEAT[HEAT.length - 1];
-    for (var i = 0; i < HEAT.length; i += 1) {
-      if (total >= HEAT[i].at) {
-        step = HEAT[i];
-        break;
-      }
-    }
-    fire.dataset.heat = step.name;
-    fireState.textContent = total === 0
-      ? step.label
-      : step.label + " \u00b7 " + total + (total === 1 ? " mark" : " marks");
-  }
-
-  /* One flare when a mark lands. The class is removed on the way out
-     so a second signing in the same session flares again. */
-  function stoke() {
     if (!fire) {
       return;
     }
-    fire.classList.remove("is-stoked");
-    /* force a reflow so the animation restarts rather than being
-       treated as still-running */
+    var total = typeof marks === "number" && marks > 0 ? marks : 0;
+    for (var i = 0; i < HEAT.length; i += 1) {
+      if (total >= HEAT[i].at) {
+        fire.dataset.heat = HEAT[i].name;
+        return;
+      }
+    }
+  }
+
+  /* One bloom, one line, per accepted mark. Any bloom still running is
+     cancelled first, so a second signing restarts cleanly rather than
+     stacking a second line on top of the first. */
+  function bloom() {
+    if (!fire || !flourish) {
+      return;
+    }
+    var line = FLOURISHES[Math.floor(Math.random() * FLOURISHES.length)];
+
+    window.clearTimeout(bloomTimer);
+    fire.classList.remove("is-blooming");
+    /* force a reflow, or the class re-add is coalesced and the
+       animation never restarts */
     void fire.offsetWidth;
-    fire.classList.add("is-stoked");
-    window.clearTimeout(stokeTimer);
-    stokeTimer = window.setTimeout(function () {
-      fire.classList.remove("is-stoked");
-    }, 1200);
+
+    flourish.textContent = line;
+    fire.classList.add("is-blooming");
+
+    bloomTimer = window.setTimeout(function () {
+      fire.classList.remove("is-blooming");
+      flourish.textContent = "";
+    }, 3100);
   }
 
   /* ── entry rendering ──────────────────────────────────── */
@@ -275,7 +286,7 @@
         list.classList.add("is-ready");
         empty.hidden = true;
         setHeat(list.children.length);
-        stoke();
+        bloom();
       }
       return;
     }

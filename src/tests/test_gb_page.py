@@ -178,23 +178,44 @@ class TestRealTemplate(unittest.TestCase):
     def test_has_the_bonfire(self):
         self.assertIn('id="gb-fire"', self.markup)
 
-    def test_bonfire_starts_cold(self):
-        """Cold is the only honest pre-load state.
+    def test_bonfire_ships_lit(self):
+        """The served page burns before any script runs.
 
-        The page ships before any entry has been fetched, and the no-JS
-        and offline paths never fetch at all. A default of anything but
-        cold would show a fire the wall cannot account for.
+        The no-JS and offline paths never fetch, so whatever ships in the
+        markup is what those readers get. An unlit bonfire reads as a
+        broken page rather than an empty guestbook.
         """
         panel = self.markup.split('id="gb-fire"', 1)[1].split(">", 1)[0]
-        self.assertIn('data-heat="cold"', panel)
+        self.assertIn("data-heat=", panel)
+        self.assertNotIn('data-heat="cold"', panel)
 
     def test_bonfire_art_is_hidden_from_assistive_tech(self):
         """The drawing is decorative; the figcaption carries the state."""
         svg = self.markup.split("<svg", 1)[1].split(">", 1)[0]
         self.assertIn('aria-hidden="true"', svg)
 
-    def test_bonfire_state_has_a_text_node(self):
-        self.assertIn('id="gb-fire-state"', self.markup)
+    def test_bonfire_has_a_flourish_node(self):
+        self.assertIn('id="gb-fire-flourish"', self.markup)
+
+    def test_flourish_ships_empty(self):
+        """It speaks only when a mark lands.
+
+        Text baked into the served markup would show on every load,
+        including the no-JS path, announcing something that never
+        happened.
+        """
+        tag = self.markup.split('id="gb-fire-flourish"', 1)[1]
+        body = tag.split(">", 1)[1].split("</figcaption>", 1)[0]
+        self.assertEqual(body.strip(), "")
+
+    def test_flourish_is_hidden_from_assistive_tech(self):
+        """The status line is the accessible confirmation.
+
+        Announcing both would say the same thing twice, and the flourish
+        is the decorative half of the pair.
+        """
+        tag = self.markup.split('id="gb-fire-flourish"', 1)[1].split(">", 1)[0]
+        self.assertIn('aria-hidden="true"', tag)
 
     def test_has_the_live_counter_node(self):
         self.assertIn('id="gb-count"', self.markup)
