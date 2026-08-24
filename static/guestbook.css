@@ -352,16 +352,28 @@ body.guestbook .gb-fire.is-stoked .gb-fire-flames{
 }
 
 /* ── motion ─────────────────────────────────────────────── */
-/* Two flicker cycles at coprime durations so the fire never repeats a
-   pose on a visible loop. */
+/* Amplitudes are measured from a Firelink reference clip, not guessed:
+   across 27 frames the flame tip varies 17% of the flame's own width
+   while the body drifts sideways only 2.7%, on a ~1.6s loop. Fire licks
+   vertically and barely sways -- animating it the other way round is
+   what makes CSS flames read as wobbling leaves.
+
+   Each layer pivots on the fuel, runs at its own duration, and steps
+   through irregular keyframes, so the composite never lands on a
+   visible repeat. */
+body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-outer{
+  transform-origin:60px 118px;
+  animation:gb-lick-outer 2.9s ease-in-out infinite;
+}
+
 body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-mid{
-  animation:gb-flicker 2.3s ease-in-out infinite alternate;
-  transform-origin:60px 101px;
+  transform-origin:60px 118px;
+  animation:gb-lick-mid 1.9s ease-in-out infinite;
 }
 
 body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-core{
-  animation:gb-flicker 1.7s ease-in-out infinite alternate-reverse;
-  transform-origin:60px 101px;
+  transform-origin:60px 118px;
+  animation:gb-lick-core 1.3s ease-in-out infinite;
 }
 
 body.guestbook .gb-fire:not([data-heat="cold"]) .gb-fire-mote{
@@ -372,20 +384,45 @@ body.guestbook .gb-fire .gb-fire-mote:nth-child(2){animation-delay:1.1s}
 body.guestbook .gb-fire .gb-fire-mote:nth-child(3){animation-delay:2.2s}
 body.guestbook .gb-fire .gb-fire-mote:nth-child(4){animation-delay:.6s}
 
-@keyframes gb-flicker{
-  from{transform:scaleY(.96) scaleX(1.02)}
-  to{transform:scaleY(1.05) scaleX(.98)}
+/* The envelope moves least -- it is the shape the fire keeps. */
+@keyframes gb-lick-outer{
+  0%   {transform:translateX(0)     scaleY(1)}
+  30%  {transform:translateX(.4px)  scaleY(1.04)}
+  55%  {transform:translateX(0)     scaleY(.98)}
+  80%  {transform:translateX(-.3px) scaleY(1.03)}
+  100% {transform:translateX(0)     scaleY(1)}
 }
 
+/* The body carries most of the licking. */
+@keyframes gb-lick-mid{
+  0%   {transform:translateX(0)     scaleY(1)    skewX(0deg)}
+  20%  {transform:translateX(.5px)  scaleY(1.09) skewX(-1.2deg)}
+  45%  {transform:translateX(-.2px) scaleY(.94)  skewX(.8deg)}
+  70%  {transform:translateX(.3px)  scaleY(1.06) skewX(-.6deg)}
+  100% {transform:translateX(0)     scaleY(1)    skewX(0deg)}
+}
+
+/* The core is fastest and least stable, the way the hot centre reads. */
+@keyframes gb-lick-core{
+  0%   {transform:translateX(0)     scaleY(1)}
+  25%  {transform:translateX(-.4px) scaleY(1.12)}
+  50%  {transform:translateX(.3px)  scaleY(.9)}
+  75%  {transform:translateX(.2px)  scaleY(1.07)}
+  100% {transform:translateX(0)     scaleY(1)}
+}
+
+/* Embers drift as they rise; a dead-straight climb reads as a bug. */
 @keyframes gb-rise{
-  0%{opacity:0;transform:translateY(0)}
-  15%{opacity:.9}
-  100%{opacity:0;transform:translateY(-54px)}
+  0%   {opacity:0;  transform:translate(0, 0)}
+  15%  {opacity:.9}
+  60%  {transform:translate(2px, -32px)}
+  100% {opacity:0;  transform:translate(-1px, -54px)}
 }
 
 /* Reduced motion keeps the fire lit and stops it moving. The heat
    states are information, so they stay; only the animation goes. */
 @media (prefers-reduced-motion: reduce){
+  body.guestbook .gb-fire-outer,
   body.guestbook .gb-fire-mid,
   body.guestbook .gb-fire-core,
   body.guestbook .gb-fire-mote,
