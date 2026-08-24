@@ -395,6 +395,25 @@ class TestCredentialLoading(unittest.TestCase):
         with self.assertRaises(SystemExit):
             guestbook_admin._read_credentials_file(path)
 
+    def test_path_can_be_overridden_by_environment(self):
+        """The suite must never read the developer's own credentials.
+
+        Without this seam, "no token configured" is untestable on any
+        machine where one is configured -- which is every machine that
+        actually moderates the guestbook.
+        """
+        path = self._write("GUESTBOOK_ADMIN_TOKEN=from-override\n")
+        with mock.patch.dict(os.environ, {"GUESTBOOK_CREDENTIALS": str(path)}):
+            self.assertEqual(
+                guestbook_admin._read_credentials_file(),
+                {"GUESTBOOK_ADMIN_TOKEN": "from-override"},
+            )
+
+    def test_override_pointing_nowhere_reads_nothing(self):
+        missing = Path(tempfile.gettempdir()) / "gb-definitely-not-here"
+        with mock.patch.dict(os.environ, {"GUESTBOOK_CREDENTIALS": str(missing)}):
+            self.assertEqual(guestbook_admin._read_credentials_file(), {})
+
     def test_environment_beats_the_file(self):
         stored = {"GUESTBOOK_ADMIN_TOKEN": "from-file"}
         with mock.patch.dict(os.environ, {"GUESTBOOK_ADMIN_TOKEN": "from-env"}):
@@ -433,6 +452,13 @@ class TestCliAgainstStubServer(unittest.TestCase):
     def _env(self, api=None, token="__default__"):
         env = dict(os.environ)
         env["GUESTBOOK_API"] = self.api if api is None else api
+        # Point the CLI at a path that does not exist, so the suite can
+        # never read the credentials file of whoever is running it. A
+        # "no token configured" test is meaningless on a machine where
+        # one is configured.
+        env["GUESTBOOK_CREDENTIALS"] = os.path.join(
+            tempfile.gettempdir(), "gb-admin-tests-nonexistent-credentials"
+        )
         used_token = self.token if token == "__default__" else token
         if used_token is None:
             env.pop(TOKEN_VAR, None)

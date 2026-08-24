@@ -22,6 +22,15 @@
     <link rel="manifest" href="./site.webmanifest" />
     <meta name="theme-color" content="#14100E" />
 
+    <!-- The two faces this page sets text in, fetched in parallel with
+         the stylesheet instead of after it. font-display:swap already
+         stops them blocking paint; preloading shortens the window where
+         the page is rendered in a fallback face and then reflows. -->
+    <link rel="preload" href="./fonts/Literata.woff2" as="font"
+          type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/BricolageGrotesque.woff2" as="font"
+          type="font/woff2" crossorigin />
+
     <!-- Styles -->
     <link href="./index.css?v=3" rel="stylesheet" />
     <link href="./guestbook.css?v=1" rel="stylesheet" />
@@ -96,8 +105,10 @@
           <dialog id="gb-reject" class="gb-reject"
                   aria-labelledby="gb-reject-line">
             <img class="gb-reject-motion" src="./fry-reject.webp"
+                 loading="lazy" decoding="async"
                  alt="Fry from Futurama moons the Mom Corp executives, captioned take that." />
             <img class="gb-reject-still" src="./fry-reject-still.webp"
+                 loading="lazy" decoding="async"
                  alt="Fry from Futurama moons the Mom Corp executives, captioned take that." />
             <p class="gb-reject-line" id="gb-reject-line">That's against the rules.</p>
             <button type="button" class="gb-reject-close" id="gb-reject-close">

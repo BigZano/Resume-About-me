@@ -164,6 +164,9 @@ CF_ACCESS_CLIENT_SECRET=...
 EOF
 ```
 
+`GUESTBOOK_CREDENTIALS` overrides the path, which is what keeps the
+test suite from reading yours.
+
 The file is refused outright if anyone but its owner can read it. A
 silently-honoured world-readable secret would defeat the point of
 moving it off the command line. The two Access values are optional and

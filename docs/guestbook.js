@@ -179,6 +179,17 @@
     }, 3450);
   }
 
+  /* The fire animates continuously, so it should not animate while it
+     is off-screen. rootMargin keeps it running just before it scrolls
+     back in, so it is never caught mid-freeze. */
+  if (fire && typeof window.IntersectionObserver === "function") {
+    new window.IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i += 1) {
+        fire.classList.toggle("is-idle", !entries[i].isIntersecting);
+      }
+    }, { rootMargin: "160px" }).observe(fire);
+  }
+
   /* ── entry rendering ──────────────────────────────────── */
 
   function stamp(iso) {

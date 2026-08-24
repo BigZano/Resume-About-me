@@ -36,6 +36,11 @@ USER_AGENT = "guestbook-admin/1.0 (+https://bretzanotelli.work)"
 # moderation tool that is annoying to run does not get run.
 CREDENTIALS_PATH = Path.home() / ".config" / "guestbook" / "credentials"
 
+# Overridable so tests can be hermetic. Without this the suite reads the
+# developer's real credentials file, and "no token configured" quietly
+# stops being testable on the one machine that matters.
+CREDENTIALS_PATH_VAR = "GUESTBOOK_CREDENTIALS"
+
 # Cloudflare Access service-token headers. Sent only when both halves are
 # present: one half alone is a misconfiguration, and sending it would
 # read as an authentication attempt rather than an unauthenticated call.
@@ -124,7 +129,11 @@ def _read_credentials_file(path=None):
     Silently reading a world-readable secret would defeat the point of
     having moved it off the command line.
     """
-    path = CREDENTIALS_PATH if path is None else Path(path)
+    if path is None:
+        override = os.environ.get(CREDENTIALS_PATH_VAR)
+        path = Path(override) if override else CREDENTIALS_PATH
+    else:
+        path = Path(path)
     if not path.exists():
         return {}
 

@@ -476,12 +476,18 @@ body.guestbook .gb-fire.is-blooming .gb-fire-mote{
   animation-duration:1.9s;
 }
 
-/* The words rise as they fade, the way the games play them. */
+/* The words rise as they fade, the way the games play them.
+
+   Transform and opacity only. An earlier cut animated letter-spacing
+   for the same widening effect, which forces a layout pass on every
+   frame for the full 3.1s -- and does it during the bloom, when the
+   main thread has the least room. scaleX buys the same widening for
+   free on the compositor. */
 @keyframes gb-speak{
-  0%   {opacity:0; transform:translateY(6px) scale(.96); letter-spacing:.02em}
-  18%  {opacity:1; transform:translateY(0)   scale(1);   letter-spacing:.12em}
-  70%  {opacity:1; transform:translateY(0)   scale(1)}
-  100% {opacity:0; transform:translateY(-5px) scale(1.02)}
+  0%   {opacity:0; transform:translateY(6px) scale(.94, .96)}
+  18%  {opacity:1; transform:translateY(0)   scale(1, 1)}
+  70%  {opacity:1; transform:translateY(0)   scale(1, 1)}
+  100% {opacity:0; transform:translateY(-5px) scale(1.04, 1.02)}
 }
 
 /* ── motion ─────────────────────────────────────────────── */
@@ -589,6 +595,18 @@ body.guestbook .gb-fire .gb-fire-mote:nth-child(4){animation-delay:.6s}
   }
   body.guestbook .gb-fire-flames{transition:none}
   body.guestbook .gb-fire-mote{opacity:.55}
+}
+
+/* Scrolled out of view, the fire stops costing frames. Six infinite
+   animations on SVG children are main-thread work whether or not they
+   are visible, and this page is meant to be read below the fold. */
+body.guestbook .gb-fire.is-idle .gb-fire-outer,
+body.guestbook .gb-fire.is-idle .gb-fire-mid,
+body.guestbook .gb-fire.is-idle .gb-fire-core,
+body.guestbook .gb-fire.is-idle .gb-fire-front-outer,
+body.guestbook .gb-fire.is-idle .gb-fire-front-mid,
+body.guestbook .gb-fire.is-idle .gb-fire-mote{
+  animation-play-state:paused;
 }
 
 @media print{
