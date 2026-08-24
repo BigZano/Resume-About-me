@@ -1,13 +1,29 @@
 {
-  "fetched_at": "2026-08-17T14:24:39Z",
+  "fetched_at": "2026-08-24T14:28:08Z",
   "tracks": [
+    {
+      "artist": "Fit For An Autopsy",
+      "title": "The Wretch"
+    },
+    {
+      "artist": "Rammstein",
+      "title": "B\u00fcck dich"
+    },
     {
       "artist": "Fit For An Autopsy",
       "title": "Hostage"
     },
     {
+      "artist": "Fit For An Autopsy",
+      "title": "Weaker Wolves"
+    },
+    {
       "artist": "Rammstein",
       "title": "Te quiero puta!"
+    },
+    {
+      "artist": "Fit For An Autopsy",
+      "title": "Oh What the Future Holds"
     },
     {
       "artist": "Rob Zombie",
@@ -22,24 +38,8 @@
       "title": "Behind The Crooked Cross"
     },
     {
-      "artist": "Nile",
-      "title": "Kafir!"
-    },
-    {
-      "artist": "Fit For An Autopsy",
-      "title": "Weaker Wolves"
-    },
-    {
-      "artist": "Mick Gordon",
-      "title": "Rip & Tear"
-    },
-    {
-      "artist": "Behemoth",
-      "title": "Slaves Shall Serve"
-    },
-    {
-      "artist": "Fit For An Autopsy",
-      "title": "Spoils Of The Horde"
+      "artist": "Machine Head",
+      "title": "I Am Hell (Sonata In C#)"
     }
   ]
 }
