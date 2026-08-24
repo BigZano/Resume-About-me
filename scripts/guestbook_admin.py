@@ -28,6 +28,7 @@ from pathlib import Path
 
 API = os.environ.get("GUESTBOOK_API", "https://api.bretzanotelli.work")
 TOKEN_VAR = "GUESTBOOK_ADMIN_TOKEN"
+USER_AGENT = "guestbook-admin/1.0 (+https://bretzanotelli.work)"
 
 # worker/src/data/{allow,blocked}.txt, relative to this file. Read-only, and
 # only consulted by --review; a missing repo checkout (script copied
@@ -113,7 +114,16 @@ def _call(path, method="GET"):
     request = urllib.request.Request(
         f"{API}{path}",
         method=method,
-        headers={"Authorization": f"Bearer {token}"},
+        headers={
+            "Authorization": f"Bearer {token}",
+            # Cloudflare's bot protection 403s urllib's default agent
+            # with error 1010, before the request reaches the Worker at
+            # all -- so every admin command failed against production
+            # while working perfectly against a local stub. Naming the
+            # tool honestly is the fix; the alternative is a WAF skip
+            # rule on the api hostname.
+            "User-Agent": USER_AGENT,
+        },
     )
     try:
         with urllib.request.urlopen(request, timeout=15) as response:

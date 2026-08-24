@@ -412,6 +412,20 @@ class TestCliAgainstStubServer(unittest.TestCase):
         _method, _path, headers = self.server.state.requests[-1]
         self.assertEqual(headers.get("Authorization"), f"Bearer {self.token}")
 
+    def test_identifies_itself_by_user_agent(self):
+        """urllib's default agent is 403'd by Cloudflare bot protection.
+
+        Error 1010, at the edge, before the Worker runs -- so every admin
+        command failed against production while passing against this
+        stub. The header is what makes the tool reachable, so its absence
+        is a production outage, not a cosmetic omission.
+        """
+        self._run(["--list"])
+        _method, _path, headers = self.server.state.requests[-1]
+        agent = headers.get("User-Agent", "")
+        self.assertIn("guestbook-admin", agent)
+        self.assertNotIn("Python-urllib", agent)
+
     # -- failure paths: clean, correct exit code, no traceback --------
 
     def test_missing_token_exits_2_and_never_touches_the_network(self):
