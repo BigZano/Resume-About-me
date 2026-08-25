@@ -80,7 +80,14 @@ def _is_admin(request, env) -> bool:
     prefix = "Bearer "
     if not header.startswith(prefix):
         return False
-    return hmac.compare_digest(header[len(prefix):], env.ADMIN_TOKEN)
+    # Compared as bytes: hmac.compare_digest raises TypeError on strings
+    # holding non-ASCII, so a token with an accent in it produced a 500
+    # rather than a 401 -- a crash oracle that tells an attacker their
+    # input reached the comparison.
+    return hmac.compare_digest(
+        header[len(prefix):].encode("utf-8"),
+        str(env.ADMIN_TOKEN).encode("utf-8"),
+    )
 
 
 async def _rate_limited(env, ip_hash) -> bool:
@@ -153,9 +160,15 @@ async def _post_entry(request, env):
     except (ValueError, TypeError):
         return _json(env, {"ok": False, "code": "empty"}, 400)
 
+    # `5`, `"hi"`, `null` and `[]` are all valid JSON and none of them
+    # have .get(). Parsing successfully is not the same as being a
+    # submission.
+    if not isinstance(body, dict):
+        return _json(env, {"ok": False, "code": "empty"}, 400)
+
     # Honeypot. Bots fill it. The response is indistinguishable from
     # success so they never learn they were caught.
-    if (body.get("website") or "").strip():
+    if str(body.get("website") or "").strip():
         return _json(env, {"ok": True})
 
     if not verify_challenge(request):
@@ -259,7 +272,11 @@ async def on_fetch(request, env):
     if method == "OPTIONS":
         return Response("", status=204, headers=_cors(env))
 
-    if path.startswith("/admin"):
+    # "/admin" and "/admin/..." only. A bare startswith also claims
+    # "/administrator" and "/admin-panel", which are not admin routes and
+    # should 404 like any other unknown path rather than answer 401 and
+    # advertise that something is there.
+    if path == "/admin" or path.startswith("/admin/"):
         return await _admin(request, env, path)
 
     if path == "/entries":
