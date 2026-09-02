@@ -69,10 +69,8 @@ class TestClassify(unittest.TestCase):
         self.assertEqual(classify(WARN_THRESHOLD_DAYS), "WARN")
 
     def test_exactly_thirty_days_warns(self):
-        # Pins WARN_THRESHOLD_DAYS to the literal 30 called out in the
-        # design spec, rather than only the symbol. A mutant that changes
-        # the constant (e.g. to 14) must fail this test even though the
-        # symbolic tests above stay green.
+        # Pins the literal 30, not just the symbol, so a mutated constant
+        # fails this even though the symbolic tests above stay green.
         self.assertEqual(classify(30), "WARN")
 
     def test_thirty_one_days_is_ok(self):

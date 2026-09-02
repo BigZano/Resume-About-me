@@ -10,12 +10,7 @@ from Gen_Content.generate_page import generate_page
 
 
 def copy_static_to_docs():
-    """
-    Copies all contents from static directory to docs directory.
-    Deletes existing contents of docs directory first.
-    Logs all operations to log.txt in the workspace root.
-    Also renders all .md files in content/ to docs/*.html and sets index.html.
-    """
+    """Rebuild docs/ from static/ and content/, logging to log.txt."""
     workspace_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     static_path = os.path.join(workspace_root, "static")
     content_path = os.path.join(workspace_root, "content")
@@ -46,14 +41,12 @@ def copy_static_to_docs():
         
         log_message(f"Starting build from {static_path} to {docs_path}")
         
-        # Delete and recreate docs directory
         if os.path.exists(docs_path):
             log_message("Deleting existing docs directory...")
             shutil.rmtree(docs_path)
         os.makedirs(docs_path)
         log_message("Created fresh docs directory")
         
-        # Copy static files
         def copy_recursive(src_dir, dest_dir, relative_path=""):
             for item in os.listdir(src_dir):
                 src_item = os.path.join(src_dir, item)
@@ -69,14 +62,13 @@ def copy_static_to_docs():
                     log_message(f"Copied file: {relative_item} ({file_size} bytes)")
         
         copy_recursive(static_path, docs_path)
-        # Preserve repository-level CNAME if present (avoid wiping custom domain on rebuild)
+        # Preserve the repo's CNAME so a rebuild doesn't wipe the custom domain
         repo_cname = os.path.join(workspace_root, "CNAME")
         docs_cname = os.path.join(docs_path, "CNAME")
         if os.path.exists(repo_cname):
             shutil.copy2(repo_cname, docs_cname)
             log_message("Copied repository CNAME to docs/CNAME")
         
-        # Render all markdown files in content/ -> docs/*.html
         md_files = [f for f in os.listdir(content_path) if f.lower().endswith(".md")]
         if not md_files:
             log_message("WARNING: No markdown files found in content/")
@@ -87,9 +79,8 @@ def copy_static_to_docs():
             log_message(f"Generating page: {md_name} -> {os.path.basename(out_html)}")
             try:
                 generate_page(src_md, template_path, out_html)
-            # Broad on purpose: this is the fault-isolation boundary between
-            # one page's markdown and the rest of the build. Every catch
-            # below logs the message and full traceback, so nothing is lost.
+            # REFACTOR: extract a shared _safe_step(name, fn) helper — this
+            # broad-except/log/continue pattern repeats 4x below.
             except Exception as e:  # noqa: BLE001
                 had_errors = True
                 log_message(f"ERROR building {md_name}: {e}")
@@ -97,7 +88,6 @@ def copy_static_to_docs():
                 log_message(traceback.format_exc())
                 continue
         
-        # Generate blog posts from content/dev_diary/
         blog_dir = os.path.join(content_path, "dev_diary")
         blog_posts_out = os.path.join(docs_path, "dev_diary")
         if os.path.exists(blog_dir):
@@ -110,21 +100,20 @@ def copy_static_to_docs():
                 log_message(f"  Generating blog post: {md_name}")
                 try:
                     generate_page(src_md, template_path, out_html, is_blog_post=True)
-                except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
+                except Exception as e:  # noqa: BLE001
                     had_errors = True
                     log_message(f"  ERROR building blog post {md_name}: {e}")
                     import traceback
                     log_message(traceback.format_exc())
                     continue
-            
-            # Generate blog index page
+
             dev_diary_template = os.path.join(workspace_root, "dev_diary_template.html")
             dev_diary_index = os.path.join(docs_path, "dev_diary.html")
             if os.path.exists(dev_diary_template):
                 log_message("Generating blog index page...")
                 try:
                     generate_blog_index(content_path, dev_diary_template, dev_diary_index)
-                except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
+                except Exception as e:  # noqa: BLE001
                     had_errors = True
                     log_message(f"ERROR generating blog index: {e}")
                     import traceback
@@ -134,12 +123,11 @@ def copy_static_to_docs():
         else:
             log_message("No dev_diary subdirectory found, skipping blog generation")
         
-        # Generate landing page as index.html
         titlepage_template = os.path.join(workspace_root, "titlepage.html")
         index_html = os.path.join(docs_path, "index.html")
 
-        # Hoisted out of the try below: the guestbook block reads it too,
-        # and it must not disappear because the landing page failed.
+        # REFACTOR: split into per-section functions and pass site_config
+        # in, instead of hoisting it here so the guestbook block can reuse it.
         site_config = {
             "title": "Home - Portfolio",
             "site_title": "Bret Zanotelli",
@@ -153,14 +141,13 @@ def copy_static_to_docs():
             try:
                 generate_landing_page(content_path, titlepage_template, index_html, site_config)
                 log_message("Landing page generated successfully as index.html")
-            except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
+            except Exception as e:  # noqa: BLE001
                 had_errors = True
                 log_message(f"ERROR generating landing page: {e}")
                 import traceback
                 log_message(traceback.format_exc())
         else:
             log_message(f"WARNING: titlepage.html template not found at {titlepage_template}")
-            # Fallback to old behavior
             resume_html = os.path.join(docs_path, "resume.html")
             if os.path.exists(resume_html):
                 shutil.copy2(resume_html, index_html)
@@ -192,7 +179,7 @@ def copy_static_to_docs():
                     },
                 )
                 log_message("Guestbook page generated successfully")
-            except Exception as e:  # noqa: BLE001 -- see fault-isolation note above
+            except Exception as e:  # noqa: BLE001
                 had_errors = True
                 log_message(f"ERROR generating guestbook page: {e}")
                 import traceback
@@ -213,14 +200,11 @@ def copy_static_to_docs():
         return False
 
 def main():
-    """Main build function"""
-    # Windows consoles default to cp1252, which can't encode the status glyphs
-    # below (or any non-ASCII page title). Without this the build generates the
-    # site correctly and then dies on the final print, exiting non-zero.
+    # Windows consoles default to cp1252, which can't encode the status
+    # glyphs below — without this the build succeeds and then dies on the
+    # final print.
     for stream in (sys.stdout, sys.stderr):
         try:
-            # TextIO's type stub has no reconfigure(); real stdout/stderr do.
-            # The except below is what actually protects streams that don't.
             stream.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
         except (AttributeError, ValueError):
             pass

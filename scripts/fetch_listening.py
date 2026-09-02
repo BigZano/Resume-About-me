@@ -27,10 +27,8 @@ def parse_top_tracks(payload, limit=TRACK_LIMIT):
     would let the caller write a file that blanks the page, and a bad
     response must never be able to destroy good data.
     """
-    # ValueError, not TypeError, is intentional here (see docstring): callers
-    # -- including the STRICT test_fetch_listening.py suite and the except
-    # clause below -- catch one exception type for "unusable payload"
-    # regardless of whether the cause was a wrong type or a missing key.
+    # ValueError, not TypeError: callers catch one exception type for
+    # "unusable payload" regardless of the underlying cause.
     if not isinstance(payload, dict):
         raise ValueError("top-tracks payload is not a JSON object")  # noqa: TRY004
 
@@ -145,13 +143,9 @@ def load_existing_tracks(path):
 
 
 def write_listening(path, tracks):
-    """Write listening.json atomically.
+    """Write listening.json atomically, via a temp file + os.replace.
 
-    An interrupted write (OOM kill, disk full, SIGTERM) must never leave a
-    truncated file behind — that would overwrite good data with worse data.
-    So we write to a temp file in the same directory (same filesystem, so
-    os.replace is atomic on POSIX) and only swap it into place once the
-    write has fully succeeded.
+    An interrupted write must never leave a truncated file behind.
     """
     stamp = datetime.now(UTC).replace(microsecond=0).isoformat()
     stamp = stamp.replace("+00:00", "Z")

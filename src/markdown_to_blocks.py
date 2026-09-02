@@ -1,8 +1,5 @@
 def markdown_to_blocks(markdown_text):
-    """
-    converts markdown to a list of blocks
-    like headers, paragraphs, etc. 
-    """
+    """Converts markdown to a list of blocks: headers, paragraphs, etc."""
     blocks = []
     current_paragraph = []
     in_code_fence = False
@@ -11,7 +8,6 @@ def markdown_to_blocks(markdown_text):
     for raw_line in lines:
         line = raw_line.rstrip()
 
-        # Check for code fence markers (allow optional indent before ```)
         if line.lstrip().startswith("```"):
             if not in_code_fence:
                 if current_paragraph:
@@ -29,7 +25,6 @@ def markdown_to_blocks(markdown_text):
             continue
 
         if in_code_fence:
-            # Preserve inside code fences
             current_paragraph.append(line)
             continue
 
@@ -41,7 +36,6 @@ def markdown_to_blocks(markdown_text):
         else:
             stripped = line.strip()
 
-            # Keep heading behavior for top-level headings
             if line == line.lstrip() and stripped.startswith("#") and " " in stripped:
                 if current_paragraph:
                     block = "\n".join(current_paragraph).strip("\n")

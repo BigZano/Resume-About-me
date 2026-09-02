@@ -1,24 +1,14 @@
 """The Worker HTTP layer, driven end to end against real SQLite.
 
-The plan verified this module only by curling `wrangler dev` by hand,
-which means it would have shipped unverified on any machine without a
-Cloudflare login. It does not need to. D1 *is* SQLite, so the whole
-storage layer can be stood up in-process from `worker/schema.sql`: every
-statement entry.py sends is executed by a real database, and a typo in a
-column name is an OperationalError rather than a silent pass.
+D1 *is* SQLite, so the storage layer is stood up in-process from
+`worker/schema.sql` — every statement entry.py sends hits a real
+database, and a typo in a column name is an OperationalError, not a
+silent pass. Faked: `workers.Response`, `env`, and a thin async shim
+over `sqlite3` for the D1 prepare/bind/first/all/run chain. The SQL
+itself is never faked.
 
-What is faked here and why:
-
-  * `workers.Response` -- an object with a body, a status and headers.
-    That is the entire surface entry.py touches.
-  * `env` -- a plain namespace holding DB, ALLOWED_ORIGIN, ADMIN_TOKEN
-    and RATE_SALT.
-  * The D1 `prepare().bind().first()/.all()/.run()` chain -- a thin
-    async shim over `sqlite3`. The SQL is NOT faked.
-
-Nothing in this file asserts on how a collaborator was called. Every
-assertion is a status code, a response body, or a row read back out of
-the database afterwards.
+Every assertion is a status code, a response body, or a row read back
+out of the database — nothing here checks how a collaborator was called.
 """
 import asyncio
 import hashlib
@@ -56,10 +46,9 @@ SALT = "test-rate-salt"
 IP = "203.0.113.77"
 OTHER_IP = "198.51.100.9"
 
-# A fake term, for the same reason src/tests/test_gb_policy.py uses one:
-# hashing a fake proves the wiring exactly as well as hashing a real slur
-# and keeps the file readable. 'zq' rather than 'zz' because
-# normalize.candidates() collapses runs of a repeated character.
+# A fake term proves the wiring as well as a real slur would, and keeps
+# the file readable. 'zq' not 'zz': normalize.candidates() collapses runs
+# of a repeated character.
 BLOCKED_TERM = "zqblocked"
 
 # Present in the committed worker/data/swaps.txt.
@@ -70,14 +59,9 @@ ALLOWED_WORD = "scunthorpe"
 
 
 class _JsRow:
-    """A D1 row shaped the way Pyodide hands it over.
-
-    Under Python Workers a result row is a JsProxy over a plain JS
-    object: it is not subscriptable and dict() refuses it, so the only
-    way in is to_py(). Deliberately hostile in exactly that way -- if
-    entry._row ever stops calling to_py(), every test using this class
-    raises instead of quietly passing.
-    """
+    """A D1 row shaped the way Pyodide hands it over: not subscriptable,
+    dict() refused, only to_py() gets you in. If entry._row ever stops
+    calling to_py(), every test using this class raises."""
 
     def __init__(self, mapping):
         self._mapping = dict(mapping)
@@ -87,15 +71,9 @@ class _JsRow:
 
 
 class _Results:
-    """The object D1's .all() returns.
-
-    Under Pyodide this arrives as a JsProxy, so entry.py calls .to_py()
-    on it, and that conversion is recursive: the rows come back as
-    plain dicts. The shim mirrors that. Handing back Python objects the
-    real runtime never produces is how a fake ends up testing a Worker
-    that does not exist -- which is exactly the class of bug that only
-    showed up against wrangler dev.
-    """
+    """The object D1's .all() returns. entry.py calls .to_py() on it, and
+    that conversion is recursive, so this shim's to_py() returns rows as
+    plain dicts too — matching what the real runtime produces."""
 
     def __init__(self, results):
         self.results = results
@@ -257,12 +235,8 @@ class WorkerCase(unittest.TestCase):
     # -- seams ----------------------------------------------------------
 
     def use_blocklist(self, *terms):
-        """Point entry at a denylist that actually contains something.
-
-        The committed worker/data/blocked.txt is header-only by design --
-        the owner generates the real digests outside the tree -- so the
-        module-level BLOCKLIST matches nothing until it is replaced.
-        """
+        """Point entry at a denylist that actually contains something —
+        the committed worker/data/blocked.txt is header-only by design."""
         original = entry.BLOCKLIST
         self.addCleanup(setattr, entry, "BLOCKLIST", original)
         entry.BLOCKLIST = Blocklist(
@@ -288,14 +262,7 @@ class TestWiring(WorkerCase):
         self.assertIn(ALLOWED_WORD, entry.ALLOW)
 
     def test_committed_blocklist_holds_digests_and_no_plaintext(self):
-        """The file is public. Only hashes may be in it, ever.
-
-        This replaces an assertion that the committed list was empty,
-        which was true until the owner generated one and then said
-        nothing useful. What must never change is that the file leaks no
-        terms -- a single plaintext line in a public repo is the failure
-        the hashing exists to prevent.
-        """
+        """The file is public. Only hashes may be in it, ever."""
         path = _REPO_ROOT / "worker" / "src" / "data" / "blocked.txt"
         for number, line in enumerate(path.read_text().splitlines(), 1):
             line = line.strip()
@@ -839,14 +806,9 @@ class TestGetEntries(WorkerCase):
 
 
 class TestReadPathAppliesSwapOnly(WorkerCase):
-    """The read path softens and nothing else. This is a trap, pinned.
-
-    Re-running the full policy per row would mean a denylist that grows
-    later turns a stored, approved entry into a failing check -- and the
-    natural fallback for a failed check is the raw text, which serves the
-    unswapped slur. That is the exact opposite of blocking. Deciding an
-    entry should disappear is moderation's job.
-    """
+    """The read path softens and nothing else — re-running the full policy
+    per row would let a grown denylist fail a stored entry and fall back
+    to serving the raw, unswapped text."""
 
     def test_swap_is_applied_at_read_time(self):
         self.insert(message=f"hey {SWAP_IN} you")
@@ -889,12 +851,9 @@ class TestReadPathAppliesSwapOnly(WorkerCase):
 class TestAdminAuth(WorkerCase):
     """Bearer-token auth on /admin/*.
 
-    One property here is deliberately NOT pinned: swapping
-    hmac.compare_digest for `==` is an equivalent mutation from outside.
-    Both answer 401 to every wrong token; the difference is how long the
-    wrong answer takes, which no behavioural assertion can see. It is
-    recorded here rather than papered over with a test that greps the
-    source, in the same spirit as the ordering notes in policy.py.
+    Not pinned: swapping hmac.compare_digest for `==` is an equivalent
+    mutation from outside — both answer 401, and the timing difference is
+    invisible to a behavioural assertion.
     """
 
     def test_no_header_is_401(self):
@@ -1032,10 +991,8 @@ class TestAdminModeration(WorkerCase):
             self.admin(path="/admin/users/1/hide", method="POST").status, 404)
 
     def test_unknown_id_reports_success_and_changes_nothing(self):
-        # KNOWN GAP, pinned so a change here is deliberate: the UPDATE
-        # matches no row and the route still answers {"ok": true}. Fixing
-        # it needs the D1 result's meta.changes, which the local SQLite
-        # harness can model but a Worker only exposes on `run()`.
+        # KNOWN GAP, pinned so a change here is deliberate: an UPDATE that
+        # matches no row still answers {"ok": true}.
         self.insert(name="Keep")
         response = self.admin(path="/admin/entries/9999/hide", method="POST")
         self.assertEqual(response.status, 200)
@@ -1141,13 +1098,9 @@ class TestCors(WorkerCase):
 
 
 class TestPyodideRowShape(WorkerCase):
-    """Every read path, with rows shaped the way Pyodide delivers them.
-
-    D1 under Python Workers returns JsProxy rows: no subscripting, no
-    dict(). If entry._row stops calling to_py(), these raise. The rest of
-    the file runs against plain dicts, which is what a future non-Pyodide
-    host would hand back -- both shapes are real, so both are exercised.
-    """
+    """Every read path, with rows shaped the way Pyodide delivers them —
+    JsProxy, no subscripting, no dict(). The rest of the file runs
+    against plain dicts; both shapes are real, so both are exercised."""
 
     row_factory = _JsRow
 

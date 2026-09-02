@@ -209,15 +209,10 @@ body.guestbook .gb-status.is-ok{color:var(--forge)}
 body.guestbook .gb-status.is-error{color:var(--ember)}
 
 /* ── the blocked panel ──────────────────────────────────── */
-/* A modal, not a strip in the form. Inline, a rejection shoves the wall
-   down the page and reads as part of the form; as a dialog it is an
-   answer to what you just did, and it leaves when you dismiss it.
-   [hidden] and [open] both have to be honoured, because the fallback
-   path shows it inline when showModal is unavailable. */
-/* Explicit, not inherited from the UA sheet. A browser without <dialog>
-   support treats this as an unknown element, which has no default
-   display:none -- so without this rule the rejection panel is visible on
-   every page load, to exactly the readers least able to cope with it. */
+/* A modal, not a strip in the form — it answers what you just did rather
+   than shoving the wall down the page. A browser without <dialog>
+   support treats this as an unknown element with no default display:none,
+   so this rule is needed explicitly or the panel shows on every load. */
 body.guestbook .gb-reject:not([open]){display:none}
 
 body.guestbook .gb-reject{
@@ -286,12 +281,8 @@ body.guestbook .gb-reject-close:focus-visible{
 }
 
 /* ── the bonfire ────────────────────────────────────────── */
-/* The one loud thing on the page, so everything around it stays
-   quiet. Heat is data: guestbook.js sets [data-heat] from the number
-   of marks, and every visual difference below hangs off that one
-   attribute. The flame's core needed a token the palette did not
-   have; it was added to index.css, where colour lives, rather than
-   here. */
+/* Heat is data: guestbook.js sets [data-heat] from the mark count, and
+   every visual difference below hangs off that one attribute. */
 body.guestbook .gb-fire{
   margin:2.6rem auto 2.2rem;
   display:flex;
@@ -309,10 +300,8 @@ body.guestbook .gb-fire-art{
 
 body.guestbook .gb-fire-ash{fill:var(--soot)}
 body.guestbook .gb-fire-mound{fill:var(--iron)}
-/* Bone reads as aged, not white: a step warmer than the ash it sits in,
-   a step darker than the flame behind it, so it silhouettes rather than
-   competes. Sockets are punched in page ground, which is the only way
-   they stay dark against a lit flame. */
+/* Bone reads as aged, not white — a step warmer than the ash it sits in,
+   a step darker than the flame, so it silhouettes rather than competes. */
 body.guestbook .gb-fire-bone,
 body.guestbook .gb-fire-skull{
   fill:color-mix(in srgb, var(--copper) 42%, var(--iron));
@@ -399,15 +388,9 @@ body.guestbook .gb-fire.is-blooming .gb-fire-flourish{
 }
 
 /* ── heat states ────────────────────────────────────────── */
-/* The fire is always lit -- a bonfire that goes out is a page that
-   looks broken. Heat still scales with the number of marks, but it
-   carries no label now: it is texture, not a readout.
-
-   Heat is a custom property rather than a transform, so the bloom can
-   multiply it. Baking scaleY into the heat rule and scale(1) into the
-   bloom made the flame snap back to a different size than it grew from
-   the moment the animation ended -- the animation ended at 1, the rule
-   resolved to .55, and the difference landed in a single frame. */
+/* Heat is a custom property, not a transform, so the bloom animation can
+   multiply it — baking scaleY into this rule and scale(1) into the bloom
+   made the flame snap back to the wrong size when the animation ended. */
 body.guestbook .gb-fire{--heat-scale:.62}
 body.guestbook .gb-fire[data-heat="warm"]{--heat-scale:.84}
 body.guestbook .gb-fire[data-heat="high"]{--heat-scale:1}
@@ -420,14 +403,9 @@ body.guestbook .gb-fire .gb-fire-flames{
 body.guestbook .gb-fire[data-heat="low"] .gb-fire-core{opacity:.45}
 body.guestbook .gb-fire[data-heat="warm"] .gb-fire-core{opacity:.7}
 
-/* A mark just landed. The fire catches, swells, and settles -- three
-   movements rather than one spike, which is how a fire actually takes
-   fuel. Every keyframe resolves against --heat-scale, so it grows from
-   and returns to exactly the size it was.
-
-   Per-keyframe easing does the smoothing: fast out of the catch, slow
-   through the swell, and a long gentle settle with one small secondary
-   rise so the flame does not simply deflate. */
+/* A mark landing: catch, swell, settle — three movements, not one spike.
+   Every keyframe resolves against --heat-scale so it returns to the
+   exact size it grew from. */
 body.guestbook .gb-fire.is-blooming .gb-fire-flames{
   animation:gb-bloom 3.4s both;
 }
@@ -476,13 +454,9 @@ body.guestbook .gb-fire.is-blooming .gb-fire-mote{
   animation-duration:1.9s;
 }
 
-/* The words rise as they fade, the way the games play them.
-
-   Transform and opacity only. An earlier cut animated letter-spacing
-   for the same widening effect, which forces a layout pass on every
-   frame for the full 3.1s -- and does it during the bloom, when the
-   main thread has the least room. scaleX buys the same widening for
-   free on the compositor. */
+/* Transform and opacity only. An earlier cut animated letter-spacing for
+   the same widening effect, which forces a layout pass every frame;
+   scaleX buys the same effect free on the compositor. */
 @keyframes gb-speak{
   0%   {opacity:0; transform:translateY(6px) scale(.94, .96)}
   18%  {opacity:1; transform:translateY(0)   scale(1, 1)}
@@ -491,15 +465,11 @@ body.guestbook .gb-fire.is-blooming .gb-fire-mote{
 }
 
 /* ── motion ─────────────────────────────────────────────── */
-/* Amplitudes are measured from a Firelink reference clip, not guessed:
-   across 27 frames the flame tip varies 17% of the flame's own width
-   while the body drifts sideways only 2.7%, on a ~1.6s loop. Fire licks
-   vertically and barely sways -- animating it the other way round is
-   what makes CSS flames read as wobbling leaves.
-
-   Each layer pivots on the fuel, runs at its own duration, and steps
-   through irregular keyframes, so the composite never lands on a
-   visible repeat. */
+/* Amplitudes measured from a reference clip: flame tip varies 17% of its
+   own width, body sways only 2.7% — fire licks vertically and barely
+   sways sideways, unlike CSS flames that read as wobbling leaves. Each
+   layer runs its own duration on irregular keyframes so the composite
+   never visibly repeats. */
 body.guestbook .gb-fire.gb-fire-outer{
   transform-origin:60px 118px;
   animation:gb-lick-outer 2.9s ease-in-out infinite;

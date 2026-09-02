@@ -10,13 +10,13 @@ def _strip_html_comments(markdown: str) -> str:
 
 def _first_paragraph(markdown: str, max_len: int = 180) -> str:
     """Extract first non-heading paragraph for meta description"""
-    # Strip HTML comments first
     markdown = _strip_html_comments(markdown)
     for line in markdown.splitlines():
         s = line.strip()
         if not s:
             continue
-        # Skip headings, images, lists, blockquotes, links, and HTML tags
+        # REFACTOR: name this tuple (e.g. _NON_PROSE_PREFIXES) instead of
+        # a bare literal — headings/images/lists/quotes/links/HTML tags.
         if s.startswith(("#", "!", "-", "*", ">", "[", "<")):
             continue
         s = re.sub(r"\s+", " ", s)
@@ -27,7 +27,6 @@ def _to_canonical(base_url: str, dest_path: str) -> str:
     """Generate canonical URL from destination path"""
     p = Path(dest_path)
     try:
-        # Try to get relative path from docs directory
         rel = p.relative_to(Path(dest_path).parent.parent / "docs")
     except ValueError:
         # dest_path isn't under docs/ -- fall back to just the filename
@@ -41,43 +40,32 @@ def _to_canonical(base_url: str, dest_path: str) -> str:
     return (base_url.rstrip("/") + url_path).replace("//", "/")
 
 def _extract_page_date(markdown: str) -> tuple[str, bool]:
-    """
-    Extract page date from HTML comment: <!-- page-date: YYYY-MM-DD -->
-    Returns (date_string, found_in_file)
-    If not found, returns (today's date, False)
-    """
+    """Extract page date from <!-- page-date: YYYY-MM-DD --> or default to today."""
     pattern = r'<!--\s*page-date:\s*(\d{4}-\d{2}-\d{2})\s*-->'
     match = re.search(pattern, markdown)
     if match:
         return match.group(1), True
     else:
-        # Return today's date in YYYY-MM-DD format
         return datetime.now(UTC).strftime('%Y-%m-%d'), False
 
 def _inject_page_date(markdown: str, date_str: str) -> str:
-    """
-    Inject page-date comment at the top of the markdown file (after any existing comments)
-    """
+    """Insert a page-date comment after any leading HTML comments, else at the top."""
     comment = f'<!-- page-date: {date_str} -->\n'
-    
-    # If file already starts with HTML comments, add after them
-    # Otherwise, add at the very top
     lines = markdown.split('\n')
     insert_pos = 0
     
+    # REFACTOR: extract as a named _find_insertion_point(lines) helper
+    # instead of inline step-labels.
     for i, line in enumerate(lines):
         if line.strip().startswith('<!--'):
-            # Find the end of this comment block
             if '-->' in line:
                 insert_pos = i + 1
             else:
-                # Multi-line comment, find closing
                 for j in range(i + 1, len(lines)):
                     if '-->' in lines[j]:
                         insert_pos = j + 1
                         break
         elif line.strip() and not line.strip().startswith('#'):
-            # Hit actual content, stop looking
             break
     
     lines.insert(insert_pos, comment.rstrip())
@@ -96,7 +84,6 @@ def _render_markdown(markdown: str, page_date: str | None = None, is_blog_post: 
         try:
             date_obj = datetime.strptime(page_date, '%Y-%m-%d').replace(tzinfo=UTC)
             readable_date = date_obj.strftime('%B %d, %Y')
-            # Inject date after h1 title
             html = html.replace('</h1>', f'</h1><p class="post-date">{readable_date}</p>', 1)
         except ValueError as exc:
             # page_date didn't match YYYY-MM-DD -- skip the date stamp
@@ -116,18 +103,16 @@ def generate_page(from_path, template_path, dest_path, is_blog_post=False):
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     from Gen_Content.extract_title_markdown import extract_title
     
-    # Extract page date (before stripping comments)
+    # REFACTOR: fragile ordering — date extraction depends on running
+    # before HTML comments are stripped. Fold both into one step.
     page_date, date_found = _extract_page_date(markdown)
-    
-    # If no date was found, inject it into the source file
+
     if not date_found:
         markdown = _inject_page_date(markdown, page_date)
-        # Write back to source file to preserve the date
         with open(from_path, "w", encoding="utf-8") as f:
             f.write(markdown)
         print(f"  → Added page-date: {page_date}")
-    
-    # Strip HTML comments before processing
+
     markdown_clean = _strip_html_comments(markdown)
     
     title = extract_title(markdown_clean)
@@ -140,19 +125,16 @@ def generate_page(from_path, template_path, dest_path, is_blog_post=False):
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
 
-    # Determine if page is in subdirectory and adjust CSS paths
+    # REFACTOR: extract this prefix computation and the rewrite below
+    # into one _rewrite_asset_paths(html, dest_path) helper.
     dest_path_obj = Path(dest_path)
     try:
-        # Get relative path from docs directory
         docs_dir = dest_path_obj.parent
         while docs_dir.name and docs_dir.name != 'docs':
             docs_dir = docs_dir.parent
-        
+
         rel_path = dest_path_obj.relative_to(docs_dir)
-        # Count directory depth (excluding filename)
         depth = len(rel_path.parts) - 1
-        
-        # Create path prefix (../ for each level deep)
         path_prefix = '../' * depth if depth > 0 else './'
     except ValueError:
         # dest_path isn't under a 'docs' directory -- fall back to current dir
@@ -168,7 +150,6 @@ def generate_page(from_path, template_path, dest_path, is_blog_post=False):
         .replace("{{ PageDate }}", page_date)
     )
     
-    # Fix CSS/asset paths for subdirectories
     if path_prefix != './':
         page_html = page_html.replace('href="./', f'href="{path_prefix}')
         page_html = page_html.replace('src="./', f'src="{path_prefix}')

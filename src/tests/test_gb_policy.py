@@ -1,16 +1,9 @@
 """Policy orchestration: the order of checks and the codes they return.
 
-The blocked term here is the fake 'zqblocked'. Hashing a fake proves the
-wiring exactly as well as hashing a real slur and keeps the file
-readable. The prefix is 'zq' rather than 'zz' to match
-src/tests/test_gb_matching.py: normalize.candidates() collapses runs of a
-repeated character, so a term starting with a doubled letter is a poor
-fixture.
-
-Rejections are asserted as the WHOLE verdict, never just `.code`. A
-verdict carries four fields and three of them are silent if only the code
-is read -- `ok`, `display` and `has_swap` all have to be pinned or a
-mutant that flips one of them survives every test in the file.
+The blocked term is the fake 'zqblocked' — a fake proves the wiring as
+well as a real slur and keeps the file readable. Rejections are asserted
+as the WHOLE verdict, never just `.code`, or a mutant that flips `ok`,
+`display`, or `has_swap` alone survives every test in the file.
 """
 import random
 import unittest
@@ -44,12 +37,8 @@ INVISIBLES = ("​", "‌", "‍", "﻿", "­")
 
 
 class _ExplodingBlocklist:
-    """A blocklist that fails the test if the matcher ever consults it.
-
-    Not a mock: nothing asserts on how it was called. It is a controlled
-    seam that turns 'the expensive check ran' into a hard failure, which
-    is the only way to observe check ORDER from outside.
-    """
+    """A blocklist that fails the test if the matcher ever consults it —
+    the only way to observe check ORDER from outside."""
 
     def __getattr__(self, name):
         raise AssertionError(
@@ -75,12 +64,8 @@ class VerdictAssertions:
 
 
 class TestFixturesActuallyFire(unittest.TestCase):
-    """Non-vacuity controls.
-
-    Every 'blocked' and every swap test in this file is worthless if the
-    fixtures below silently stop matching. These fail first when that
-    happens, instead of the whole file passing while proving nothing.
-    """
+    """Non-vacuity controls: fail first if the fixtures below silently
+    stop matching, instead of the whole file passing while proving nothing."""
 
     def test_the_fixture_blocklist_matches_its_term(self):
         self.assertTrue(contains_blocked(BLOCKED_TERM, BLOCKLIST, ALLOW))

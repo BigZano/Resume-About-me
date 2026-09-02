@@ -69,12 +69,8 @@ class TestApplySwaps(unittest.TestCase):
         self.assertEqual(len(result.split()), len(text.split()))
 
     def test_longest_term_wins_when_one_contains_another(self):
-        # 'cat' is a strict prefix of 'cat-nap'. The hyphen is a non-word
-        # character, so \b alone is satisfied by BOTH 'cat' (boundary at
-        # the hyphen) and 'cat-nap' (boundary at the following space) --
-        # unlike plain alphabetic overlaps such as 'ass'/'asshole', where
-        # \b already rules out the short match on its own. Sorting terms
-        # longest-first is what decides this case, not \b.
+        # 'cat' is a strict prefix of 'cat-nap', and the hyphen satisfies
+        # \b for both terms — sorting longest-first, not \b, decides this.
         overlapping = {"cat": "feline", "cat-nap": "snooze"}
         result, swapped = apply_swaps("time for a cat-nap", overlapping)
         self.assertEqual(result, "time for a snooze")

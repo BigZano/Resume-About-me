@@ -37,11 +37,9 @@ DELEET = {
 
 _ZW_TABLE = str.maketrans("", "", ZERO_WIDTH)
 
-# Keyed on the CASEFOLDED source, and applied after casefold(), so that
-# uppercase homoglyphs fold too. Applying the table before casefold would
-# miss capital Cyrillic А/Е/О/С entirely — the most obvious homoglyph
-# attack there is — because casefold maps them to Cyrillic lowercase, not
-# to Latin. Folding first collapses both cases onto one table key.
+# Keyed on the casefolded source, applied after casefold() — otherwise
+# capital Cyrillic А/Е/О/С would fold to Cyrillic lowercase, not Latin,
+# and miss the table entirely.
 _CONFUSABLE_TABLE = str.maketrans(
     {src.casefold(): dst for src, dst in CONFUSABLES.items()}
 )

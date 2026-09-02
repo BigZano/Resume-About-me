@@ -9,24 +9,21 @@ class TestSplitFunctions(unittest.TestCase):
     def test_split_nodes_delimiter(self):
         text = "This is **bold** and *italic* text with `code`."
         nodes = [TextNode(text, TextType.PLAIN_TEXT)]
-        
-        # Split by bold
+
         nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD_TEXT)
         self.assertEqual(len(nodes), 3)
         self.assertEqual(nodes[0].text, "This is ")
         self.assertEqual(nodes[1].text, "bold")
         self.assertEqual(nodes[1].text_type, TextType.BOLD_TEXT)
         self.assertEqual(nodes[2].text, " and *italic* text with `code`.")
-        
-        # Split by italic
+
         nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC_TEXT)
         self.assertEqual(len(nodes), 5)
         self.assertEqual(nodes[2].text, " and ")
         self.assertEqual(nodes[3].text, "italic")
         self.assertEqual(nodes[3].text_type, TextType.ITALIC_TEXT)
         self.assertEqual(nodes[4].text, " text with `code`.")
-        
-        # Split by code
+
         nodes = split_nodes_delimiter(nodes, "`", TextType.CODE_TEXT)
         self.assertEqual(len(nodes), 7)
         self.assertEqual(nodes[4].text, " text with ")
@@ -46,11 +43,9 @@ class TestSplitFunctions(unittest.TestCase):
         self.assertEqual(nodes[1].url, "http://example.com/image.png")
         self.assertEqual(nodes[2].text, " in the text.")
     
-    # Left unfinished (no assertions -- see PR discussion): completing it
-    # correctly trips the same src.* vs bare-import module-identity bug that
-    # already fails test_split_nodes_image/test_split_nodes_delimiter above.
-    # Fixing that is a repo-wide import-convention decision, not a lint fix;
-    # tracked separately rather than silently expanding this change's scope.
+    # Left unfinished: completing it trips the same src.* vs bare-import
+    # module-identity bug as the two tests above. Repo-wide import fix,
+    # tracked separately.
     def test_split_nodes_link(self):
         text = "Here is a link [Link Text](http://example.com) in the text."
         nodes = [TextNode(text, TextType.PLAIN_TEXT)]
