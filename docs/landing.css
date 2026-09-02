@@ -321,25 +321,18 @@ body.landing .home-footer p{
 }
 
 /* ── guestbook cell ─────────────────────────────────────── */
-/* The 4th card is the only live thing on the front door, so it borrows
-   the guestbook's own ornament to say how live it is. On that page a
-   mark is struck hot and then cools: --flame, --ember, --ember-deep,
-   --iron. The rail down this card's left edge is that same scale read
-   at a single value — the temperature of the newest mark:
+/* The 4th card is the only live thing on the front door. Its left rail
+   reads the temperature of the newest mark:
 
      is-live     straight from the Worker      --flame
      is-cached   last known good, under 24h    --ember
      (neither)   the script never ran          --iron
      is-cold     there is nothing to show      --iron, content cools
 
-   `is-cold` is layer 3 of the fallback and a design state, not an error
-   state. The forge is out: the heading cools off the flame, the sig
-   area goes to --iron and reads as a hole in the grid, the hover warmth
-   is switched off, and the one thing left lit is the link to sign. No
-   colour value is defined here; index.css owns the palette.
-
-   Never a bare `.guestbook` class — index.css prints that one as
-   display:none. */
+   `is-cold` is a design state, not an error state — the forge is out,
+   but the link to sign stays lit. No colour value is defined here;
+   index.css owns the palette. Never a bare `.guestbook` class — index.css
+   prints that one as display:none. */
 body.landing .into-card--guestbook{
   position:relative;
   padding-left:1.55rem;                 /* clears the rail */

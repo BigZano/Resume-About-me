@@ -35,10 +35,8 @@
     "rate_limited": "Slow down a moment, then try again."
   };
 
-  /* Instant feedback only. The Worker revalidates all of this and its
-     answer is the one that counts. Deliberately broad, same as the
-     server-side rule: a false positive costs a rephrase, a miss hands
-     a link spammer the payload. */
+  /* Instant feedback only — the Worker revalidates and its answer is the
+     one that counts. Deliberately broad, same as the server-side rule. */
   var LOOKS_LIKE_URL =
     /(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|dev|xyz|ru|co|link|shop|biz|info|top)\b)/i;
 
@@ -74,10 +72,8 @@
     }
   }
 
-  /* Modal where the browser supports it, inline where it does not.
-     showModal gives focus trapping, Escape, and the backdrop for free;
-     the fallback keeps the panel usable without reimplementing any of
-     that badly. */
+  /* Modal where the browser supports it, inline where it does not —
+     showModal gives focus trapping, Escape, and the backdrop for free. */
   function showReject() {
     setStatus("");
     if (typeof reject.showModal === "function") {
@@ -117,10 +113,8 @@
 
   /* ── the fire ─────────────────────────────────────────── */
 
-  /* Heat scales the flame with the number of marks. It carries no text
-     any more -- it is texture, and the fire is always lit, because a
-     bonfire that goes out reads as a broken page rather than an empty
-     guestbook. */
+  /* Heat scales the flame with the number of marks. Always lit — a
+     bonfire that goes out reads as a broken page, not an empty guestbook. */
   var HEAT = [
     { at: 15, name: "high" },
     { at: 5, name: "warm" },
@@ -169,10 +163,8 @@
     flourish.textContent = line;
     fire.classList.add("is-blooming");
 
-    /* Must outlast the bloom animation itself (3.4s in the stylesheet).
-       Removing the class early cuts the animation mid-flight and the
-       flame snaps back in one frame -- the exact thing the keyframes
-       were rewritten to avoid. */
+    /* REFACTOR: 3450ms duplicates the 3.4s bloom duration in guestbook.css
+       — read it from the animation instead of hardcoding it here too. */
     bloomTimer = window.setTimeout(function () {
       fire.classList.remove("is-blooming");
       flourish.textContent = "";

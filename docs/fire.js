@@ -60,7 +60,6 @@
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   function isStatic() { return reduced.matches; }
 
-  /* ── layout ─────────────────────────────────────────────── */
   function layout() {
     var cssW = canvas.parentElement.clientWidth;
     if (!cssW) return;

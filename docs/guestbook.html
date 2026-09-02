@@ -22,10 +22,8 @@
     <link rel="manifest" href="./site.webmanifest" />
     <meta name="theme-color" content="#14100E" />
 
-    <!-- The two faces this page sets text in, fetched in parallel with
-         the stylesheet instead of after it. font-display:swap already
-         stops them blocking paint; preloading shortens the window where
-         the page is rendered in a fallback face and then reflows. -->
+    <!-- Preloaded to shorten the fallback-face flash before font-display:swap
+         kicks in. -->
     <link rel="preload" href="./fonts/Literata.woff2" as="font"
           type="font/woff2" crossorigin />
     <link rel="preload" href="./fonts/BricolageGrotesque.woff2" as="font"
@@ -87,21 +85,10 @@
           <p id="gb-status" class="gb-status" aria-live="polite" role="status"
              tabindex="-1"></p>
 
-          <!-- Shown only on a `blocked` response, as a modal rather
-               than inline: a rejection that pushes the form down the
-               page reads as part of the form. A native <dialog> is used
-               so focus trapping, Escape, and the backdrop come from the
-               browser instead of from us; the script falls back to
-               showing it inline if showModal is unavailable.
-
-               Both images live in static/ and are copied by the build:
-                 static/fry-reject.webp        animated (WebP, not GIF)
-                 static/fry-reject-still.webp  one static poster frame
-               Either may be absent -- the alt text stands in on its
-               own. Self-hosted on purpose: the Tenor embed would run a
-               third-party script, hand every blocked visitor's IP to
-               Tenor, render nothing offline, and defeat the
-               reduced-motion swap. -->
+          <!-- Shown only on a `blocked` response, as a modal so focus
+               trapping, Escape, and the backdrop come from the browser;
+               falls back to inline if showModal is unavailable.
+               Both images live in static/ and are copied by the build. -->
           <dialog id="gb-reject" class="gb-reject"
                   aria-labelledby="gb-reject-line">
             <img class="gb-reject-motion" src="./fry-reject.webp"
@@ -117,12 +104,9 @@
           </dialog>
         </section>
 
-        <!-- The hinge between signing and the wall. It burns whenever
-             the page is up; `data-heat` still scales it with the number
-             of marks, quietly, with no label on it. Signing blooms the
+        <!-- The hinge between signing and the wall. Signing blooms the
              fire and speaks once, the way the games acknowledge a
-             bonfire. The blade is drawn, not photographed — no game
-             asset is used or needed. -->
+             bonfire. -->
         <figure class="gb-fire" id="gb-fire" data-heat="low">
           <svg class="gb-fire-art" viewBox="0 0 120 148" width="120"
                height="148" aria-hidden="true" focusable="false">
@@ -139,11 +123,10 @@
               </linearGradient>
             </defs>
 
-            <!-- ash bed -->
             <ellipse class="gb-fire-ash" cx="60" cy="133" rx="46" ry="8" />
             <path class="gb-fire-mound"
                   d="M18 133c5-10 15-15 27-17 8-1 13-4 15-7 2 3 7 6 15 7 12 2 22 7 27 17z" />
-            <!-- flame, drawn behind the blade so the steel reads cold -->
+            <!-- drawn behind the blade so the steel reads cold -->
             <g class="gb-fire-flames">
               <path class="gb-fire-outer"
                     d="M48 118C38 106 38 88 45 72c6-14 11-28 13-46 6 18 12 30 17 44 7 16 7 34-3 48z" />
@@ -220,10 +203,8 @@
               <rect class="gb-fire-grip" x="57.6" y="24" width="4.8" height="16" rx="1.5" />
               <circle class="gb-fire-pommel" cx="60" cy="21" r="3.4" />
             </g>
-            <!-- Front tongues. Drawn after the blade on purpose: fire
-                 passes in front of the steel as well as behind it, which
-                 is what stops the sword reading as a decal laid on top
-                 of a flame. -->
+            <!-- Front tongues, drawn after the blade so fire passes in
+                 front of the steel too, not just behind it. -->
             <g class="gb-fire-flames gb-fire-front">
               <path class="gb-fire-front-outer"
                     d="M52 118c-5-9-4-21 2-31 1 11 3 17 6 23 3 8 2 14-1 18z" />
@@ -231,7 +212,7 @@
                     d="M66 118c4-8 4-18 0-27 2 10 6 15 7 21 1 5 0 5-1 6z" />
             </g>
 
-            <!-- embers, only in motion once the fire is lit -->
+            <!-- only in motion once the fire is lit -->
             <g class="gb-fire-motes">
               <circle class="gb-fire-mote" cx="44" cy="62" r="1.6" />
               <circle class="gb-fire-mote" cx="79" cy="52" r="1.3" />
