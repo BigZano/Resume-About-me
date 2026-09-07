@@ -1,9 +1,13 @@
 {
-  "fetched_at": "2026-08-31T14:27:55Z",
+  "fetched_at": "2026-09-07T14:26:42Z",
   "tracks": [
     {
       "artist": "Fit For An Autopsy",
       "title": "The Wretch"
+    },
+    {
+      "artist": "Mudvayne",
+      "title": "Happy?"
     },
     {
       "artist": "Rammstein",
@@ -12,6 +16,10 @@
     {
       "artist": "Fit For An Autopsy",
       "title": "Hostage"
+    },
+    {
+      "artist": "Cannibal Corpse",
+      "title": "Priests Of Sodom"
     },
     {
       "artist": "Fit For An Autopsy",
@@ -28,14 +36,6 @@
     {
       "artist": "Finishing Move Inc.",
       "title": "Invasion"
-    },
-    {
-      "artist": "Slayer",
-      "title": "South Of Heaven"
-    },
-    {
-      "artist": "Slayer",
-      "title": "Behind The Crooked Cross"
     },
     {
       "artist": "Machine Head",
