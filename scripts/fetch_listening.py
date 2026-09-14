@@ -17,9 +17,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 TRACK_LIMIT = 10
-TIME_RANGE = "short_term"  # Spotify's rolling ~4-week ranking
+TIME_RANGE = "short_term"  # old ~4wk window. TODO: being replaced, see below.
 
 
+# TODO(old): still used by main() below. Keep until get_recently_played +
+# aggregate_weekly_top (further down) are ready, then delete this and
+# get_top_tracks together.
 def parse_top_tracks(payload, limit=TRACK_LIMIT):
     """Extract [{'artist', 'title'}] from a Spotify top-tracks response.
 
@@ -119,6 +122,7 @@ def refresh_access_token(client_id, client_secret, refresh_token):
     return access_token, payload.get("refresh_token")
 
 
+# TODO(old): being replaced by get_recently_played below.
 def get_top_tracks(access_token):
     query = urllib.parse.urlencode({
         "time_range": TIME_RANGE,
@@ -129,6 +133,36 @@ def get_top_tracks(access_token):
         headers={"Authorization": f"Bearer {access_token}"},
     )
     return _read_json(request, "Top-tracks fetch")
+
+
+# TODO: new fetch fn. Same auth pattern as get_top_tracks above — Bearer
+# token, GET, _read_json — just a different URL and no time_range param.
+# Scope user-read-recently-played is already granted (spec §6), no re-auth.
+def get_recently_played(access_token):
+    """GET /me/player/recently-played?limit=50 -> raw JSON payload."""
+    raise NotImplementedError
+
+
+# TODO: new parse fn, sibling to parse_top_tracks above. Different shape:
+# each item is {"track": {"name": ..., "artists": [{"name": ...}]},
+# "played_at": "2026-09-10T14:00:00Z"}. Same rule as parse_top_tracks:
+# raise ValueError on unusable payload, never return [].
+def parse_recently_played(payload):
+    """Raw recently-played JSON -> [{"artist", "title", "played_at"}, ...]."""
+    raise NotImplementedError
+
+
+# TODO: new aggregation fn — this is the actual "weekly" logic.
+# 1. Keep only entries where played_at is within 7 days of `now`.
+# 2. Count occurrences per (artist, title) pair.
+# 3. Sort by count desc; tiebreak by most recent played_at.
+# 4. Return the top `limit` as [{"artist", "title"}, ...] (drop played_at —
+#    listening.json's contract is artist/title only, see the spec).
+# `now` is a parameter, not datetime.now() — keeps this testable without
+# mocking the clock, same pattern as days_until_expiry in check_token_age.py.
+def aggregate_weekly_top(entries, now, limit=TRACK_LIMIT):
+    """[{"artist", "title", "played_at"}, ...], now -> top `limit` tracks."""
+    raise NotImplementedError
 
 
 def load_existing_tracks(path):
@@ -205,6 +239,11 @@ def main(argv=None):
             file=sys.stderr,
         )
 
+    # TODO: swap this block for:
+    #   tracks = aggregate_weekly_top(
+    #       parse_recently_played(get_recently_played(access_token)),
+    #       datetime.now(UTC),
+    #   )
     try:
         tracks = parse_top_tracks(get_top_tracks(access_token))
     except ValueError as exc:

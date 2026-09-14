@@ -368,6 +368,47 @@ body.diary .landing-header .subtitle{
 
 .blog-posts{margin:0}
 
+/* ── genre filter ───────────────────────────────────────── */
+/* Populated by blog-filter.js from data-genre on the posts actually
+   rendered on this page. Hidden (not just empty) until JS finds more
+   than one distinct genre, so a single-genre archive shows no dead
+   control — see blog-filter.js. */
+.blog-genre-filter{
+  display:none;
+  flex-wrap:wrap;
+  gap:.5rem;
+  margin-bottom:2rem;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid var(--iron);
+  font-family:var(--util);
+  font-size:.78rem;
+}
+.blog-genre-filter.is-active{display:flex}
+
+.blog-genre-filter button{
+  font-family:inherit;
+  font-size:inherit;
+  letter-spacing:.06em;
+  color:var(--copper);
+  background:none;
+  border:1px solid var(--iron);
+  border-radius:2px;
+  padding:.35rem .75rem;
+  cursor:pointer;
+  transition:color .18s ease, border-color .18s ease;
+}
+.blog-genre-filter button:hover{
+  color:var(--flame);
+  border-color:var(--flame);
+}
+.blog-genre-filter button[aria-pressed="true"]{
+  color:var(--ash);
+  background:var(--copper);
+  border-color:var(--copper);
+}
+
+.blog-post-preview[hidden]{display:none}
+
 .blog-post-preview{
   padding:0 0 2rem;
   margin-bottom:2rem;
@@ -394,11 +435,34 @@ body.diary .landing-header .subtitle{
 }
 .blog-post-preview h2 a:hover{color:var(--flame)}
 
+/* wraps <time> + .genre-tag so both metadata pieces sit on one line
+   above the title, matching the column-reverse header above */
+.blog-post-preview .post-meta{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:.55rem;
+}
+
 .blog-post-preview time{
   font-family:var(--util);
   font-size:.74rem;
   letter-spacing:.12em;
   color:var(--copper);
+}
+
+.genre-tag{
+  display:inline-flex;
+  align-items:center;
+  font-family:var(--util);
+  font-size:.68rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--copper);
+  border:1px solid var(--iron);
+  border-radius:2px;
+  padding:.15rem .5rem;
+  line-height:1.4;
 }
 
 .blog-post-preview .excerpt{

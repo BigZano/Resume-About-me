@@ -5,6 +5,15 @@ from math import ceil
 from pathlib import Path
 
 
+# TODO: new fn, sibling to _extract_page_date below. Same comment-scanning
+# approach, different tag:
+#   <!-- genre: game-review -->
+# def _extract_genre(markdown: str) -> str:
+#     """Return the genre slug, or "dev-diary" if the comment is absent."""
+#     ...
+# Slug is lowercase-kebab (e.g. "game-review") — it becomes the
+# `data-genre` attribute static/blog-filter.js filters on. Title-case it
+# for the visible pill text (e.g. "game-review" -> "Game Review").
 def _extract_page_date(markdown: str) -> tuple[str, bool]:
     """Extract page date from HTML comment or filename"""
     pattern = r'<!--\s*page-date:\s*(\d{4}-\d{2}-\d{2})\s*-->'
@@ -151,10 +160,13 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
             title = _extract_title_from_filename(md_file.name)
         
         excerpt = _extract_excerpt(markdown_clean)
-        
+
         # Generate HTML filename
         html_filename = md_file.stem + ".html"
-        
+
+        # TODO: call _extract_genre(markdown) and add two keys here:
+        #   'genre': genre_slug,          e.g. "game-review"
+        #   'genre_label': genre_slug.replace('-', ' ').title(),  "Game Review"
         posts.append({
             'title': title,
             'date': page_date,
@@ -183,6 +195,19 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
         posts_html = '<section class="blog-posts">\n'
         for post in page_posts:
             # Social media share links removed - see .archive/social_media_integration/
+            # TODO: add data-genre to <article>, and wrap <time> + a
+            # .genre-tag span in a .post-meta div (CSS/JS for both already
+            # exist in static/index.css and static/blog-filter.js):
+            #
+            #   <article class="blog-post-preview" data-genre="{post['genre']}">
+            #       <header>
+            #           <h2>...</h2>
+            #           <div class="post-meta">
+            #               <time ...>{post['date']}</time>
+            #               <span class="genre-tag">{post['genre_label']}</span>
+            #           </div>
+            #       </header>
+            #       ...
             posts_html += f'''
         <article class="blog-post-preview">
             <header>

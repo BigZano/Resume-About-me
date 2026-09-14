@@ -10,7 +10,7 @@ import json
 # Matches the indentation of the surrounding <li> items in titlepage.html.
 _INDENT = " " * 16
 
-STAMP_LIVE = "on repeat this month"
+STAMP_LIVE = "on repeat this month"  # TODO: update copy, e.g. "most played this week"
 STAMP_EMPTY = "not yet live"
 EMPTY_TRACKS_HTML = f"{_INDENT}<li>Nothing logged yet</li>"
 
