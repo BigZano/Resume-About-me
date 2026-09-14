@@ -1,13 +1,21 @@
 {
-  "fetched_at": "2026-09-07T14:26:42Z",
+  "fetched_at": "2026-09-14T14:28:19Z",
   "tracks": [
     {
-      "artist": "Fit For An Autopsy",
-      "title": "The Wretch"
+      "artist": "Linkin Park",
+      "title": "Massive"
+    },
+    {
+      "artist": "Mastodon",
+      "title": "Snakes for Dinner"
     },
     {
       "artist": "Mudvayne",
       "title": "Happy?"
+    },
+    {
+      "artist": "Cannibal Corpse",
+      "title": "Priests Of Sodom"
     },
     {
       "artist": "Rammstein",
@@ -15,19 +23,7 @@
     },
     {
       "artist": "Fit For An Autopsy",
-      "title": "Hostage"
-    },
-    {
-      "artist": "Cannibal Corpse",
-      "title": "Priests Of Sodom"
-    },
-    {
-      "artist": "Fit For An Autopsy",
-      "title": "Weaker Wolves"
-    },
-    {
-      "artist": "Rammstein",
-      "title": "Te quiero puta!"
+      "title": "The Wretch"
     },
     {
       "artist": "Fit For An Autopsy",
@@ -40,6 +36,10 @@
     {
       "artist": "Machine Head",
       "title": "I Am Hell (Sonata In C#)"
+    },
+    {
+      "artist": "Rammstein",
+      "title": "Sehnsucht"
     }
   ]
 }
