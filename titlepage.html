@@ -96,11 +96,9 @@
                 <img src="./crumb.png" alt="Crumb the cat screaming" class="cat-pic">
               </article>
 
-              <!-- The only live dependency on the front door. Everything
-                   below is layer 3 of the fallback, already rendered: if
-                   guestbook-cell.js never runs, or runs and finds nothing,
-                   this is exactly what stays on the page. The script only
-                   ever replaces the contents of .gb-sig.
+              <!-- Layer 3 of the fallback, already rendered: if
+                   guestbook-cell.js never runs, this is what stays. The
+                   script only ever replaces .gb-sig's contents.
                    Class is `into-card--guestbook`, never a bare
                    `guestbook` — index.css hides that one in print. -->
               <article class="into-card into-card--guestbook" id="gb-latest">

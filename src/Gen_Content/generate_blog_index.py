@@ -27,7 +27,7 @@ def _inject_page_date(markdown: str, date_str: str) -> str:
     comment = f'<!-- page-date: {date_str} -->\n'
     lines = markdown.split('\n')
     insert_pos = 0
-    
+
     for i, line in enumerate(lines):
         if line.strip().startswith('<!--'):
             if '-->' in line:
@@ -39,20 +39,20 @@ def _inject_page_date(markdown: str, date_str: str) -> str:
                         break
         elif line.strip() and not line.strip().startswith('#'):
             break
-    
+
     lines.insert(insert_pos, comment.rstrip())
     return '\n'.join(lines)
 
 def _extract_excerpt(markdown: str, max_len: int = 200) -> str:
     """Extract first paragraph as excerpt"""
-    # Strip HTML comments
     markdown = re.sub(r'<!--.*?-->', '', markdown, flags=re.DOTALL)
-    
+
     for line in markdown.splitlines():
         s = line.strip()
         if not s:
             continue
-        # Skip headings, images, lists, blockquotes, links, HTML tags
+        # REFACTOR: name this tuple (e.g. _NON_PROSE_PREFIXES) instead of
+        # a bare literal — headings/images/lists/quotes/links/HTML tags.
         if s.startswith(("#", "!", "-", "*", ">", "[", "<")):
             continue
         s = re.sub(r"\s+", " ", s)
@@ -61,20 +61,12 @@ def _extract_excerpt(markdown: str, max_len: int = 200) -> str:
 
 def _extract_title_from_filename(filename: str) -> str:
     """Extract title from blog post filename: YYYY-MM-DD-title-here.md"""
-    # Remove .md extension
     name = filename.replace('.md', '')
-    # Split by date pattern
+    # REFACTOR: unpack as year, month, day, title instead of parts[3]
     parts = name.split('-', 3)
     if len(parts) >= 4:
-        # parts[0] = year, parts[1] = month, parts[2] = day, parts[3] = title
-        title = parts[3].replace('-', ' ').title()
-        return title
+        return parts[3].replace('-', ' ').title()
     return name.replace('-', ' ').title()
-
-# ARCHIVED: Social media share links removed - see .archive/social_media_integration/
-# def _build_share_comment(post_url: str, title: str, site_base_url: str) -> str:
-#     """Return commented-out share links for future activation"""
-#     ...
 
 def _build_pagination_nav(current_page: int, total_pages: int, base_name: str, suffix: str) -> str:
     """Generate pagination navigation HTML"""
@@ -113,7 +105,7 @@ def _build_pagination_nav(current_page: int, total_pages: int, base_name: str, s
 def generate_blog_index(content_dir: str, template_path: str, dest_path: str, subdocs_dir: str = "dev_diary", posts_per_page: int = 5, site_base_url: str | None = None):
     """
     Generate a blog index page listing all posts in content/dev_diary/
-    
+
     Args:
         content_dir: Path to content directory (e.g., /path/to/content)
         template_path: Path to dev_diary_template.html
@@ -121,47 +113,39 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
         subdocs_dir: Subdirectory name containing blog posts (default: dev_diary)
     """
     print(f"Generating blog index from {content_dir}/{subdocs_dir}")
-    
+
     blog_dir = Path(content_dir) / subdocs_dir
     if not blog_dir.exists():
         print(f"  ⚠ Blog directory not found: {blog_dir}")
         return
-    
-    # Get all .md files in dev_diary/
+
     posts = []
     for md_file in sorted(blog_dir.glob("*.md"), reverse=True):
         with open(md_file, 'r', encoding='utf-8') as f:
             markdown = f.read()
-        
-        # Extract or inject date
+
         page_date, date_found = _extract_page_date(markdown)
         if not date_found:
-            # Try to extract from filename (YYYY-MM-DD-title.md)
             filename_date_match = re.match(r'(\d{4}-\d{2}-\d{2})', md_file.name)
             if filename_date_match:
                 page_date = filename_date_match.group(1)
-            
-            # Inject the date into the file
+
             markdown = _inject_page_date(markdown, page_date)
             with open(md_file, 'w', encoding='utf-8') as f:
                 f.write(markdown)
             print(f"  → Added page-date: {page_date} to {md_file.name}")
-        
-        # Extract title from file content
+
         import sys
         sys.path.insert(0, os.path.dirname(__file__))
         from extract_title_markdown import extract_title
-        
+
         markdown_clean = re.sub(r'<!--.*?-->', '', markdown, flags=re.DOTALL)
         try:
             title = extract_title(markdown_clean)
         except ValueError:
-            # Fallback to filename-based title
             title = _extract_title_from_filename(md_file.name)
-        
-        excerpt = _extract_excerpt(markdown_clean)
 
-        # Generate HTML filename
+        excerpt = _extract_excerpt(markdown_clean)
         html_filename = md_file.stem + ".html"
 
         # TODO: call _extract_genre(markdown) and add two keys here:
@@ -174,7 +158,7 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
             'url': f"{subdocs_dir}/{html_filename}",
             'filename': md_file.name
         })
-    
+
     posts_per_page = max(1, posts_per_page)
     total_posts = len(posts)
     total_pages = max(1, ceil(total_posts / posts_per_page))
@@ -194,7 +178,6 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
 
         posts_html = '<section class="blog-posts">\n'
         for post in page_posts:
-            # Social media share links removed - see .archive/social_media_integration/
             # TODO: add data-genre to <article>, and wrap <time> + a
             # .genre-tag span in a .post-meta div (CSS/JS for both already
             # exist in static/index.css and static/blog-filter.js):

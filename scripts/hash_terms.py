@@ -39,12 +39,9 @@ def main() -> int:
         print(f"ERROR: cannot read {source}: {error}")
         return 1
 
-    # Canonicalize before measuring. The matcher only ever compares
-    # alphanumeric runs, so a term must be stored the same way: folding
-    # makes 'zqhàte' six characters, and stripping makes a two-word term
-    # like 'go away' the single token the substring pass can actually
-    # find. A term left punctuated here would be a digest nothing can
-    # ever match.
+    # Canonicalize before measuring: the matcher only compares alphanumeric
+    # runs, so a term stored with punctuation would be a digest nothing
+    # can ever match.
     terms = {
         strip_nonalnum(normalize(stripped))
         for stripped in (line.strip() for line in raw.splitlines())

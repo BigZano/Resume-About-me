@@ -1,29 +1,18 @@
 """Denylist matching, tested entirely with benign terms.
 
-Two kinds of term appear here, and neither is a slur:
+Fake terms ('zqblocked', 'zqhate', 'zqmid', 'zqs') prove the algorithm as
+well as real ones would. 'zq' not 'zz': normalize.candidates() collapses
+runs of a repeated character, so a doubled-letter prefix would make the
+repeat-evasion test vacuous.
 
-  1. Fake terms ('zqblocked', 'zqhate', 'zqmid', 'zqs'). Hashing a fake
-     term proves the algorithm exactly as well as hashing a real one, and
-     keeps this file readable. The prefix is 'zq' rather than 'zz' on
-     purpose: normalize.candidates() collapses runs of a repeated
-     character, so a term that *starts* with a doubled letter can never
-     survive the collapse-to-1 pass and the repeat-evasion test would be
-     testing nothing.
+TestScunthorpeCorpus uses canonical trigger fragments ('ass', 'cock',
+'anal', 'cum', 'tit') — mild profanity, not slurs, but exactly what makes
+'Scunthorpe', 'assassin', 'peacock' etc. false-positive in naive filters.
 
-  2. Canonical trigger fragments ('ass', 'cock', 'anal', 'cum', 'tit')
-     in TestScunthorpeCorpus. These are mild profanity, not slurs, and
-     they are precisely the fragments that make 'Scunthorpe',
-     'Cockburn', 'assassin', 'analysis', 'bass', 'peacock', 'titles' and
-     'cumulative' false-positive in naive filters.
-
-worker/src/data/blocked.txt ships with a header and ZERO digests: the repo
-owner supplies the plaintext terms and runs scripts/hash_terms.py
-themselves, and the plaintext never enters the repo. An empty blocklist
-makes contains_blocked() return False for everything, so a Scunthorpe
-test aimed at the real file would pass while proving nothing. The real
-corpus test therefore runs against a synthetic blocklist built here, and
-carries a non-vacuity control (test_the_trigger_blocklist_actually_fires)
-that fails the moment the corpus stops being a real test.
+worker/src/data/blocked.txt ships with zero digests (the owner supplies
+plaintext terms out-of-repo), so a Scunthorpe test aimed at the real file
+would prove nothing — the corpus test runs against a synthetic blocklist
+built here instead, guarded by test_the_trigger_blocklist_actually_fires.
 """
 import contextlib
 import io
@@ -237,13 +226,8 @@ class TestShortTermsAreWordOnly(unittest.TestCase):
         self.assertTrue(contains_blocked("z.q.s", _blocklist(), NO_ALLOW))
 
     def test_a_short_term_in_a_sentence_does_not(self):
-        """Accepted limitation of the substr_minlen rule, not a bug.
-
-        Stripping separators out of a sentence yields one long word, and a
-        term below substr_minlen is never looked for inside a word. The
-        alternative -- substring-scanning for 3-character terms -- blocks
-        'bass', 'classic' and 'peacock', which is worse.
-        """
+        """Accepted limitation, not a bug: substring-scanning for
+        3-character terms would block 'bass', 'classic', 'peacock'."""
         self.assertFalse(
             contains_blocked("hey z.q.s there", _blocklist(), NO_ALLOW))
 
@@ -434,14 +418,9 @@ class TestLoaders(unittest.TestCase):
 
 
 class TestScunthorpeCorpus(unittest.TestCase):
-    """Real words that trip naive filters, against a real trigger list.
-
-    The shipped blocked.txt is empty by design, so aiming this corpus at
-    it would assert nothing. The blocklist here is built from the actual
-    fragments that cause the Scunthorpe problem, and
-    test_the_trigger_blocklist_actually_fires keeps the whole class
-    honest.
-    """
+    """Real words that trip naive filters, against a synthetic trigger
+    list — the shipped blocked.txt is empty by design, so testing against
+    it directly would assert nothing."""
 
     TRIGGERS = ["ass", "cock", "anal", "cum", "tit"]
 

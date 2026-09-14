@@ -49,11 +49,8 @@ SLUG = re.compile(r'href="/slur/([^"]+)"')
 def load_dictionary() -> set[str]:
     """Lowercased dictionary words, for the Scunthorpe check.
 
-    Every length, including two- and three-letter words. An earlier cut
-    of this script skipped words under four characters and let every
-    ordinary short English word through as "safe"; on a benign corpus
-    that produced an 8.7% false-positive rate, all of it from the
-    whole-word pass. Short words are the ones the word pass matches.
+    Includes two- and three-letter words — an earlier cut that skipped
+    short words produced an 8.7% false-positive rate on a benign corpus.
     """
     for path in DICT_PATHS:
         if path.exists():

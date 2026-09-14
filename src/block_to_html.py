@@ -21,12 +21,8 @@ def _indent_width(whitespace):
 
 
 def _is_list_block(block, ordered=False):
-    """
-    Check if block is a list, allowing continuation lines.
-    A valid list block:
-    - Starts with at least one list marker (- or N.)
-    - Can have continuation lines (indented or empty lines)
-    """
+    """True if block is a list: at least one marker line, and every other
+    non-empty line is either a marker or an indented continuation."""
     if ordered:
         marker_pattern = re.compile(r"^\s*\d+\.\s+")
     else:
@@ -36,29 +32,24 @@ def _is_list_block(block, ordered=False):
     if not lines:
         return False
 
-    # Must have at least one line matching list marker
     has_list_marker = any(marker_pattern.match(l) for l in lines)
     if not has_list_marker:
         return False
 
-    # All non-empty lines must either:
-    # - Match list marker (start of item)
-    # - Be indented (continuation of previous item)
     for line in lines:
-        if not line.strip():  # empty line OK
+        if not line.strip():
             continue
-        if marker_pattern.match(line):  # list marker OK
+        if marker_pattern.match(line):
             continue
-        if line[0] in (' ', '\t'):  # indented (continuation) OK
+        if line[0] in (' ', '\t'):
             continue
-        # Non-indented line without marker = not a list
         return False
 
     return True
 
 
 def _parse_list_items(block, ordered=False):
-    """Parse list items (ordered or unordered) with support for nesting via indentation and continuation lines"""
+    """Parse list items, with support for nesting and continuation lines"""
     if ordered:
         pattern = re.compile(r"^(\s*)\d+\.\s+(.*)$")
         list_tag = "ol"
@@ -66,10 +57,11 @@ def _parse_list_items(block, ordered=False):
         pattern = re.compile(r"^(\s*)-\s+(.*)$")
         list_tag = "ul"
 
-    # Tree structure: [{"text": "...", "children": [ ... ]}, ...]
+    # REFACTOR: model this as a real type (e.g. a ListItem dataclass and
+    # a StackFrame NamedTuple) instead of ad-hoc dicts and tuples.
     root = []
-    stack = [(-1, root)]  # (indent_level, children_list)
-    current_node = None  # Track last node for appending continuation lines
+    stack = [(-1, root)]
+    current_node = None
 
     for raw_line in block.splitlines():
         if not raw_line.strip():
@@ -77,11 +69,10 @@ def _parse_list_items(block, ordered=False):
 
         m = pattern.match(raw_line)
         if m:
-            # This is a list marker line
             indent = _indent_width(m.group(1))
             item_text = m.group(2).strip()
 
-            # Pop stack until we find the correct parent indent level
+            # Pop back to the item's parent indent level
             while len(stack) > 1 and indent <= stack[-1][0]:
                 stack.pop()
 
@@ -89,8 +80,6 @@ def _parse_list_items(block, ordered=False):
             stack[-1][1].append(current_node)
             stack.append((indent, current_node["children"]))
         elif current_node and raw_line[0] in (' ', '\t'):
-            # This is a continuation line (indented, no marker)
-            # Append to current node's text with a space
             continuation = raw_line.strip()
             if continuation:
                 current_node["text"] += " " + continuation
@@ -140,13 +129,11 @@ def markdown_to_html_node(markdown):
                     break
             cleaned = "\n".join(quote_lines).strip()
             if not cleaned:
-                continue  # skip empty blockquote
+                continue
             children.append(ParentNode("blockquote", text_to_children(cleaned)))
         elif _is_list_block(block, ordered=True):
-            # Ordered list (handles indentation and continuation lines)
             children.append(_parse_list_items(block, ordered=True))
         elif _is_list_block(block, ordered=False):
-            # Unordered list (handles indentation and continuation lines)
             children.append(_parse_list_items(block, ordered=False))
         else:
             lines = [l.strip() for l in block.splitlines()]

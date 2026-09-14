@@ -1,9 +1,7 @@
 """Guestbook HTTP layer.
 
-A thin shell. Every decision about content lives in the pure policy
-modules, which are tested to 100% mutation by the repo's normal suite.
-Nothing here branches on what a message says — if you are adding an `if`
-about content, it belongs in policy.py.
+A thin shell. Content decisions live in policy.py — an `if` about what a
+message says belongs there, not here.
 """
 import hashlib
 import hmac
@@ -35,13 +33,8 @@ DAILY_MAX = 10
 
 
 def _to_py(value):
-    """Convert a D1 result across the JS boundary.
-
-    D1 hands back JS objects, which arrive as `pyodide.ffi.JsProxy`.
-    A JsProxy is not subscriptable, so `row["n"]` raises TypeError and
-    the request 500s. Marshalling, not policy — nothing here decides
-    anything about content.
-    """
+    """D1 rows arrive as `pyodide.ffi.JsProxy`, which isn't subscriptable —
+    `row["n"]` would raise TypeError. Convert to a real Python object."""
     return value.to_py() if hasattr(value, "to_py") else value
 
 
@@ -67,10 +60,10 @@ def _ip_hash(request, env) -> str:
 def verify_challenge(request) -> bool:
     """Bot-verification seam. Hardcoded open.
 
-    To enable Cloudflare Turnstile: read the `cf-turnstile-response` field
-    from the parsed body, POST it with env.TURNSTILE_SECRET to
-    https://challenges.cloudflare.com/turnstile/v0/siteverify, and return
-    the `success` field. Nothing else in this file changes.
+    To enable Turnstile: read `cf-turnstile-response` from the body, POST it
+    with env.TURNSTILE_SECRET to
+    https://challenges.cloudflare.com/turnstile/v0/siteverify, return
+    `success`.
     """
     return True
 
@@ -80,10 +73,9 @@ def _is_admin(request, env) -> bool:
     prefix = "Bearer "
     if not header.startswith(prefix):
         return False
-    # Compared as bytes: hmac.compare_digest raises TypeError on strings
-    # holding non-ASCII, so a token with an accent in it produced a 500
-    # rather than a 401 -- a crash oracle that tells an attacker their
-    # input reached the comparison.
+    # Compared as bytes: compare_digest raises TypeError on non-ASCII
+    # strings, which turned a bad token into a 500 (a crash oracle) instead
+    # of a 401.
     return hmac.compare_digest(
         header[len(prefix):].encode("utf-8"),
         str(env.ADMIN_TOKEN).encode("utf-8"),
@@ -131,13 +123,9 @@ async def _get_entries(request, env):
     rows = await _list_entries(env, limit)
     entries = []
     for row in rows:
-        # Rendering applies the swap and NOTHING else.
-        #
-        # Re-running the full policy here would be a trap: if the denylist
-        # later grows, a stored entry could start failing the check and
-        # fall through to raw text -- serving the unswapped slur, the exact
-        # opposite of what blocking is for. Deciding an entry should
-        # disappear is moderation's job, not the read path's.
+        # Only the swap runs here, not the full policy check — re-checking
+        # against a denylist that may have grown since the entry was stored
+        # could fail it here and serve the raw unswapped text instead.
         display, has_swap = apply_swaps(row["message"], SWAPS)
         entries.append({
             "id": row["id"],
@@ -160,9 +148,7 @@ async def _post_entry(request, env):
     except (ValueError, TypeError):
         return _json(env, {"ok": False, "code": "empty"}, 400)
 
-    # `5`, `"hi"`, `null` and `[]` are all valid JSON and none of them
-    # have .get(). Parsing successfully is not the same as being a
-    # submission.
+    # `5`, `"hi"`, `null`, `[]` all parse fine as JSON but have no .get().
     if not isinstance(body, dict):
         return _json(env, {"ok": False, "code": "empty"}, 400)
 
@@ -188,10 +174,8 @@ async def _post_entry(request, env):
 
     created_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # A slur in EITHER field is stored hidden rather than destroyed, so a
-    # filter misfire is auditable instead of invisible. Spec sections 3,
-    # 7, and 11. The name is checked too: 'blocked' must not be able to
-    # slip through by being in the name field instead of the message.
+    # A slur in either field is stored hidden rather than dropped, so a
+    # filter misfire is auditable instead of invisible. (Spec §§3, 7, 11.)
     if "blocked" in (name_verdict.code, msg_verdict.code):
         await (
             env.DB.prepare(
@@ -239,19 +223,15 @@ async def _admin(request, env, path):
         return _json(env, {"entries": [dict(r) for r in rows]})
 
     parts = path.strip("/").split("/")
-    # admin / entries / <id> / <action>
+    # REFACTOR: name-unpack these instead of indexing parts[]
     if len(parts) == 4 and parts[1] == "entries":
         entry_id, action = parts[2], parts[3]
-        # POST only. A GET that mutates is reachable by anything that can
-        # make the browser issue one -- an image tag, a prefetch, a link
-        # in a page. The bearer token is not sent by those, so this is
-        # defence in depth rather than a live hole, but a moderation
-        # endpoint should never be a URL you can merely visit.
+        # POST only — a GET that mutates is reachable via an <img> tag or
+        # prefetch. Defence in depth: the bearer token isn't sent by those.
         if action in ("hide", "unhide") and request.method == "POST":
-            # NULL is written as a SQL literal, not a binding. Python None
-            # crosses into JS as `undefined`, and D1 rejects that with
-            # D1_TYPE_ERROR rather than storing NULL -- which made unhide
-            # 500 and leave the entry hidden.
+            # NULL as a SQL literal, not a binding — Python None crosses
+            # into JS as `undefined`, and D1 rejects that with
+            # D1_TYPE_ERROR instead of storing NULL.
             sql = (
                 "UPDATE entries SET hidden = 1, block_reason = 'manual' "
                 "WHERE id = ?"
@@ -272,10 +252,9 @@ async def on_fetch(request, env):
     if method == "OPTIONS":
         return Response("", status=204, headers=_cors(env))
 
-    # "/admin" and "/admin/..." only. A bare startswith also claims
-    # "/administrator" and "/admin-panel", which are not admin routes and
-    # should 404 like any other unknown path rather than answer 401 and
-    # advertise that something is there.
+    # Exact "/admin" or "/admin/..." — a bare startswith would also claim
+    # "/administrator", which should 404 rather than 401 and give away
+    # that something's there.
     if path == "/admin" or path.startswith("/admin/"):
         return await _admin(request, env, path)
 

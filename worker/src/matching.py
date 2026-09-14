@@ -6,24 +6,16 @@ The repo is public, so the denylist ships as SHA-256 digests rather than
 plaintext. Matching hashes each candidate token (and, for longer terms,
 each bounded substring) and tests membership.
 
-Two passes, with deliberately different minimum lengths:
+Two passes: word-boundary (every term), then separator-stripped substring
+(terms >= substr_minlen only). Short terms are excluded from the substring
+pass because they appear innocently inside longer words ('ass' in
+'assassin', 'cock' in 'peacock') and no allowlist can enumerate every
+word in English — the accepted cost is missing a short term broken up by
+punctuation inside a sentence.
 
-  1. Word-boundary pass, using every term.
-  2. Separator-stripped substring pass, using only terms of length
-     >= substr_minlen.
-
-Short terms are the ones that appear innocently inside longer words --
-'ass' in 'assassin', 'cock' in 'peacock', 'tit' in 'titles'. Once
-separators are stripped the word boundaries are gone, so a 3-character
-term scanned as a substring would fire constantly on ordinary text, and
-no allowlist can enumerate every word in English. The accepted cost is
-that a short term broken up by punctuation *inside a sentence* is missed;
-see src/tests/test_gb_matching.py.
-
-The allowlist is subtracted BEFORE candidates are generated. Doing it
-after would let the separator-stripped pass re-expose the term inside the
-safe word: 'Scunthorpe, England' strips to 'scunthorpeengland', which no
-whole-word allowlist entry can match any more.
+The allowlist is subtracted BEFORE candidates are generated, so the
+substring pass can't re-expose a term inside a safe word (e.g.
+'Scunthorpe, England' stripping to 'scunthorpeengland').
 """
 import hashlib
 import re
@@ -69,8 +61,7 @@ def _digest_normalized(text: str) -> str:
 def _read_lines(path: str) -> list[str]:
     """Lines of a UTF-8 wordlist. An unusable file reads as no lines.
 
-    utf-8-sig so an editor-added byte order mark does not turn the header
-    comment into a digest.
+    utf-8-sig so a BOM doesn't turn the header comment into a digest.
     """
     try:
         with open(path, "r", encoding="utf-8-sig") as handle:
@@ -95,8 +86,7 @@ def load_blocked(path: str) -> Blocklist:
         if stripped.startswith(_COMMENT):
             for key in _HEADER_KEYS:
                 # \b matters: 'substr_minlen' ends in 'minlen', so a
-                # boundary-less search reads the wrong number whenever
-                # substr_minlen comes first in the header.
+                # boundary-less search misreads it.
                 match = re.search(rf"\b{key}=(\d+)", stripped)
                 if match:
                     bounds[key] = int(match.group(1))
@@ -127,15 +117,8 @@ def load_allow(path: str) -> frozenset[str]:
 def _subtract_allowed(text: str, allow: frozenset[str]) -> str:
     """Remove allowlisted words by word boundary, before candidates exist.
 
-    Order matters: doing this after candidate generation would let the
-    separator-stripped pass see the safe word anyway. Entries are escaped
-    -- an allowlist is a list of literals, and an unescaped '.' would
-    delete a real term from the message.
-
-    Substituting "" instead of " " is an equivalent mutation, not an
-    untested branch: \\b only matches where the flanking character is
-    outside \\w, and [a-z0-9] is a subset of \\w, so removing the span can
-    never join two words that the scanners would then read as one.
+    Entries are escaped — an allowlist is literal text, and an unescaped
+    '.' would delete a real term from the message.
     """
     for word in allow:
         text = re.sub(rf"\b{re.escape(word)}\b", " ", text)
@@ -146,30 +129,23 @@ def contains_blocked(
     text: str, blocklist: Blocklist, allow: frozenset[str]
 ) -> bool:
     """True when any reading of `text` contains a blocked term."""
-    # Pure short-circuit, and deliberately not covered by a behavioural
-    # test: an empty digest set matches nothing either way, so removing
-    # this is an equivalent mutation. It earns its place on cost. The
-    # committed blocked.txt is header-only until the owner generates the
-    # real digests, and scanning a 450-character message against nothing
-    # costs ~17 ms of hashing per submission on CPython, more under
-    # Pyodide.
+    # Short-circuit on cost, not correctness: committed blocked.txt is
+    # header-only until real digests are generated, and scanning a 450-char
+    # message against nothing still costs ~17ms of hashing per submission.
     if not blocklist.digests:
         return False
 
     cleaned = _subtract_allowed(normalize(text), allow)
 
     for form in candidates(cleaned):
-        # Pass 1: whole words, every term length.
+        # REFACTOR: split into named _word_pass()/_substring_pass() helpers
         for word in _WORD.findall(form):
             if blocklist.minlen <= len(word) <= blocklist.maxlen:
                 if _digest_normalized(word) in blocklist.digests:
                     return True
 
-        # Pass 2: bounded substrings of the stripped form, longer terms
-        # only. Stripping here is what makes the comparison alphanumeric
-        # on both sides -- hash_terms.py canonicalizes terms the same way,
-        # so a chunk spanning a separator can never be a term and is not
-        # worth hashing.
+        # Stripped so both sides compare alphanumeric-only, matching how
+        # hash_terms.py canonicalizes terms.
         stripped = strip_nonalnum(form)
         low = max(blocklist.substr_minlen, 1)
         for size in range(low, blocklist.maxlen + 1):

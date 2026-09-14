@@ -1,12 +1,10 @@
 def _unwrap_surrounding_fence(markdown: str) -> str:
-    """If the whole document is wrapped in a fenced block (``` or ````), remove the outer fences.
+    """Strip outer ``` fences if the whole file was accidentally pasted inside one.
 
-    This handles cases where the author accidentally pasted a whole markdown file inside a
-    code-fence (e.g. ````markdown ... ````). We only unwrap if the fence appears as the
-    first non-empty line and there's a matching closing fence at the end of the file.
+    Only unwraps if the fence is the first non-empty line and a matching
+    closing fence ends the file.
     """
     lines = markdown.splitlines()
-    # Find first non-empty
     i = 0
     while i < len(lines) and lines[i].strip() == "":
         i += 1
@@ -17,12 +15,10 @@ def _unwrap_surrounding_fence(markdown: str) -> str:
     if not first.startswith('```'):
         return markdown
 
-    # fence marker (like ``` or ````) - capture the exact fence string
     fence = first[: first.find(' ')].strip() if ' ' in first else first
     if not fence.startswith('```'):
         fence = first.split()[0]
 
-    # find closing fence starting from the bottom
     j = len(lines) - 1
     while j >= 0 and lines[j].strip() == "":
         j -= 1
@@ -31,7 +27,6 @@ def _unwrap_surrounding_fence(markdown: str) -> str:
 
     last = lines[j].lstrip()
     if last.startswith(fence):
-        # unwrap
         inner = lines[i + 1 : j]
         return "\n".join(inner).strip('\n')
 
@@ -39,7 +34,6 @@ def _unwrap_surrounding_fence(markdown: str) -> str:
 
 
 def extract_title(markdown):
-    # If the whole file is wrapped in a code-fence (e.g. ```markdown ... ```), unwrap it.
     markdown = _unwrap_surrounding_fence(markdown)
 
     lines = markdown.splitlines()

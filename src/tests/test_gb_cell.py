@@ -1,19 +1,14 @@
 """Guards the landing-page guestbook cell: markup, styles, and fallback.
 
-The cell is the only live dependency on the front door of the site, so it
-has to fail as a design state rather than as a broken box. Three layers:
+Three layers: fetch OK renders the latest mark and writes the cache;
+fetch fails renders the last known good mark from localStorage; no cache
+cools the card and leaves the static "Sign it" link standing.
 
-    1. fetch OK    -> render the latest mark, write the cache
-    2. fetch fails -> render the last known good mark from localStorage
-    3. no cache    -> the card goes cold and the static "Sign it" link stands
-
-`TestTitlepageMarkup`, `TestLandingCss` and `TestPageLinks` pin the markup
-and build contract the script depends on, so a template edit cannot silently
-break it. `TestCellScriptSource` guards the invariants that are unsafe to
-discover at runtime (the XSS boundary, `message_raw` never being cached).
-`TestCellBehaviour` runs the real script against a stub DOM in node and
-asserts what the visitor actually ends up looking at; it skips itself where
-node is not installed, so the suite stays dependency-free.
+`TestTitlepageMarkup`/`TestLandingCss`/`TestPageLinks` pin the markup and
+build contract the script depends on. `TestCellScriptSource` guards
+invariants unsafe to discover at runtime (the XSS boundary, `message_raw`
+never cached). `TestCellBehaviour` runs the real script against a stub
+DOM in node, skipping itself where node isn't installed.
 """
 import json
 import re
@@ -176,13 +171,8 @@ class TestPageLinks(unittest.TestCase):
 
 
 def _code_only(source):
-    """The script with `/* ... */` comments removed.
-
-    The invariants below are about what the code does, not about what the
-    prose says. Line comments are deliberately left alone: `//` also opens
-    the scheme of the Worker URL, and stripping to end-of-line would eat
-    the code this is meant to inspect.
-    """
+    """The script with `/* ... */` comments removed. Line comments are
+    left alone — `//` also opens the scheme of the Worker URL."""
     return re.sub(r"/\*.*?\*/", " ", source, flags=re.DOTALL)
 
 

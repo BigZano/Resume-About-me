@@ -1,23 +1,15 @@
 """Tests for scripts/guestbook_admin.py, the standalone moderation CLI.
 
-Two layers:
+Two layers: unit tests importing the module directly (the local
+normalize()/digest() duplicate cross-checked against the real
+worker/src implementation, plus check_allow_overlap()), and CLI-level
+tests driving the script as a subprocess against a stub admin API on
+http.server — covering exit codes, stdout/stderr, and what actually hit
+the wire, including proof that a missing token short-circuits before any
+network call.
 
-  * Unit tests, importing the module directly (scripts/ is on sys.path
-    via scripts/run_tests.py, same as test_check_token_age.py does for
-    check_token_age.py). These cover the pure helpers: the local
-    normalize()/digest() duplicate (cross-checked against the real
-    worker/src implementation, so a drift between the two fails loudly
-    instead of silently) and check_allow_overlap().
-
-  * CLI-level tests, driving the script as a subprocess against a real
-    stub admin API built on http.server and bound to port 0. These cover
-    everything that only exists at the process boundary: exit codes,
-    stdout/stderr text, and what the stub actually received on the wire
-    (method, path, headers) -- including proof that a missing token or a
-    rejected flag combination short-circuits BEFORE any network call.
-
-The token is never passed on argv in any of these -- it goes through the
-environment, matching the script's own contract.
+The token is never passed on argv — it goes through the environment,
+matching the script's own contract.
 """
 import contextlib
 import http.server
@@ -70,12 +62,9 @@ SAMPLE_TERMS = [
 
 
 class TestNormalizeLocalMatchesReal(unittest.TestCase):
-    """The script's local normalize duplicate must track the real one.
-
-    This is the guard against the duplication risk called out in the
-    module: if worker/src/normalize.py's table changes and the copy in
-    guestbook_admin.py is not updated to match, this test starts failing.
-    """
+    """The script's local normalize duplicate must track the real one —
+    if worker/src/normalize.py's table changes without a matching update
+    here, this test starts failing."""
 
     def test_matches_real_normalize_for_sample_terms(self):
         for term in SAMPLE_TERMS:
@@ -124,13 +113,11 @@ class TestDigestLocalMatchesReal(unittest.TestCase):
 
 
 class TestCheckAllowOverlap(unittest.TestCase):
-    """Task 5's gap: an allow.txt entry that is itself a blocked term.
+    """An allow.txt entry that is itself a blocked term.
 
-    Blocked digests here are computed through the REAL worker/src
-    pipeline (matching.digest + normalize.strip_nonalnum/normalize), not
-    through the module under test's own _digest_local -- so a broken
-    _digest_local (e.g. one that always returns a constant) cannot make
-    these pass vacuously.
+    Blocked digests are computed through the REAL worker/src pipeline,
+    not the module under test's own _digest_local, so a broken
+    _digest_local can't make these pass vacuously.
     """
 
     def _write(self, dir_path, name, lines):
@@ -193,11 +180,7 @@ class TestCheckAllowOverlap(unittest.TestCase):
 
 class TestReviewOverlapWarningWiring(unittest.TestCase):
     """main() must actually consult check_allow_overlap() and gate on it.
-
-    Drives main() in-process with _call and check_allow_overlap
-    monkeypatched, so this is pure wiring -- the overlap logic itself is
-    covered above, independently.
-    """
+    Pure wiring — the overlap logic itself is covered above."""
 
     def setUp(self):
         self._orig_call = guestbook_admin._call
@@ -341,13 +324,7 @@ def _closed_port_url():
 
 
 class TestCredentialLoading(unittest.TestCase):
-    """Where the tool gets its secrets, and what it refuses.
-
-    The credentials file exists so moderating does not require pasting a
-    secret every session. That convenience is only worth having if the
-    file cannot quietly become a liability, so the permission check is
-    part of the contract, not a nicety.
-    """
+    """Where the tool gets its secrets, and what it refuses."""
 
     def _write(self, body, mode=0o600):
         directory = tempfile.mkdtemp()
@@ -396,12 +373,8 @@ class TestCredentialLoading(unittest.TestCase):
             guestbook_admin._read_credentials_file(path)
 
     def test_path_can_be_overridden_by_environment(self):
-        """The suite must never read the developer's own credentials.
-
-        Without this seam, "no token configured" is untestable on any
-        machine where one is configured -- which is every machine that
-        actually moderates the guestbook.
-        """
+        """The suite must never read the developer's own credentials, or
+        "no token configured" is untestable on the machines that matter."""
         path = self._write("GUESTBOOK_ADMIN_TOKEN=from-override\n")
         with mock.patch.dict(os.environ, {"GUESTBOOK_CREDENTIALS": str(path)}):
             self.assertEqual(
@@ -537,12 +510,8 @@ class TestCliAgainstStubServer(unittest.TestCase):
         self.assertEqual(headers.get("cf-access-client-secret"), "secret-value")
 
     def test_sends_neither_half_when_only_one_is_configured(self):
-        """Half a service token is a misconfiguration, not a credential.
-
-        Sending the id alone would present the request to Access as an
-        authentication attempt and be rejected, which is a worse and more
-        confusing failure than not attempting one.
-        """
+        """Half a service token is a misconfiguration, not a credential —
+        sending the id alone reads to Access as a failed auth attempt."""
         with mock.patch.dict(os.environ, {"CF_ACCESS_CLIENT_ID": "id-only"},
                              clear=False):
             os.environ.pop("CF_ACCESS_CLIENT_SECRET", None)
@@ -552,13 +521,9 @@ class TestCliAgainstStubServer(unittest.TestCase):
         self.assertIsNone(headers.get("cf-access-client-secret"))
 
     def test_identifies_itself_by_user_agent(self):
-        """urllib's default agent is 403'd by Cloudflare bot protection.
-
-        Error 1010, at the edge, before the Worker runs -- so every admin
-        command failed against production while passing against this
-        stub. The header is what makes the tool reachable, so its absence
-        is a production outage, not a cosmetic omission.
-        """
+        """urllib's default agent is 403'd by Cloudflare bot protection
+        (error 1010) before the Worker even runs — its absence is a
+        production outage, not a cosmetic omission."""
         self._run(["--list"])
         _method, _path, headers = self.server.state.requests[-1]
         agent = headers.get("user-agent", "")

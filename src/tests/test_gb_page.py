@@ -16,10 +16,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# Make `Gen_Content.*` importable when this module is run directly, e.g.
-# `python3 -m unittest src.tests.test_gb_page`. scripts/run_tests.py does the
-# same insertion for whole-suite discovery; doing it here too means the module
-# stands on its own either way.
+# Makes `Gen_Content.*` importable when this module is run directly,
+# without depending on scripts/run_tests.py's own sys.path insertion.
 if str(REPO_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(REPO_ROOT / "src"))
 
@@ -176,11 +174,8 @@ class TestRealTemplate(unittest.TestCase):
         self.assertRegex(img, r'alt="[^"]+"')
 
     def test_blocked_panel_is_a_modal(self):
-        """A rejection that shoves the wall down the page reads as form.
-
-        <dialog> also buys focus trapping, Escape, and a backdrop from
-        the browser rather than from hand-written script.
-        """
+        """<dialog> buys focus trapping, Escape, and a backdrop from the
+        browser rather than hand-written script."""
         tag = re.search(r"<dialog\s[^>]*>", self.markup)
         self.assertIsNotNone(tag, "no <dialog> element in the page")
         self.assertIn('id="gb-reject"', tag.group(0))
@@ -194,12 +189,8 @@ class TestRealTemplate(unittest.TestCase):
         self.assertIn('id="gb-fire"', self.markup)
 
     def test_bonfire_ships_lit(self):
-        """The served page burns before any script runs.
-
-        The no-JS and offline paths never fetch, so whatever ships in the
-        markup is what those readers get. An unlit bonfire reads as a
-        broken page rather than an empty guestbook.
-        """
+        """The no-JS and offline paths never fetch, so whatever ships in
+        the markup is what those readers get."""
         panel = self.markup.split('id="gb-fire"', 1)[1].split(">", 1)[0]
         self.assertIn("data-heat=", panel)
         self.assertNotIn('data-heat="cold"', panel)
@@ -213,22 +204,15 @@ class TestRealTemplate(unittest.TestCase):
         self.assertIn('id="gb-fire-flourish"', self.markup)
 
     def test_flourish_ships_empty(self):
-        """It speaks only when a mark lands.
-
-        Text baked into the served markup would show on every load,
-        including the no-JS path, announcing something that never
-        happened.
-        """
+        """Text baked into the served markup would show on the no-JS path
+        too, announcing something that never happened."""
         tag = self.markup.split('id="gb-fire-flourish"', 1)[1]
         body = tag.split(">", 1)[1].split("</figcaption>", 1)[0]
         self.assertEqual(body.strip(), "")
 
     def test_flourish_is_hidden_from_assistive_tech(self):
-        """The status line is the accessible confirmation.
-
-        Announcing both would say the same thing twice, and the flourish
-        is the decorative half of the pair.
-        """
+        """The status line is the accessible confirmation; announcing
+        both would say the same thing twice."""
         tag = self.markup.split('id="gb-fire-flourish"', 1)[1].split(">", 1)[0]
         self.assertIn('aria-hidden="true"', tag)
 
@@ -286,13 +270,8 @@ class TestStylesheet(unittest.TestCase):
 
 
     def test_closed_dialog_is_hidden_explicitly(self):
-        """Not left to the UA stylesheet.
-
-        A browser without <dialog> support treats it as an unknown
-        element, which carries no default display:none -- so the panel
-        would sit open on every page load unless this file says
-        otherwise.
-        """
+        """Not left to the UA stylesheet: an unknown-element fallback has
+        no default display:none, so the panel needs this explicitly."""
         self.assertRegex(
             self.css, r"\.gb-reject:not\(\[open\]\)\s*\{[^}]*display:\s*none"
         )

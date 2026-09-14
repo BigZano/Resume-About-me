@@ -30,35 +30,25 @@ API = os.environ.get("GUESTBOOK_API", "https://api.bretzanotelli.work")
 TOKEN_VAR = "GUESTBOOK_ADMIN_TOKEN"
 USER_AGENT = "guestbook-admin/1.0 (+https://bretzanotelli.work)"
 
-# Credentials, in precedence order: environment first, then this file.
-# The file exists so moderating does not require pasting a secret into a
-# shell every session -- the paste is the step that gets skipped, and a
-# moderation tool that is annoying to run does not get run.
+# Environment first, then this file — the file exists so moderating
+# doesn't require pasting a secret into a shell every session.
 CREDENTIALS_PATH = Path.home() / ".config" / "guestbook" / "credentials"
 
-# Overridable so tests can be hermetic. Without this the suite reads the
-# developer's real credentials file, and "no token configured" quietly
-# stops being testable on the one machine that matters.
+# Overridable so tests can be hermetic instead of reading the real file.
 CREDENTIALS_PATH_VAR = "GUESTBOOK_CREDENTIALS"
 
-# Cloudflare Access service-token headers. Sent only when both halves are
-# present: one half alone is a misconfiguration, and sending it would
-# read as an authentication attempt rather than an unauthenticated call.
+# Cloudflare Access service-token headers. Sent only when both are present
+# — one half alone is a misconfiguration, not a real auth attempt.
 ACCESS_ID_VAR = "CF_ACCESS_CLIENT_ID"
 ACCESS_SECRET_VAR = "CF_ACCESS_CLIENT_SECRET"
 
-# worker/src/data/{allow,blocked}.txt, relative to this file. Read-only, and
-# only consulted by --review; a missing repo checkout (script copied
-# elsewhere, per the standalone contract above) just skips the check.
+# Read-only, only consulted by --review; a missing checkout just skips it.
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ALLOW_PATH = REPO_ROOT / "worker" / "src" / "data" / "allow.txt"
 BLOCKED_PATH = REPO_ROOT / "worker" / "src" / "data" / "blocked.txt"
 
-# Mirrors worker/src/normalize.py's normalize(), restricted to the parts
-# digest() actually exercises (NFKD fold, mark strip, zero-width strip,
-# casefold, confusables). Duplicated rather than imported so this script
-# stays standalone -- see the module docstring and Task 9's plan note. If
-# worker/src/normalize.py's table changes, update this one too.
+# Mirrors worker/src/normalize.py's normalize(), duplicated (not imported)
+# to keep this script standalone. Keep in step if that table changes.
 _ZERO_WIDTH = "\u200b\u200c\u200d\ufeff\u00ad"
 _CONFUSABLES = {
     "а": "a", "е": "e", "о": "o", "р": "p",
@@ -108,10 +98,8 @@ def _load_wordlist_lines(path):
 def check_allow_overlap(allow_path=ALLOW_PATH, blocked_path=BLOCKED_PATH):
     """Allow-list entries that hash to an already-blocked digest.
 
-    Task 5 noted nothing cross-checks this: such an entry silently
-    nullifies that blocked term, since matching.py subtracts the allowlist
-    before the denylist ever gets a look. Returns the offending entries,
-    in the form they appear in allow.txt.
+    Such an entry silently nullifies that blocked term, since matching.py
+    subtracts the allowlist before the denylist ever gets a look.
     """
     blocked_digests = {d.lower() for d in _load_wordlist_lines(blocked_path)}
     if not blocked_digests:
@@ -125,9 +113,8 @@ def check_allow_overlap(allow_path=ALLOW_PATH, blocked_path=BLOCKED_PATH):
 def _read_credentials_file(path=None):
     """KEY=VALUE lines from the credentials file, or {} if there is none.
 
-    A file readable by anyone but its owner is refused rather than used.
-    Silently reading a world-readable secret would defeat the point of
-    having moved it off the command line.
+    Refused rather than used if readable by anyone but its owner — that
+    would defeat the point of moving the secret off the command line.
     """
     if path is None:
         override = os.environ.get(CREDENTIALS_PATH_VAR)
@@ -180,12 +167,8 @@ def _call(path, method="GET"):
         headers={
             **headers,
             "Authorization": f"Bearer {token}",
-            # Cloudflare's bot protection 403s urllib's default agent
-            # with error 1010, before the request reaches the Worker at
-            # all -- so every admin command failed against production
-            # while working perfectly against a local stub. Naming the
-            # tool honestly is the fix; the alternative is a WAF skip
-            # rule on the api hostname.
+            # Cloudflare's bot protection 403s urllib's default UA (error
+            # 1010) before the request reaches the Worker at all.
             "User-Agent": USER_AGENT,
         },
     )

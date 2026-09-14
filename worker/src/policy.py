@@ -18,21 +18,11 @@ MAX_NAME = 40
 MAX_MESSAGE = 500
 
 # Scheme, www., or a bare domain with a known-ish TLD shape. Deliberately
-# broad: a false positive costs the visitor a rephrase, while a miss hands
-# a link spammer the payload the whole policy exists to deny.
-#
-# That bias settles two judgement calls in the pattern:
-#
-#   * No word boundary before the host. '_spam.com' is a link, and an
-#     anchor there is a one-character evasion.
-#   * No lookahead after the TLD. Forbidding a following '.' -- as an
-#     earlier draft did -- means 'visit spam.com.' matches nothing at
-#     all, because the only candidate span is the one the lookahead
-#     rejects. The cost of dropping it is that a missing space after a
-#     full stop ('Cool site.Thanks!') reads as a domain.
-#
-# The trailing \b is load-bearing in the other direction: it keeps
-# 'song.mp3' from reading as a host, since a TLD does not end in a digit.
+# broad — a miss hands a spammer the payload this policy exists to deny.
+# No word boundary before the host ('_spam.com' still counts), and no
+# lookahead after the TLD (rejecting a trailing '.' made 'visit spam.com.'
+# match nothing, since that's the only candidate span). Trailing \b keeps
+# 'song.mp3' from reading as a host, since a TLD never ends in a digit.
 _URL = re.compile(
     r"https?://"
     r"|www\."
@@ -41,9 +31,8 @@ _URL = re.compile(
 )
 
 # Zero-width characters and the soft hyphen, kept in step with
-# normalize.ZERO_WIDTH. policy.py does not import normalize (see the
-# module layering in plans/2026-08-20-guestbook.md), and a drifted copy
-# can only ever affect what counts as blank -- never what matches.
+# normalize.ZERO_WIDTH (this module doesn't import normalize — see the
+# layering in plans/2026-08-20-guestbook.md).
 _INVISIBLE = "​‌‍﻿­"
 _BLANK_EDGE = re.compile(rf"^[\s{_INVISIBLE}]+|[\s{_INVISIBLE}]+$")
 
@@ -69,9 +58,7 @@ def contains_url(text: str) -> bool:
 def _cleaned(text: str, field: str) -> str:
     """Trim blank edges, and refuse anything that is not text.
 
-    normalize.py documents this module as the type boundary: everything
-    downstream assumes str. entry.py coerces the JSON body before calling
-    in, so this is the backstop, not the gate.
+    This is the type boundary — everything downstream assumes str.
     """
     if not isinstance(text, str):
         raise TypeError(f"{field} must be a str")
@@ -83,21 +70,10 @@ def check_name(
 ) -> Verdict:
     """Validate a submitted name. Slurs, URLs, and length only.
 
-    The length cap deliberately runs BEFORE contains_blocked, which hashes
-    every bounded substring of what it is given: the cap is what bounds
-    that cost, and under Pyodide the difference is not academic.
-
-    Ordering the empty check against the length check is an equivalent
-    mutation, not an untested branch -- the trimmed name is empty exactly
-    when its length is 0, so the two conditions can never both be true
-    and no input can tell the two orders apart. Verified: no test kills
-    that swap, and none should be invented to pretend otherwise.
+    The length cap runs BEFORE contains_blocked, which hashes every
+    bounded substring it's given — the cap bounds that cost, and under
+    Pyodide the difference isn't academic.
     """
-    # Rebound, not copied to a second name: the untrimmed text is then
-    # unreachable below, and every check runs on the same string the
-    # length cap measured. Handing the raw text to contains_blocked
-    # returns the same verdict -- the matcher is blind to edge
-    # whitespace -- but scans padding the cap already excluded.
     name = _cleaned(name, "name")
 
     if not name:
@@ -125,13 +101,10 @@ def check_message(
 ) -> Verdict:
     """Validate a submitted message and produce its display form.
 
-    The returned `display` is the swapped text. The RAW message is what the
-    caller stores; this function never rewrites what gets persisted.
-
-    Same ordering as check_name, and the same parameter rebinding, for
-    the same reasons; plus one more: the swap runs only after every check
-    has passed, so a rejected message is never rewritten on its way to
-    the audit table.
+    `display` is the swapped text; the caller stores the raw message, not
+    this. Same ordering as check_name, plus: the swap runs only after every
+    check passes, so a rejected message is never rewritten en route to the
+    audit table.
     """
     message = _cleaned(message, "message")
 
