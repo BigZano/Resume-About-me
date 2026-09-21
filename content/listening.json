@@ -1,6 +1,22 @@
 {
-  "fetched_at": "2026-09-14T14:28:19Z",
+  "fetched_at": "2026-09-21T14:28:30Z",
   "tracks": [
+    {
+      "artist": "Cannibal Corpse",
+      "title": "Priests Of Sodom"
+    },
+    {
+      "artist": "Eminem",
+      "title": "Intro"
+    },
+    {
+      "artist": "Black Label Society",
+      "title": "Bleed for Me"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Invasion"
+    },
     {
       "artist": "Linkin Park",
       "title": "Massive"
@@ -10,36 +26,20 @@
       "title": "Snakes for Dinner"
     },
     {
+      "artist": "Wage War",
+      "title": "Death Roll"
+    },
+    {
       "artist": "Mudvayne",
       "title": "Happy?"
     },
     {
       "artist": "Cannibal Corpse",
-      "title": "Priests Of Sodom"
+      "title": "Death Walking Terror"
     },
     {
-      "artist": "Rammstein",
-      "title": "B\u00fcck dich"
-    },
-    {
-      "artist": "Fit For An Autopsy",
-      "title": "The Wretch"
-    },
-    {
-      "artist": "Fit For An Autopsy",
-      "title": "Oh What the Future Holds"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Invasion"
-    },
-    {
-      "artist": "Machine Head",
-      "title": "I Am Hell (Sonata In C#)"
-    },
-    {
-      "artist": "Rammstein",
-      "title": "Sehnsucht"
+      "artist": "Ghost",
+      "title": "Spirit"
     }
   ]
 }
