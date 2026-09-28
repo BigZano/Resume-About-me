@@ -1,9 +1,9 @@
 {
-  "fetched_at": "2026-09-21T14:28:30Z",
+  "fetched_at": "2026-09-28T14:31:04Z",
   "tracks": [
     {
-      "artist": "Cannibal Corpse",
-      "title": "Priests Of Sodom"
+      "artist": "Finishing Move Inc.",
+      "title": "Unchained Predator"
     },
     {
       "artist": "Eminem",
@@ -15,6 +15,10 @@
     },
     {
       "artist": "Finishing Move Inc.",
+      "title": "From the Ashes"
+    },
+    {
+      "artist": "Finishing Move Inc.",
       "title": "Invasion"
     },
     {
@@ -22,24 +26,20 @@
       "title": "Massive"
     },
     {
-      "artist": "Mastodon",
-      "title": "Snakes for Dinner"
+      "artist": "Finishing Move Inc.",
+      "title": "When the Shadows First Lengthened"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Hebeth"
+    },
+    {
+      "artist": "Cannibal Corpse",
+      "title": "Priests Of Sodom"
     },
     {
       "artist": "Wage War",
       "title": "Death Roll"
-    },
-    {
-      "artist": "Mudvayne",
-      "title": "Happy?"
-    },
-    {
-      "artist": "Cannibal Corpse",
-      "title": "Death Walking Terror"
-    },
-    {
-      "artist": "Ghost",
-      "title": "Spirit"
     }
   ]
 }
