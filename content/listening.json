@@ -1,9 +1,13 @@
 {
-  "fetched_at": "2026-09-28T14:31:04Z",
+  "fetched_at": "2026-10-05T14:33:13Z",
   "tracks": [
     {
       "artist": "Finishing Move Inc.",
       "title": "Unchained Predator"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Proving Grounds"
     },
     {
       "artist": "Eminem",
@@ -36,10 +40,6 @@
     {
       "artist": "Cannibal Corpse",
       "title": "Priests Of Sodom"
-    },
-    {
-      "artist": "Wage War",
-      "title": "Death Roll"
     }
   ]
 }
