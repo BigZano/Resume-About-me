@@ -1,9 +1,17 @@
 {
-  "fetched_at": "2026-10-05T14:33:13Z",
+  "fetched_at": "2026-10-12T14:36:34Z",
   "tracks": [
     {
       "artist": "Finishing Move Inc.",
+      "title": "Invasion"
+    },
+    {
+      "artist": "Finishing Move Inc.",
       "title": "Unchained Predator"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "From the Ashes"
     },
     {
       "artist": "Finishing Move Inc.",
@@ -14,32 +22,24 @@
       "title": "Intro"
     },
     {
+      "artist": "Finishing Move Inc.",
+      "title": "When the Shadows First Lengthened"
+    },
+    {
       "artist": "Black Label Society",
       "title": "Bleed for Me"
     },
     {
-      "artist": "Finishing Move Inc.",
-      "title": "From the Ashes"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Invasion"
-    },
-    {
-      "artist": "Linkin Park",
-      "title": "Massive"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "When the Shadows First Lengthened"
+      "artist": "Trivium",
+      "title": "Dead Inside Of Me"
     },
     {
       "artist": "Finishing Move Inc.",
       "title": "Hebeth"
     },
     {
-      "artist": "Cannibal Corpse",
-      "title": "Priests Of Sodom"
+      "artist": "The Acacia Strain",
+      "title": "Feed A Pigeon Breed A Rat"
     }
   ]
 }
