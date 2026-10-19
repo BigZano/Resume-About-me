@@ -1,6 +1,10 @@
 {
-  "fetched_at": "2026-10-12T14:36:34Z",
+  "fetched_at": "2026-10-19T14:27:31Z",
   "tracks": [
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Proving Grounds"
+    },
     {
       "artist": "Finishing Move Inc.",
       "title": "Invasion"
@@ -15,19 +19,7 @@
     },
     {
       "artist": "Finishing Move Inc.",
-      "title": "Proving Grounds"
-    },
-    {
-      "artist": "Eminem",
-      "title": "Intro"
-    },
-    {
-      "artist": "Finishing Move Inc.",
       "title": "When the Shadows First Lengthened"
-    },
-    {
-      "artist": "Black Label Society",
-      "title": "Bleed for Me"
     },
     {
       "artist": "Trivium",
@@ -35,11 +27,19 @@
     },
     {
       "artist": "Finishing Move Inc.",
-      "title": "Hebeth"
+      "title": "Valley of Bone"
     },
     {
-      "artist": "The Acacia Strain",
-      "title": "Feed A Pigeon Breed A Rat"
+      "artist": "Finishing Move Inc.",
+      "title": "The High Council"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Osseus"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Abomination"
     }
   ]
 }
