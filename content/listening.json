@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-19T14:27:31Z",
+  "fetched_at": "2026-10-26T15:10:19Z",
   "tracks": [
     {
       "artist": "Finishing Move Inc.",
@@ -10,24 +10,8 @@
       "title": "Invasion"
     },
     {
-      "artist": "Finishing Move Inc.",
-      "title": "Unchained Predator"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "From the Ashes"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "When the Shadows First Lengthened"
-    },
-    {
       "artist": "Trivium",
       "title": "Dead Inside Of Me"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Valley of Bone"
     },
     {
       "artist": "Finishing Move Inc.",
@@ -40,6 +24,22 @@
     {
       "artist": "Finishing Move Inc.",
       "title": "Abomination"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Fractal Abyss"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Through The Crimson Tundra"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Hell's Core"
+    },
+    {
+      "artist": "Finishing Move Inc.",
+      "title": "Purgatory"
     }
   ]
 }
