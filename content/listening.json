@@ -1,6 +1,26 @@
 {
-  "fetched_at": "2026-10-26T15:10:19Z",
+  "fetched_at": "2026-11-02T14:20:14Z",
   "tracks": [
+    {
+      "artist": "Trivium",
+      "title": "Dead Inside Of Me"
+    },
+    {
+      "artist": "The Acacia Strain",
+      "title": "Feed A Pigeon Breed A Rat"
+    },
+    {
+      "artist": "Trivium",
+      "title": "Crown In The Grave"
+    },
+    {
+      "artist": "Trivium",
+      "title": "Down from the Sky"
+    },
+    {
+      "artist": "Fit For An Autopsy",
+      "title": "Hydra"
+    },
     {
       "artist": "Finishing Move Inc.",
       "title": "Proving Grounds"
@@ -10,36 +30,16 @@
       "title": "Invasion"
     },
     {
-      "artist": "Trivium",
-      "title": "Dead Inside Of Me"
+      "artist": "The Acacia Strain",
+      "title": "Seeing God (feat. Aaron Heard)"
+    },
+    {
+      "artist": "Ghost",
+      "title": "Cirice"
     },
     {
       "artist": "Finishing Move Inc.",
-      "title": "The High Council"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Osseus"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Abomination"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Fractal Abyss"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Through The Crimson Tundra"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Hell's Core"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Purgatory"
+      "title": "Unchained Predator"
     }
   ]
 }
