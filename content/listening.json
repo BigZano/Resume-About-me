@@ -1,21 +1,9 @@
 {
-  "fetched_at": "2026-11-02T14:20:14Z",
+  "fetched_at": "2026-11-09T14:19:45Z",
   "tracks": [
     {
       "artist": "Trivium",
       "title": "Dead Inside Of Me"
-    },
-    {
-      "artist": "The Acacia Strain",
-      "title": "Feed A Pigeon Breed A Rat"
-    },
-    {
-      "artist": "Trivium",
-      "title": "Crown In The Grave"
-    },
-    {
-      "artist": "Trivium",
-      "title": "Down from the Sky"
     },
     {
       "artist": "Fit For An Autopsy",
@@ -26,20 +14,32 @@
       "title": "Proving Grounds"
     },
     {
-      "artist": "Finishing Move Inc.",
-      "title": "Invasion"
-    },
-    {
-      "artist": "The Acacia Strain",
-      "title": "Seeing God (feat. Aaron Heard)"
-    },
-    {
       "artist": "Ghost",
       "title": "Cirice"
     },
     {
+      "artist": "Black Tongue",
+      "title": "A Dying God Coming Into Human Flesh"
+    },
+    {
+      "artist": "Fit For An Autopsy",
+      "title": "When The Bulbs Burn Out"
+    },
+    {
+      "artist": "Fit For An Autopsy",
+      "title": "Black Mammoth"
+    },
+    {
+      "artist": "Fit For An Autopsy",
+      "title": "Empty Still"
+    },
+    {
+      "artist": "Fit For An Autopsy",
+      "title": "Too Late"
+    },
+    {
       "artist": "Finishing Move Inc.",
-      "title": "Unchained Predator"
+      "title": "Vengeance Forged in Iron (Part 2)"
     }
   ]
 }
