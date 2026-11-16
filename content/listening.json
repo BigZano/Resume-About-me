@@ -1,45 +1,45 @@
 {
-  "fetched_at": "2026-11-09T14:19:45Z",
+  "fetched_at": "2026-11-16T14:36:56Z",
   "tracks": [
+    {
+      "artist": "Trivium",
+      "title": "Like A Sword Over Damocles"
+    },
     {
       "artist": "Trivium",
       "title": "Dead Inside Of Me"
     },
     {
-      "artist": "Fit For An Autopsy",
-      "title": "Hydra"
+      "artist": "Trivium",
+      "title": "Crown In The Grave"
     },
     {
-      "artist": "Finishing Move Inc.",
-      "title": "Proving Grounds"
+      "artist": "Trivium",
+      "title": "IX"
     },
     {
-      "artist": "Ghost",
-      "title": "Cirice"
+      "artist": "Trivium",
+      "title": "Catastrophist"
     },
     {
       "artist": "Black Tongue",
       "title": "A Dying God Coming Into Human Flesh"
     },
     {
-      "artist": "Fit For An Autopsy",
-      "title": "When The Bulbs Burn Out"
+      "artist": "Trivium",
+      "title": "Amongst The Shadows & The Stones"
     },
     {
-      "artist": "Fit For An Autopsy",
-      "title": "Black Mammoth"
+      "artist": "Trivium",
+      "title": "What The Dead Men Say"
     },
     {
-      "artist": "Fit For An Autopsy",
-      "title": "Empty Still"
+      "artist": "Trivium",
+      "title": "The Defiant"
     },
     {
-      "artist": "Fit For An Autopsy",
-      "title": "Too Late"
-    },
-    {
-      "artist": "Finishing Move Inc.",
-      "title": "Vengeance Forged in Iron (Part 2)"
+      "artist": "Trivium",
+      "title": "Scattering The Ashes"
     }
   ]
 }
