@@ -33,4 +33,4 @@ In the workflow, the Steam step is allowed to fail without stopping the Spotify 
 
 ## League of Legends
 
-Planned, not here yet. Riot's API wants a key, and the development keys expire every 24 hours, which is no use for a job that runs while I'm asleep. I need a personal key, and I'm waiting on one. When it shows up it's the same shape again: another script, another JSON file. [Bret: what do you want the League block to show?]
+Planned, not here yet. Riot's API wants a key, and the development keys expire every 24 hours, which is no use for a job that runs while I'm asleep. I need a personal key, and I'm waiting on one. When it shows up it's the same shape again: another script, another JSON file. The row will show my most-played champions, my overall win rate, and time played, so it sits right alongside the Steam games.

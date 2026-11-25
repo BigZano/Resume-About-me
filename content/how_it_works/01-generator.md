@@ -61,4 +61,4 @@ Wiping everything means no stale files. The cost is that `docs/` is output, so n
 
 ## Why I kept it
 
-Astro or Eleventy would give me tables, image handling and a dev server that reloads on save, with a lot less typing. But this site is partly about what I can build, and a framework would turn the most interesting part of it into somebody else's code. The generator is a portfolio piece, so it stays. [Bret: was there a moment you seriously looked at Astro or Eleventy? What stopped you?]
+Honestly, I never went shopping for anything else. This was a boot.dev project and I just kept building on top of it, one feature at a time, on the same generator. Somewhere along the way it stopped being an exercise and turned into my playground for new ideas, and the place my portfolio and my brand live. That's reason enough to keep it.

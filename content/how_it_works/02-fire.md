@@ -55,4 +55,4 @@ The name is in capitals on purpose. Lowercase letters are only about half as tal
 - It waits for the display font to load, so the flames burn into the real letters and not a fallback.
 - The canvas is labeled with my name, so a screen reader reads a name instead of nothing.
 
-Six numbers at the top of the file control the look, and a comment says to leave them alone. If the script never runs, the name is still there as plain text in the same typeface. The script swaps the text for the fire once it has something to draw. [Bret: the September diary says the flames were inspired by a fan remake you saw. Want to name or link it here?]
+Six numbers at the top of the file control the look, and a comment says to leave them alone. If the script never runs, the name is still there as plain text in the same typeface. The script swaps the text for the fire once it has something to draw.
