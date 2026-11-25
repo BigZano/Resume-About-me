@@ -85,9 +85,7 @@
         </section>
 
         <!-- ── Armory Bot ──────────────────────────────────────── -->
-        <!-- TODO: wire the live figure in at build time from
-             https://armorybot.win/api/stats (members are summed per server,
-             so word it as "members between them", never "people"). -->
+        <!-- The numbers in "Used by" are filled live by armory-stats.js from api.armorybot.win; the text in the spans is the fallback. -->
         <section class="build build--armory" aria-labelledby="b-armory">
           <div class="build-text">
             <h2 id="b-armory">Armory Bot</h2>
@@ -103,7 +101,7 @@
               <dt>Built with</dt>
               <dd>Python and discord.py, a FastAPI backend, a Vue dashboard, PostgreSQL</dd>
               <dt>Used by</dt>
-              <dd><span data-stat="armory-servers">35</span> servers, with <span data-stat="armory-members">70,000+</span> members between them</dd>
+              <dd><span data-stat="armory-servers">35 servers</span>, with <span data-stat="armory-members">70,000+</span> members between them</dd>
             </dl>
             <p class="build-links">
               <a href="https://armorybot.win" rel="noopener">Docs</a>
@@ -265,5 +263,7 @@
       </footer>
 
     </div>
+
+    <script src="./armory-stats.js?v=1" defer></script>
   </body>
 </html>

@@ -24,7 +24,7 @@ The learning never stopped. These days it mostly happens through [projects](work
 
 I run a Warhammer 40K community, the XVIIIth Legiones Astartes, the Salamanders. We're 2,000+ people, and I've helped build it since Space Marine 2 came out. Communication and patience is the name of the game, and I could not be prouder of how far we've come.
 
-Armory Bot grew out of that community. It started life as Req_bot, a small helper for event days and heavy-traffic days, and it's been a fun "game" to play with the members. Today it sits in 35 servers with 70,000+ members between them. The clan site, [sm2salamanders.site](https://sm2salamanders.site), came out of the same community.
+Armory Bot grew out of that community. It started life as Req_bot, a small helper for event days and heavy-traffic days, and it's been a fun "game" to play with the members. Today it sits in <span data-stat="armory-servers">35 servers</span> with <span data-stat="armory-members">70,000+</span> members between them. The clan site, [sm2salamanders.site](https://sm2salamanders.site), came out of the same community.
 
 ## What keeps me busy now
 

@@ -63,6 +63,7 @@ STRICT: tuple[str, ...] = (
     "test_static_page",
     "test_landing_sitemap",
     "test_series",
+    "test_armory_stats",
 )
 
 STRICT_PREFIX = "test_gb_"
