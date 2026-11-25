@@ -1,3 +1,4 @@
+import html
 import os
 import re
 from datetime import UTC, datetime
@@ -5,15 +6,29 @@ from math import ceil
 from pathlib import Path
 
 
-# TODO: new fn, sibling to _extract_page_date below. Same comment-scanning
-# approach, different tag:
-#   <!-- genre: game-review -->
-# def _extract_genre(markdown: str) -> str:
-#     """Return the genre slug, or "dev-diary" if the comment is absent."""
-#     ...
-# Slug is lowercase-kebab (e.g. "game-review") — it becomes the
-# `data-genre` attribute static/blog-filter.js filters on. Title-case it
-# for the visible pill text (e.g. "game-review" -> "Game Review").
+DEFAULT_GENRE = "dev-diary"
+
+
+def _extract_genre(markdown: str) -> str:
+    """Return the genre slug from `<!-- genre: game-review -->`.
+
+    The slug becomes the `data-genre` attribute that static/blog-filter.js
+    filters on, so it is normalised defensively: lowercased, whitespace and
+    underscores turned into hyphens, and anything outside [a-z0-9-] dropped.
+    Falls back to DEFAULT_GENRE when the comment is absent or nothing usable
+    is left after cleaning.
+    """
+    match = re.search(r'<!--\s*genre:\s*(.*?)\s*-->', markdown)
+    if not match:
+        return DEFAULT_GENRE
+
+    slug = match.group(1).strip().lower()
+    slug = re.sub(r'[\s_]+', '-', slug)
+    slug = re.sub(r'[^a-z0-9-]', '', slug)
+    slug = re.sub(r'-{2,}', '-', slug).strip('-')
+    return slug or DEFAULT_GENRE
+
+
 def _extract_page_date(markdown: str) -> tuple[str, bool]:
     """Extract page date from HTML comment or filename"""
     pattern = r'<!--\s*page-date:\s*(\d{4}-\d{2}-\d{2})\s*-->'
@@ -148,15 +163,15 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
         excerpt = _extract_excerpt(markdown_clean)
         html_filename = md_file.stem + ".html"
 
-        # TODO: call _extract_genre(markdown) and add two keys here:
-        #   'genre': genre_slug,          e.g. "game-review"
-        #   'genre_label': genre_slug.replace('-', ' ').title(),  "Game Review"
+        genre_slug = _extract_genre(markdown)
         posts.append({
             'title': title,
             'date': page_date,
             'excerpt': excerpt,
             'url': f"{subdocs_dir}/{html_filename}",
-            'filename': md_file.name
+            'filename': md_file.name,
+            'genre': genre_slug,
+            'genre_label': genre_slug.replace('-', ' ').title(),
         })
 
     posts_per_page = max(1, posts_per_page)
@@ -178,24 +193,16 @@ def generate_blog_index(content_dir: str, template_path: str, dest_path: str, su
 
         posts_html = '<section class="blog-posts">\n'
         for post in page_posts:
-            # TODO: add data-genre to <article>, and wrap <time> + a
-            # .genre-tag span in a .post-meta div (CSS/JS for both already
-            # exist in static/index.css and static/blog-filter.js):
-            #
-            #   <article class="blog-post-preview" data-genre="{post['genre']}">
-            #       <header>
-            #           <h2>...</h2>
-            #           <div class="post-meta">
-            #               <time ...>{post['date']}</time>
-            #               <span class="genre-tag">{post['genre_label']}</span>
-            #           </div>
-            #       </header>
-            #       ...
+            genre_attr = html.escape(post['genre'], quote=True)
+            genre_label = html.escape(post['genre_label'])
             posts_html += f'''
-        <article class="blog-post-preview">
+        <article class="blog-post-preview" data-genre="{genre_attr}">
             <header>
                 <h2><a href="{post['url']}">{post['title']}</a></h2>
-                <time datetime="{post['date']}">{post['date']}</time>
+                <div class="post-meta">
+                    <time datetime="{post['date']}">{post['date']}</time>
+                    <span class="genre-tag">{genre_label}</span>
+                </div>
             </header>
             <p class="excerpt">{post['excerpt']}</p>
             <a href="{post['url']}" class="read-more">Read more →</a>

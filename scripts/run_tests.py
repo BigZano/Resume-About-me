@@ -57,6 +57,13 @@ STRICT: tuple[str, ...] = (
     "test_check_token_age",
     "test_render_listening",
     "test_fetch_listening",
+    "test_fetch_playing",
+    "test_blog_index",
+    "test_render_playing",
+    "test_static_page",
+    "test_landing_sitemap",
+    "test_series",
+    "test_armory_stats",
 )
 
 STRICT_PREFIX = "test_gb_"

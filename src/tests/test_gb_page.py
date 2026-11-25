@@ -85,7 +85,7 @@ class TestGenerateGuestbookPage(unittest.TestCase):
     def test_partial_config_keeps_defaults_for_the_rest(self):
         page = self._generate({"title": "Sign the book"})
         self.assertIn("<title>Sign the book</title>", page)
-        self.assertIn("Bret Zanotelli", page)
+        self.assertIn("BigZano", page)
 
     def test_does_not_mutate_the_callers_config(self):
         supplied = {"title": "Guestbook"}

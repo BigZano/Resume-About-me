@@ -22,7 +22,7 @@
   /* Uppercase deliberately: lowercase x-height is barely half the cap height,
      so a flame line set as a fraction of cap height engulfs lowercase letters
      entirely while only reaching two-thirds up the capitals. Caps burn evenly. */
-  var NAME = (canvas.getAttribute("data-name") || "BRET ZANOTELLI").toUpperCase();
+  var NAME = (canvas.getAttribute("data-name") || "BIGZANO").toUpperCase();
 
   /* Tuned with Bret 2026-08-05. Do not adjust without asking. */
   var PIXEL     = 1;     /* fire grid cell size, in CSS px      */
@@ -31,6 +31,10 @@
   var INTENSITY = 1.2;   /* >1 starts burning additively        */
   var BLOOM     = 4;     /* heat glow radius                    */
   var SPEED     = 17;    /* simulation steps per second         */
+
+  /* Largest the name may be set, in CSS px. A short name would otherwise
+     fit-to-width into a wall of fire taller than the first screen. */
+  var MAX_FONT_PX = 170;
 
   /* classic Doom fire ramp, warmed toward ember and flame */
   var PALETTE = [
@@ -65,7 +69,13 @@
     if (!cssW) return;
 
     DPR = Math.min(window.devicePixelRatio || 1, 2);
-    fontPx = Math.max(26, Math.min(cssW / 8.05, 190));
+    /* Fit the name to the column whatever its length: measure it once at
+       100px with the same tracking setFont applies, then scale. (This was
+       cssW / 8.05, a ratio that only held for a 14-letter name.) */
+    maskCx.font = '800 100px "Bricolage Grotesque", system-ui, sans-serif';
+    if ("letterSpacing" in maskCx) maskCx.letterSpacing = "-1.5px";
+    var at100 = maskCx.measureText(NAME).width || 800;
+    fontPx = Math.max(26, Math.min(cssW * 0.985 * 100 / at100, MAX_FONT_PX));
     var cssH = Math.round(fontPx * 1.34);
 
     W = Math.round(cssW * DPR);
@@ -285,7 +295,13 @@
     }, { threshold: 0 }).observe(canvas);
   }
 
-  function boot() { layout(); start(); }
+  /* .is-lit swaps the plain-text fallback in the h1 for the canvas.
+     Until this runs (or if it never does) the name is still readable. */
+  function boot() {
+    layout();
+    start();
+    canvas.parentElement.classList.add("is-lit");
+  }
 
   if (document.fonts && document.fonts.load) {
     document.fonts.load('800 100px "Bricolage Grotesque"').then(boot).catch(boot);

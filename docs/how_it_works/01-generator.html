@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The generator</title>
+
+    <!-- Basic SEO -->
+    <meta name="description" content="This site isn&#x27;t built with a framework. It&#x27;s built by a pile of Python I wrote, which started as the static site generator project on boot.dev. The first commit is from 2025-09-29 …" />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The generator" />
+    <meta property="og:description" content="This site isn&#x27;t built with a framework. It&#x27;s built by a pile of Python I wrote, which started as the static site generator project on boot.dev. The first commit is from 2025-09-29 …" />
+    <meta property="og:url" content="/how_it_works/01-generator.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="The generator" />
+    <meta name="twitter:description" content="This site isn&#x27;t built with a framework. It&#x27;s built by a pile of Python I wrote, which started as the static site generator project on boot.dev. The first commit is from 2025-09-29 …" />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="../site.webmanifest" />
+    <meta name="theme-color" content="#14100E" />
+
+    <!-- Styles -->
+    <link href="../index.css?v=4" rel="stylesheet" />
+  </head>
+
+  <body class="page">
+    <article>
+<nav class="series-nav" aria-label="How this site works">
+  <p class="series-name"><a href="../index.html">BigZano</a> / How this site works</p>
+  <ol class="series-parts">
+    <li><a href="01-generator.html" aria-current="page">The generator</a></li>
+    <li><a href="02-fire.html">The fire</a></li>
+    <li><a href="03-listening.html">Listening</a></li>
+    <li><a href="04-playing.html">Playing</a></li>
+    <li><a href="05-guestbook.html">The guestbook</a></li>
+  </ol>
+</nav>
+<div><h1>The generator</h1><p>This site isn't built with a framework. It's built by a pile of Python I wrote, which started as the static site generator project on boot.dev. The first commit is from 2025-09-29 and says "SSG start initial commit lets goooo". For about a month it was a Lord of the Rings blog, then I turned it into this. Everything else on the site sits on top of it.</p><h2>Markdown in, HTML out</h2><p>A page is a markdown file in <code>content/</code>. The converter turns it into HTML in three steps, each one a small file in <code>src/</code>.</p><ol><li><code>markdown_to_blocks.py</code> chops the file into blocks on blank lines. Code fences stay in one piece and every heading is a block of its own.</li><li><code>block_to_html.py</code> looks at how each block starts to decide what it is (heading, quote, list, code, otherwise a paragraph) and builds a tree of nodes.</li><li>Inside a block, <code>text_to_textnodes.py</code> splits the text into plain, bold, italic, code, link and image pieces, and <code>htmlnode.py</code> turns each piece into a tag.</li></ol><p>The order of that last step matters more than it looks:</p><pre><code>def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.PLAIN_TEXT)]
+    # Code first, so content like Req_bot is protected from later delimiters.
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE_TEXT)
+    # Images/links before delimiters, so underscores in URLs aren't split.
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD_TEXT)
+    nodes = split_nodes_delimiter(nodes, "__", TextType.BOLD_TEXT)
+    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC_TEXT)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC_TEXT)
+    return nodes
+</code></pre><p>Code goes first so nothing else touches it, and links come before bold and italics so the underscores in a URL don't turn into italics. I found most of that out the hard way: there's a commit from 2025-10-30 called "fixed about me and delimiter renderings".</p><p>The whole converter is roughly 450 lines. <code>block_types.py</code> is left over from the boot.dev version, tests and all, and <code>block_to_html.py</code> no longer uses it. I should delete it.</p><p>It also doesn't escape anything. Text goes into the page exactly as I typed it, so I can drop raw HTML into the markdown when the converter can't do something (the back buttons on the diary posts are hand-written HTML, for one). That's only okay because I'm the only one writing those files. Anything from outside, like Spotify track names, gets escaped first.</p><h2>Templates</h2><p>Pages go through a template in the repo root, with placeholders in double curly braces like <code>{{ Placeholder }}</code>. The entire template engine is Python's <code>str.replace</code>. The page's own content goes in last, after every other placeholder is filled, so a post can spell out a placeholder name and it stays exactly as typed.</p><h2>One build, from scratch</h2><p><a href="https://github.com/BigZano/Resume-About-me/blob/main/src/main.py">src/main.py</a> is the whole build, and it starts by deleting the output folder:</p><pre><code>        if os.path.exists(docs_path):
+            log_message("Deleting existing docs directory...")
+            shutil.rmtree(docs_path)
+        os.makedirs(docs_path)
+        log_message("Created fresh docs directory")
+</code></pre><p>Then it copies <code>static/</code> in, renders every markdown file through the template, and builds the dev diary, the homepage and the guestbook page. If one page blows up it logs the error and keeps going, then exits non-zero at the end so a half-built site can't pass for a good one.</p><p>Wiping everything means no stale files. The cost is that <code>docs/</code> is output, so never edit it by hand, because the next build deletes your edit. GitHub Pages serves that committed folder, so there's no deploy pipeline. One odd habit: if a markdown file has no <code>page-date</code> comment, the build writes one into the source file. Building edits your content, which is why every file in <code>content/</code> starts with that comment.</p><h2>Zero dependencies, on purpose</h2><p><a href="https://github.com/BigZano/Resume-About-me/blob/main/pyproject.toml">pyproject.toml</a> says <code>dependencies = []</code>. The build only uses the standard library, so there's nothing to install or update, and the GitHub Action that rebuilds the site has a Python setup step and a build step but no install step. The one optional extra is Pillow, which I used once to shrink a photo from 4.4 MB to 57 KB. Tests are plain <code>unittest</code>, and since the old boot.dev-era ones are partly stale, the runner remembers how many already fail and complains if that number grows.</p><h2>Why I kept it</h2><p>Honestly, I never went shopping for anything else. This was a boot.dev project and I just kept building on top of it, one feature at a time, on the same generator. Somewhere along the way it stopped being an exercise and turned into my playground for new ideas, and the place my portfolio and my brand live. That's reason enough to keep it.</p></div>
+<nav class="series-step" aria-label="Previous and next part">
+  <a class="series-next" rel="next" href="02-fire.html"><span class="vh">Next part: </span>The fire →</a>
+</nav>
+</article>
+
+    <script src="../armory-stats.js?v=1" defer></script>
+  </body>
+</html>

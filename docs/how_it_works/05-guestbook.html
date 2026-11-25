@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The guestbook</title>
+
+    <!-- Basic SEO -->
+    <meta name="description" content="GitHub Pages hands out files. It can&#x27;t accept a POST, so it can&#x27;t take a guestbook entry. A guestbook needs somewhere to send the entry, somewhere to keep it, and a way to read it …" />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The guestbook" />
+    <meta property="og:description" content="GitHub Pages hands out files. It can&#x27;t accept a POST, so it can&#x27;t take a guestbook entry. A guestbook needs somewhere to send the entry, somewhere to keep it, and a way to read it …" />
+    <meta property="og:url" content="/how_it_works/05-guestbook.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="The guestbook" />
+    <meta name="twitter:description" content="GitHub Pages hands out files. It can&#x27;t accept a POST, so it can&#x27;t take a guestbook entry. A guestbook needs somewhere to send the entry, somewhere to keep it, and a way to read it …" />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="../site.webmanifest" />
+    <meta name="theme-color" content="#14100E" />
+
+    <!-- Styles -->
+    <link href="../index.css?v=4" rel="stylesheet" />
+  </head>
+
+  <body class="page">
+    <article>
+<nav class="series-nav" aria-label="How this site works">
+  <p class="series-name"><a href="../index.html">BigZano</a> / How this site works</p>
+  <ol class="series-parts">
+    <li><a href="01-generator.html">The generator</a></li>
+    <li><a href="02-fire.html">The fire</a></li>
+    <li><a href="03-listening.html">Listening</a></li>
+    <li><a href="04-playing.html">Playing</a></li>
+    <li><a href="05-guestbook.html" aria-current="page">The guestbook</a></li>
+  </ol>
+</nav>
+<div><h1>The guestbook</h1><p>GitHub Pages hands out files. It can't accept a POST, so it can't take a guestbook entry. A guestbook needs somewhere to send the entry, somewhere to keep it, and a way to read it back so you see your own signature appear. That made it the first server-side anything this site has had.</p><p>I went with a small Cloudflare Worker plus a D1 database (SQLite underneath) at <code>api.bretzanotelli.work</code>. Cloudflare already sits in front of the domain, and there's no server of mine to patch. I wrote the Worker in Python because I can audit Python and can't yet audit JavaScript. I skipped hosting it at home behind a tunnel, because every power blip would become site downtime and it would point a public write path at the network my file server lives on.</p><h2>The build stays offline</h2><p>The build never talks to the Worker. <a href="https://github.com/BigZano/Resume-About-me/blob/main/src/Gen_Content/generate_guestbook_page.py">generate_guestbook_page.py</a> only fills in a template, and the entries load in your browser through <a href="https://github.com/BigZano/Resume-About-me/blob/main/static/guestbook.js">static/guestbook.js</a>. Same rule as Listening: no network, no secrets. That script is also the only thing that turns entries into HTML, and it only uses <code>textContent</code>, so someone typing a script tag gets a weird-looking message instead of an exploit. A test fails if an HTML-parsing call ever shows up in it.</p><h2>Moderation, without printing the bad words</h2><p>The rules live in four small pure modules in <a href="https://github.com/BigZano/Resume-About-me/tree/main/worker/src">worker/src</a> and the Worker file is a thin shell around them, so every decision can be tested offline.</p><ul><li><b>Normalize first.</b> Text is folded to a plain form (accents and invisible characters gone, lowercase, lookalike letters from other alphabets turned back into Latin ones), then read several ways: leetspeak undone, repeated letters squashed, spacing and punctuation stripped. Order matters: an early draft swapped lookalikes before lowercasing, which let capital ones through.</li><li><b>The list is hashes.</b> The repo is public, so blocked terms are stored as SHA-256 digests instead of words, which keeps a wall of slurs out of a repo with my name on it. The plain list lives outside the repo, and the tests use harmless fake ones.</li><li><b>Scunthorpe.</b> Anything that searches inside words flags innocent ones. A short allowlist is cut out of the text before the checks run, so Scunthorpe and a handful of real surnames sign in fine. Names are only checked for slurs, links and length, so joke names get in. Slurs are the line.</li><li><b>Hidden, not deleted.</b> A blocked message is saved with a hidden flag, so I can audit the filter's mistakes. Ordinary swearing is allowed: it's saved as typed and swapped for a sillier word on display (damn becomes dang), with a "show original" button. The server does the swap, so it can't fail open if the page's JavaScript breaks.</li><li><b>The rest.</b> A honeypot field for bots, and a rate limit counted with a salted hash of the IP, so I never hold the address.</li></ul><p>The filter is a floor, not the whole policy. It can't tell a cruel joke that uses no slur from a kind one, so I hide those by hand.</p><h2>When the scripts fail</h2><p>The homepage card with the newest signature is the only live dependency on the front door, so it fails in layers. <a href="https://github.com/BigZano/Resume-About-me/blob/main/static/guestbook-cell.js">guestbook-cell.js</a> fetches the newest entry. If that fails, it shows the last one the browser remembers (display text only, never the original, and gone after 24 hours). If there's nothing remembered, or the script never runs, you get the card that was already in the HTML: an invitation and a link to sign. An empty answer from the Worker counts as an answer, so it clears the cache, or a hidden entry would linger for anyone who'd seen it.</p><h2>The bonfire</h2><p>The name gets the fire, so the guestbook gets a bonfire. Two fires on one page would compete. It's a sword stuck in the ashes with bones and skulls piled around it, always lit, because a bonfire that goes out looks like a broken page. It grows as the wall fills up, and signing makes it bloom and say one line at random:</p><pre><code>  var FLOURISHES = [
+    "Humanity Restored",
+    "Ember Restored",
+    "Great Rune Restored"
+  ];
+</code></pre><p>With reduced motion on, the fire stays lit but stops moving. A rejected message gets a pop-up of Fry from Futurama mooning some executives.</p><p>Why a bonfire? Because that's what you do at one: you gather around it in hopes of not going hollow. I love Dark Souls 1. The world loops back on itself, so it feels organic in a way most games just don't. There's barely any music, which sells the idea that you're on your own, so when the music does kick in it hits that much harder. The game demands perseverance and patience: one I have in spades, the other I had to cultivate. And the story didn't hold your hand. At the time, games explained a lot more, and Dark Souls basically said "it's there, go."</p></div>
+<nav class="series-step" aria-label="Previous and next part">
+  <a class="series-prev" rel="prev" href="04-playing.html"><span class="vh">Previous part: </span>← Playing</a>
+</nav>
+</article>
+
+    <script src="../armory-stats.js?v=1" defer></script>
+  </body>
+</html>

@@ -25,3 +25,6 @@ BLOG_SYSTEM.md
 
 # Personal review notes, not part of the site
 notes/
+
+# Spotify play log (timestamps; lives in the Actions cache, never committed)
+.cache/

@@ -2,7 +2,7 @@
    Guestbook — the sign panel and the wall of marks.
 
    Everything is scoped to body.guestbook so it can't leak into the
-   resume, About Me, or the dev diary. Palette, typefaces, and the
+   Workshop, About Me, or the dev diary. Palette, typefaces, and the
    1px-gutter grid all come from index.css: this file defines no
    colour value of its own, only new arrangements of the existing
    custom properties.

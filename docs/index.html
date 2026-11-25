@@ -3,19 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Home - Portfolio</title>
+    <title>BigZano</title>
 
     <!-- Basic SEO -->
-    <meta name="description" content="Personal portfolio featuring development projects, resume, and creative pursuits" />
+    <meta name="description" content="BigZano's homepage: a dev diary, a workshop of things I've built, and what I'm listening to and playing." />
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Home - Portfolio" />
-    <meta property="og:description" content="Personal portfolio featuring development projects, resume, and creative pursuits" />
+    <meta property="og:title" content="BigZano" />
+    <meta property="og:description" content="BigZano's homepage: a dev diary, a workshop of things I've built, and what I'm listening to and playing." />
     <meta property="og:url" content="/" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Home - Portfolio" />
-    <meta name="twitter:description" content="Personal portfolio featuring development projects, resume, and creative pursuits" />
+    <meta name="twitter:title" content="BigZano" />
+    <meta name="twitter:description" content="BigZano's homepage: a dev diary, a workshop of things I've built, and what I'm listening to and playing." />
 
     <!-- Icons / PWA -->
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
@@ -23,68 +23,93 @@
     <meta name="theme-color" content="#14100E" />
 
     <!-- Styles -->
-    <link href="./index.css?v=3" rel="stylesheet" />
-    <link href="./landing.css?v=3" rel="stylesheet" />
+    <link href="./index.css?v=4" rel="stylesheet" />
+    <link href="./landing.css?v=4" rel="stylesheet" />
   </head>
 
   <body class="landing">
     <div class="shell">
 
       <header class="hero">
-        <canvas id="hero-fire" role="img"
-                aria-label="Bret Zanotelli"
-                data-name="Bret Zanotelli"></canvas>
-        <p class="hero-tagline">IT consultant. Linux daily driver. I make things talk to each other properly.</p>
+        <!-- The canvas is the name: role=img + aria-label give the h1 its
+             text for screen readers and search, the fire draws it. The
+             span is the no-script fallback; fire.js adds .is-lit and the
+             canvas takes over. aria-hidden so the name isn't read twice. -->
+        <h1 class="hero-name">
+          <span class="hero-fallback" aria-hidden="true">BigZano</span>
+          <canvas id="hero-fire" role="img"
+                  aria-label="BigZano"
+                  data-name="BigZano"></canvas>
+        </h1>
+        <p class="hero-tagline">IT by trade. I make things talk to each other properly.</p>
       </header>
 
       <main class="home">
         <div class="home-main">
 
-          <section class="intro">
-            <p class="eyebrow"> ~ > whoami </p>
+          <section class="intro" aria-labelledby="h-intro">
+            <h2 class="home-head" id="h-intro">~ &gt; whoami</h2>
             <p>
-              I'm an IT consultant in Washington with four years of MSP work with increasing 
-              levels of responsibility and complexity. In my personal time I'm pursuing a 
-              Bachelors degree from WGU, I'm also the principal developer for Armory Bot, and 
-              assist with moderation of a large, thriving online community based around 40k. 
+              I work in IT in Washington. In my personal time I'm pursuing a
+              Bachelor's degree from WGU, I'm the principal developer for Armory
+              Bot, and I help moderate a large, thriving online community based
+              around 40k, which is how sm2salamanders.site came to exist.
             </p>
             <p>
-              This site started as a boot.dev project and got out of hand. It's a resume,
-              a dev diary, and a place to put the things I'm into. I was enamored with the 
-              internet of the 2000s, and this is my attempt to reclaim a bit of that magic. 
+              This site started as a boot.dev project and got out of hand. It's a
+              dev diary, a workshop, and a place to put the things I'm into. I was
+              enamored with the internet of the 2000s, and this is my attempt to
+              reclaim a bit of that magic.
             </p>
           </section>
 
-          <nav class="pages" aria-label="Site sections">
-            <p class="eyebrow">Pages</p>
+          <nav class="pages" aria-labelledby="h-pages">
+            <h2 class="home-head" id="h-pages">Around the site</h2>
             <ul class="page-links">
-              <li><a href="dev_diary.html">Dev Diary</a></li>
-              <li><a href="guestbook.html">Guestbook</a></li>
-              <li><a href="aboutme.html">About Me</a></li>
-              <li><a href="resume.html">Resume</a></li>
+              <li class="page-entry">
+                <a href="dev_diary.html">Dev Diary</a>
+                <p class="page-blurb">Build notes, Advent of Code, and whatever got out of hand that month.</p>
+                <p class="page-stamp">9 entries · newest Sep 2, 2026</p>
+              </li>
+              <li class="page-entry">
+                <a href="workshop.html">Workshop</a>
+                <p class="page-blurb">What I've built, what I'm building, and what I build it on.</p>
+              </li>
+              <li class="page-entry">
+                <a href="how_it_works/01-generator.html">How This Site Works</a>
+                <p class="page-blurb">A tour of the generator, the fire, and the pipelines behind this page.</p>
+                <p class="page-stamp">5 parts</p>
+              </li>
+              <li class="page-entry">
+                <a href="guestbook.html">Guestbook</a>
+                <p class="page-blurb">Pull up a seat by the fire and leave a mark.</p>
+              </li>
+              <li class="page-entry">
+                <a href="aboutme.html">About Me</a>
+                <p class="page-blurb">Diablo II, the Navy, Linux, and the Salamanders.</p>
+              </li>
             </ul>
           </nav>
 
-              
-          <section class="into">
-            <p class="eyebrow">What I'm into</p>
+          <section class="into" aria-labelledby="h-into">
+            <h2 class="home-head" id="h-into">What I'm into</h2>
             <div class="into-grid">
 
               <article class="into-card">
                 <h3>Warhammer 40K</h3>
-                <p class="into-note">
-                  The Salamanders represent the best the Imperium of Man has to offer. Through 
-                  adherence to the Promethean Creed, Salamanders show that true strength comes 
-                  from being a bastion for others. Resilence, discipline, sacrifice, 
-                  community service, these are but a few tenants that guide their culture and actions. 
+                <p>
+                  The Salamanders represent the best the Imperium of Man has to offer. Through
+                  adherence to the Promethean Creed, Salamanders show that true strength comes
+                  from being a bastion for others. Resilience, discipline, sacrifice,
+                  community service: these are but a few tenets that guide their culture and actions.
                 </p>
               </article>
 
               <article class="into-card">
                 <h3>Games</h3>
-                <p class="into-note">
-                  Video games are largely the entire reason I'm into IT and computers as a whole. 
-                  Stay a while and listen. 
+                <p>
+                  Video games are largely the entire reason I'm into IT and computers as a whole.
+                  Stay a while and listen.
                   For the Horde!
                   Don't you dare go hollow.
                 </p>
@@ -92,11 +117,12 @@
 
               <article class="into-card">
                 <h3>Cooking</h3>
-                <p class="into-note">
-                  I love cooking for myself, my girlfriend, and occasionally i'll sneak some (safe to eat) food
+                <p>
+                  I love cooking for myself, my girlfriend, and occasionally I'll sneak some (safe to eat) food
                   for our cat Crumb. Here is a picture of him screaming:
                 </p>
-                <img src="./crumb.png" alt="Crumb the cat screaming" class="cat-pic">
+                <img src="./crumb.png" alt="Crumb the cat screaming" class="cat-pic"
+                     loading="lazy" decoding="async">
               </article>
 
               <!-- Layer 3 of the fallback, already rendered: if
@@ -113,73 +139,81 @@
             </div>
           </section>
 
-          <section class="elsewhere">
-            <p class="eyebrow">Elsewhere</p>
+          <section class="elsewhere" aria-labelledby="h-elsewhere">
+            <h2 class="home-head" id="h-elsewhere">Elsewhere</h2>
             <ul class="link-row">
               <li><a href="https://github.com/bigzano" rel="me noopener">GitHub</a></li>
               <li><a href="https://www.armorybot.win" rel="noopener">Armory Bot</a></li>
+              <li><a href="https://bigzano.itch.io" rel="me noopener">itch.io</a></li>
               <li><a href="https://open.spotify.com/user/12152843602" rel="me noopener">Spotify</a></li>
-              <li><a href="mailto:bretzanotelli@yahoo.com">Email</a></li>
             </ul>
           </section>
 
         </div>
 
-        <aside class="home-side" aria-label="What I'm doing now">
+        <aside class="home-side" aria-labelledby="h-now">
           <div class="now">
-            <p class="now-head">Now</p>
+            <h2 class="now-head" id="h-now">Now</h2>
 
+            <!-- Generated from content/listening.json by a GitHub Action.
+                 See specs/2026-08-09-spotify-listening-design.md -->
             <section class="now-block">
-              <h4>Listening</h4>
-              <ul class="now-list now-tracks">
-                <li><span>Trivium</span> Jorōgumo</li>
-                <li><span>Trivium</span> Crown In The Grave</li>
-                <li><span>Trivium</span> Dead Inside Of Me</li>
-                <li><span>Trivium</span> The Terror</li>
-                <li><span>Trivium</span> The Haunting Never Ends</li>
-                <li><span>Trivium</span> Like A Sword Over Damocles</li>
-                <li><span>Trivium</span> Death Throes</li>
-                <li><span>Trivium</span> Paradise Of Sinners</li>
-                <li><span>Trivium</span> Blackout The Dawn</li>
-                <li><span>Trivium</span> Lie Of It All</li>
-              </ul>
-              <p class="now-stamp">on repeat this month</p>
+              <h3>Listening</h3>
+              <ol class="now-list now-tracks">
+                <li><span class="artist">Trivium</span> <span class="title">Jorōgumo</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">Crown In The Grave</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">Dead Inside Of Me</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">The Terror</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">The Haunting Never Ends</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">Like A Sword Over Damocles</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">Death Throes</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">Paradise Of Sinners</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">Blackout The Dawn</span></li>
+                <li class="same-artist"><span class="artist">Trivium</span> <span class="title">Lie Of It All</span></li>
+              </ol>
+              <p class="now-stamp">top 10 this week · updated Nov 24</p>
             </section>
 
+            <!-- ══ EDIT ME: hand-maintained. ══ -->
             <section class="now-block">
-              <h4>Building</h4>
+              <h3>Building</h3>
               <ul class="now-list">
                 <li><a href="https://www.armorybot.win" rel="noopener">Armory Bot</a></li>
-                <li>Portfolio</li>
-                <li></li>
+                <li><a href="https://sm2salamanders.site" rel="noopener">sm2salamanders.site</a></li>
+                <li><a href="workshop.html#b-site">This site</a></li>
               </ul>
             </section>
 
             <!-- ══ EDIT ME: hand-maintained. Swap when you start a new one. ══ -->
             <section class="now-block">
-              <h4>Reading</h4>
+              <h3>Reading</h3>
               <ul class="now-list">
-                <li>Know No Fear - Dan Abnett</li>
+                <li>Know No Fear, Dan Abnett</li>
               </ul>
             </section>
 
+            <!-- Steam fills the region between the markers once the
+                 STEAM_API_KEY / STEAM_ID secrets exist (content/playing.json).
+                 Until then — or if the data is unusable — what's written
+                 between them is shown as-is. ══ EDIT ME: the fallback. ══ -->
             <section class="now-block">
-              <h4>Playing</h4>
-              <ul class="now-list">
-                <li>Oblivion Remastered - Steam</li>
+              <h3>Playing</h3>
+              <ul class="now-list now-games">
+                <li><span class="title">Oblivion Remastered</span></li>
               </ul>
+              <p class="now-stamp">hand-picked</p>
             </section>
           </div>
         </aside>
       </main>
 
       <footer class="home-footer">
-        <p>2026 &middot; Bret Zanotelli &mdash; forged in fire, tempered in code</p>
+        <p>2026 &middot; BigZano &mdash; forged in fire, tempered in code</p>
       </footer>
 
     </div>
 
-    <script src="./fire.js" defer></script>
+    <script src="./fire.js?v=2" defer></script>
     <script src="./guestbook-cell.js" defer></script>
   </body>
 </html>

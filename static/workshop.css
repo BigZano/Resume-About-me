@@ -1,0 +1,416 @@
+/* ============================================================
+   Workshop — what I've built, what I'm building, what I build on.
+   Scoped to body.workshop. Palette, type and the ember tick on h2
+   come from index.css; nothing here defines a colour.
+
+   Each featured build gets its own composition so neighbours never
+   repeat: the Salamanders pair (desktop + phone, overlapping), Armory
+   Bot as text beside a wide shot, Pysteroids as two stills over a
+   controls list, and this site as text beside its own table of
+   contents. Screenshots wear the same frame as the About Me portrait.
+   ============================================================ */
+
+body.workshop .ws-shell{
+  max-width:1080px;
+  margin:0 auto;
+  padding:0 1.5rem;
+}
+
+/* ── header ─────────────────────────────────────────────── */
+body.workshop .ws-head{
+  padding:4.5rem 0 0;
+}
+
+body.workshop .ws-head h1{
+  font-size:clamp(3rem, 9vw, 5.75rem);
+  letter-spacing:-.03em;
+  line-height:.95;
+  margin:1.6rem 0 0;
+  padding-bottom:1.1rem;
+}
+
+/* the lede under the page title */
+body.workshop .ws-head .ws-lede{
+  font-family:var(--body);
+  font-size:clamp(1.1rem, 2vw, 1.35rem);
+  letter-spacing:0;
+  line-height:1.5;
+  color:var(--bone);
+  max-width:40ch;
+  margin:1.4rem 0 0;
+}
+
+/* ── a featured build ───────────────────────────────────── */
+body.workshop .build{
+  display:grid;
+  grid-template-columns:repeat(12, minmax(0,1fr));
+  column-gap:2rem;
+  align-items:start;
+  margin-top:clamp(5.5rem, 12vw, 9.5rem);
+}
+
+body.workshop .build h2{
+  font-size:clamp(1.9rem, 4.2vw, 2.9rem);
+  font-weight:800;
+  letter-spacing:-.025em;
+  margin:0 0 1.1rem;
+  overflow-wrap:anywhere;          /* "sm2salamanders.site" is one long word */
+}
+
+body.workshop .build-text p{
+  margin:0 0 1.2rem;
+}
+
+/* the shared screenshot frame — matches the About Me portrait */
+body.workshop .ws-shots{
+  margin:0;
+  position:relative;
+}
+
+body.workshop .ws-shot{
+  width:100%;
+  height:auto;
+  border:1px solid var(--iron);
+  padding:6px;
+  background:var(--soot);
+}
+
+body.workshop .ws-shots figcaption{
+  font-family:var(--util);
+  font-size:.8rem;
+  letter-spacing:.02em;
+  color:var(--copper);
+  margin-top:.7rem;
+}
+
+/* facts: a short label beside its answer */
+body.workshop .build-facts{
+  display:grid;
+  grid-template-columns:max-content 1fr;
+  gap:.5rem 1.2rem;
+  margin:1.4rem 0 1.6rem;
+  padding:1rem 0;
+  border-top:1px solid var(--iron);
+  border-bottom:1px solid var(--iron);
+}
+body.workshop .build-facts dt{
+  font-family:var(--util);
+  font-size:.82rem;
+  color:var(--copper);
+  padding-top:.2rem;
+}
+body.workshop .build-facts dd{
+  margin:0;
+  font-size:.98rem;
+  line-height:1.55;
+}
+
+/* outbound links: the arrow slides in, same affordance as the homepage */
+body.workshop .build-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.6rem 1.6rem;
+  margin:0;
+}
+body.workshop .build-links a{
+  font-family:var(--util);
+  font-size:.9rem;
+  letter-spacing:.02em;
+  color:var(--forge);
+  border-bottom:1px solid color-mix(in srgb, var(--forge) 35%, transparent);
+  padding-bottom:.1rem;
+}
+body.workshop .build-links a::after{
+  content:"\00a0→";
+  display:inline-block;
+  transition:transform .2s cubic-bezier(.2,.7,.2,1);
+}
+body.workshop .build-links a:hover,
+body.workshop .build-links a:focus-visible{
+  color:var(--flame);
+  border-bottom-color:var(--flame);
+}
+body.workshop .build-links a:hover::after,
+body.workshop .build-links a:focus-visible::after{
+  transform:translateX(3px);
+}
+
+/* ── sm2salamanders.site: the desktop with its phone ────── */
+body.workshop .build--salamanders .ws-shots{
+  grid-column:1 / -1;
+  padding-right:12%;               /* room for the phone to hang off the edge */
+  padding-bottom:9%;
+}
+body.workshop .build--salamanders .ws-shot--phone{
+  position:absolute;
+  right:0;
+  bottom:0;
+  width:23%;
+  box-shadow:0 18px 40px -12px color-mix(in srgb, var(--ash) 85%, transparent);   /* it really does sit on top */
+}
+body.workshop .build--salamanders figcaption{
+  position:absolute;
+  left:0;
+  bottom:0;
+  margin:0;
+}
+body.workshop .build--salamanders .build-text{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  column-gap:2rem;
+  margin-top:2.4rem;
+}
+/* a domain is one long word: size it to fit its half, and if it still
+   has to break, break at the dot (the <wbr> in the markup), never mid-name */
+body.workshop .build--salamanders h2{
+  font-size:clamp(1.9rem, 3.3vw, 2.6rem);
+  overflow-wrap:normal;
+}
+body.workshop .build--salamanders .build-text h2{grid-row:1 / span 4}
+
+/* ── Armory Bot: text beside a wide shot ────────────────── */
+body.workshop .build--armory .build-text{grid-column:1 / span 5}
+body.workshop .build--armory .ws-shots{
+  grid-column:6 / -1;
+  margin-top:.4rem;
+}
+
+/* ── Pysteroids: two stills, then the words and the keys ── */
+body.workshop .ws-shots--pair{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+}
+body.workshop .ws-shots--pair figcaption{grid-column:1 / -1; margin-top:-.3rem}
+
+body.workshop .build-text--wide{
+  grid-column:1 / -1;
+  margin-top:2.4rem;
+}
+body.workshop .build-cols{
+  display:grid;
+  grid-template-columns:7fr 5fr;
+  column-gap:3rem;
+}
+
+/* controls set as keycaps: the one place a key outline means something */
+body.workshop .build-keys{
+  display:grid;
+  grid-template-columns:max-content 1fr;
+  gap:.7rem 1.1rem;
+  align-items:center;
+  align-content:start;
+  margin:.3rem 0 0;
+}
+body.workshop .build-keys dt{
+  justify-self:start;
+  font-family:var(--util);
+  font-size:.82rem;
+  color:var(--bone);
+  background:var(--soot);
+  border:1px solid var(--iron);
+  border-bottom-width:3px;
+  border-radius:4px;
+  padding:.25rem .6rem .15rem;
+  line-height:1.3;
+}
+body.workshop .build-keys dd{
+  margin:0;
+  font-size:.98rem;
+}
+
+/* ── this site: text beside its table of contents ───────── */
+body.workshop .build--site .build-text{grid-column:1 / span 6}
+body.workshop .build--site .site-parts{
+  grid-column:8 / -1;
+  padding-top:.4rem;
+}
+
+body.workshop .site-parts h3{
+  font-family:var(--util);
+  font-size:.9rem;
+  font-weight:400;
+  letter-spacing:.02em;
+  color:var(--copper);
+  margin:0 0 .8rem;
+}
+
+/* a real <ol>: the parts are meant to be read in order */
+body.workshop .site-parts ol{
+  list-style:none;
+  counter-reset:part;
+  margin:0;
+  padding:0;
+  border-top:1px solid var(--iron);
+}
+body.workshop .site-parts li{
+  counter-increment:part;
+  margin:0;
+  border-bottom:1px solid var(--iron);
+}
+body.workshop .site-parts a{
+  display:flex;
+  align-items:baseline;
+  gap:1rem;
+  padding:.8rem .2rem .8rem 0;
+  font-family:var(--display);
+  font-weight:700;
+  font-size:var(--step-2);
+  letter-spacing:-.02em;
+  color:var(--bone);
+  border:0;
+  transition:color .18s ease, padding-left .2s cubic-bezier(.2,.7,.2,1);
+}
+body.workshop .site-parts a::before{
+  content:counter(part);
+  font-family:var(--util);
+  font-size:.85rem;
+  font-weight:400;
+  color:var(--copper);
+  min-width:1ch;
+}
+body.workshop .site-parts a:hover,
+body.workshop .site-parts a:focus-visible{
+  color:var(--flame);
+  padding-left:.4rem;
+}
+
+/* ── smaller builds ─────────────────────────────────────── */
+body.workshop .ws-more,
+body.workshop .ws-uses{
+  margin-top:clamp(5.5rem, 12vw, 9.5rem);
+}
+
+body.workshop .ws-more h2,
+body.workshop .ws-uses h2{
+  font-size:clamp(1.6rem, 3.2vw, 2.2rem);
+  margin:0 0 1.6rem;
+}
+
+body.workshop .more-list{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  column-gap:3rem;
+  margin:0;
+  padding:0;
+  max-width:none;
+}
+body.workshop .more-list li{
+  margin:0;
+  padding:1.2rem 0 1.3rem;
+  border-top:1px solid var(--iron);
+}
+body.workshop .more-list li::before{display:none}
+
+body.workshop .more-list a,
+body.workshop .more-list .more-name{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:var(--step-1);
+  letter-spacing:-.01em;
+  overflow-wrap:anywhere;
+}
+body.workshop .more-list a{
+  color:var(--forge);
+  border-bottom-color:color-mix(in srgb, var(--forge) 30%, transparent);
+}
+body.workshop .more-list a:hover{color:var(--flame); border-bottom-color:var(--flame)}
+body.workshop .more-list .more-name{color:var(--bone)}
+
+body.workshop .more-list p{
+  margin:.45rem 0 0;
+  font-size:.98rem;
+  line-height:1.6;
+  max-width:52ch;
+}
+body.workshop .more-list .more-lang{
+  font-family:var(--util);
+  font-size:.8rem;
+  color:var(--copper);
+  margin-top:.55rem;
+}
+
+/* ── what I build on ────────────────────────────────────── */
+body.workshop .uses-list{
+  margin:0;
+  border-top:1px solid var(--iron);
+}
+body.workshop .uses-list > div{
+  display:grid;
+  grid-template-columns:12rem 1fr;
+  column-gap:2rem;
+  padding:1rem 0;
+  border-bottom:1px solid var(--iron);
+}
+body.workshop .uses-list dt{
+  font-family:var(--util);
+  font-size:.88rem;
+  color:var(--copper);
+  padding-top:.2rem;
+}
+body.workshop .uses-list dd{
+  margin:0;
+  font-size:1.02rem;
+  max-width:var(--measure);
+}
+
+/* ── footer ─────────────────────────────────────────────── */
+body.workshop .ws-footer{
+  margin-top:clamp(5rem, 10vw, 8rem);
+  border-top:1px solid var(--iron);
+  padding:2rem 0 4rem;
+}
+body.workshop .ws-footer p{
+  font-family:var(--util);
+  font-size:.8rem;
+  letter-spacing:.04em;
+  color:var(--copper);
+  margin:0;
+  max-width:none;
+}
+
+/* ── the one authored move ──────────────────────────────── */
+/* The phone rises into place as the Salamanders section scrolls in.
+   Scroll-driven, so browsers without view timelines simply show it in
+   place; reduced motion skips it entirely. */
+@media (prefers-reduced-motion: no-preference){
+  @supports (animation-timeline: view()){
+    body.workshop .build--salamanders .ws-shot--phone{
+      animation:phone-rise linear both;
+      animation-timeline:view();
+      animation-range:entry 10% cover 45%;
+    }
+    @keyframes phone-rise{
+      from{transform:translateY(14%); opacity:.4}
+      to{transform:translateY(0); opacity:1}
+    }
+  }
+}
+
+/* ── responsive ─────────────────────────────────────────── */
+@media (max-width:860px){
+  body.workshop .build{display:block}
+  body.workshop .build-text,
+  body.workshop .build--salamanders .build-text{
+    display:block;
+    margin-top:2rem;
+  }
+  body.workshop .build--armory .ws-shots{margin-top:1.6rem}
+  body.workshop .build--site .site-parts{margin-top:2.4rem}
+  body.workshop .build-cols{display:block}
+  body.workshop .build-keys{margin-top:1.8rem}
+  body.workshop .more-list{grid-template-columns:minmax(0,1fr)}
+}
+
+@media (max-width:640px){
+  body.workshop .ws-shell{padding:0 1.15rem}
+  body.workshop .ws-head{padding-top:2.5rem}
+  body.workshop .build--salamanders .ws-shots{padding-right:14%; padding-bottom:12%}
+  body.workshop .build--salamanders .ws-shot--phone{width:30%; padding:3px}
+  body.workshop .build--salamanders figcaption{position:static; margin-top:.7rem; max-width:62%}
+  body.workshop .ws-shots--pair{grid-template-columns:minmax(0,1fr)}
+  body.workshop .uses-list > div{grid-template-columns:minmax(0,1fr); row-gap:.2rem}
+  body.workshop .ws-shot{padding:3px}
+}

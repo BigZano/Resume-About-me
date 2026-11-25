@@ -95,11 +95,20 @@ class TestLandingCss(unittest.TestCase):
     def test_defines_the_cached_state(self):
         self.assertIn("is-cached", self.css)
 
-    def test_does_not_rewrite_the_grid_template(self):
-        # The auto-fit grid already absorbs a 4th card. Rewriting it is a
-        # regression, not a fix.
-        self.assertIn("repeat(auto-fit,minmax(190px,1fr))",
-                      self.css.replace(" ", ""))
+    def test_grid_leaves_no_orphan_cell(self):
+        # auto-fit did NOT absorb the 4th card: at the real column width it
+        # resolved to three tracks and left the guestbook alone on row two
+        # beside two empty iron cells. Three explicit columns, with the
+        # guestbook spanning the full row beneath them, leaves no hole.
+        css = self.css.replace(" ", "")
+        self.assertIn("repeat(3,minmax(0,1fr))", css)
+        self.assertNotIn("repeat(auto-fit", css)
+
+    def test_guestbook_card_spans_the_whole_row(self):
+        css = self.css.replace(" ", "")
+        start = css.index("body.landing.into-card--guestbook{")
+        rule = css[start:css.index("}", start)]
+        self.assertIn("grid-column:1/-1", rule)
 
     def test_defines_no_new_colour_values(self):
         """The forge palette lives in index.css. This file reuses it."""

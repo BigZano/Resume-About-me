@@ -1,3 +1,4 @@
+import html
 import os
 import re
 from datetime import UTC, datetime
@@ -19,18 +20,38 @@ def _first_paragraph(markdown: str, max_len: int = 180) -> str:
         # a bare literal — headings/images/lists/quotes/links/HTML tags.
         if s.startswith(("#", "!", "-", "*", ">", "[", "<")):
             continue
-        s = re.sub(r"\s+", " ", s)
-        return (s[:max_len] + "…") if len(s) > max_len else s
-    return "Professional resume and portfolio"
+        s = _markdown_to_plain(re.sub(r"\s+", " ", s))
+        s = (s[:max_len] + "…") if len(s) > max_len else s
+        # it lands inside content="..." — a stray quote would end the attribute
+        return html.escape(s, quote=True)
+    return "BigZano's homepage"
+
+
+def _markdown_to_plain(text: str) -> str:
+    """Inline markdown -> the words a reader sees, for meta descriptions.
+
+    `[label](url)` keeps the label, `code` and **bold** / *italic* /
+    _italic_ lose their markers. Without this a description reads
+    "See [static/fire.js](https://github.com/...)" in search results.
+    """
+    text = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"`([^`]*)`", r"\1", text)
+    text = re.sub(r"(\*\*|__)(.+?)\1", r"\2", text)
+    text = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"\1", text)
+    text = re.sub(r"(?<!\w)_(?!\s)(.+?)(?<!\s)_(?!\w)", r"\1", text)
+    return text
 
 def _to_canonical(base_url: str, dest_path: str) -> str:
     """Generate canonical URL from destination path"""
     p = Path(dest_path)
-    try:
-        rel = p.relative_to(Path(dest_path).parent.parent / "docs")
-    except ValueError:
+    # Find the docs/ directory the page lives under, however deep, so a page
+    # in docs/how_it_works/ gets /how_it_works/x.html and not /x.html.
+    docs_dir = next((a for a in p.parents if a.name == "docs"), None)
+    if docs_dir is None:
         # dest_path isn't under docs/ -- fall back to just the filename
         rel = Path(p.name)
+    else:
+        rel = p.relative_to(docs_dir)
     
     url_path = "/" if rel.as_posix() in ("", ".") else "/" + rel.as_posix()
     if url_path.endswith("/index.html"):
@@ -77,20 +98,20 @@ def _render_markdown(markdown: str, page_date: str | None = None, is_blog_post: 
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     from block_to_html import markdown_to_html_node
 
-    html = markdown_to_html_node(markdown).to_html()
+    body_html = markdown_to_html_node(markdown).to_html()
 
     if is_blog_post and page_date:
         # Parse ISO date to readable format
         try:
             date_obj = datetime.strptime(page_date, '%Y-%m-%d').replace(tzinfo=UTC)
             readable_date = date_obj.strftime('%B %d, %Y')
-            html = html.replace('</h1>', f'</h1><p class="post-date">{readable_date}</p>', 1)
+            body_html = body_html.replace('</h1>', f'</h1><p class="post-date">{readable_date}</p>', 1)
         except ValueError as exc:
             # page_date didn't match YYYY-MM-DD -- skip the date stamp
             # rather than fail the whole page build over it.
             print(f"  Warning: could not parse page_date {page_date!r}: {exc}")
 
-    return html
+    return body_html
 
 def generate_page(from_path, template_path, dest_path, is_blog_post=False):
     """Generate a single HTML page from markdown"""
@@ -140,14 +161,17 @@ def generate_page(from_path, template_path, dest_path, is_blog_post=False):
         # dest_path isn't under a 'docs' directory -- fall back to current dir
         path_prefix = './'
     
+    # Content goes in last: the page body may legitimately talk about the
+    # placeholders (the "how this site works" series does), and anything
+    # substituted after it would rewrite that prose.
     page_html = (
         template
-        .replace("{{ Title }}", title)
-        .replace("{{ Content }}", content_html)
+        .replace("{{ Title }}", html.escape(title, quote=True))
         .replace("{{ Description }}", description)
         .replace("{{ Canonical }}", canonical)
         .replace("{{ BaseUrl }}", base_url)
         .replace("{{ PageDate }}", page_date)
+        .replace("{{ Content }}", content_html)
     )
     
     if path_prefix != './':

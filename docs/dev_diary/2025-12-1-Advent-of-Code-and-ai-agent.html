@@ -6,16 +6,16 @@
     <title>Advent of Code is here!</title>
 
     <!-- Basic SEO -->
-    <meta name="description" content="Figured I've almost been programming a year now, it'd be a fun experiment and I've not been disappointed." />
+    <meta name="description" content="Figured I&#x27;ve almost been programming a year now, it&#x27;d be a fun experiment and I&#x27;ve not been disappointed." />
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Advent of Code is here!" />
-    <meta property="og:description" content="Figured I've almost been programming a year now, it'd be a fun experiment and I've not been disappointed." />
-    <meta property="og:url" content="/2025-12-1-Advent-of-Code-and-ai-agent.html" />
+    <meta property="og:description" content="Figured I&#x27;ve almost been programming a year now, it&#x27;d be a fun experiment and I&#x27;ve not been disappointed." />
+    <meta property="og:url" content="/dev_diary/2025-12-1-Advent-of-Code-and-ai-agent.html" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Advent of Code is here!" />
-    <meta name="twitter:description" content="Figured I've almost been programming a year now, it'd be a fun experiment and I've not been disappointed." />
+    <meta name="twitter:description" content="Figured I&#x27;ve almost been programming a year now, it&#x27;d be a fun experiment and I&#x27;ve not been disappointed." />
 
     <!-- Icons / PWA -->
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
@@ -23,7 +23,7 @@
     <meta name="theme-color" content="#14100E" />
 
     <!-- Styles -->
-    <link href="../index.css?v=3" rel="stylesheet" />
+    <link href="../index.css?v=4" rel="stylesheet" />
   </head>
 
   <body class="page">
@@ -60,5 +60,7 @@ if __name__ == "__main__":
     result = unlock_door(None)
     print(f"Final zero count: {result}")
 </code></pre><p>This got me the answer, (I know, shock horror), but I was only iterating over a string and I still think the time complexity is O(n), which while not being the best could definitely have been worse.</p><p>Outside of the AoC challenge, I've been extending the functionality of the AI agent that BootDev lead us through creating. Ultimately I am recreating something similar to Claude, but with the ability to help me study for IT tasks as well as code. I've been building the analyzer functions for the past few days, and it it's coming along pretty wel. It can write files, read them back, analyze the structure of the code base, and suggest low tier improvements. I moved from the Gemini API to the llama 3.1:8b-Instant model, which while not as powerful as Gemini possibly, it's still very capable and most importantly to me, <i>local and open source</i>. I can bundle it with my agent, and I don't have to worry about API limits or costs. I'm totally onboard with waiting for it to reason through tasks (I told it to slow down and take it's time purposely in config), and it's been a fun experience so far. Next few steps are going to be adding web search with a ephemeral Docker container and SearXNG, and using DuckDuckGo's API for queries as a backup if it can't answer itself. Along with web search, I'm going to be adding system search, since I want it to act as a digital assistant as well. So I'm looking at either RIPgrep or Recoll, depending on how I want to handle search and indexing.</p><p>Overall, the job hunt continues and I'm able to keep pouring time into learning new things. Lets see where this takes us, and we'll be back after the next Advent of Code challenge!</p><p><a href="../dev_diary.html" class="back-button">← Back to Blog</a></p></div></article>
+
+    <script src="../armory-stats.js?v=1" defer></script>
   </body>
 </html>
