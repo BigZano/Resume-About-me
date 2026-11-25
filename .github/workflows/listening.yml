@@ -2,13 +2,17 @@ name: Refresh Listening
 
 on:
   schedule:
-    # Mondays at 14:17 UTC. Deliberately off the hour: GitHub delays
-    # scheduled runs that land at the top of an hour under load.
-    - cron: "17 14 * * 1"
-  workflow_dispatch:
+    # Every 4 hours, at :17 UTC. Each run only POLLS Spotify (recently-played
+    # holds just the last 50 plays) and folds the result into a rolling
+    # 7-day play log in the Actions cache. Whether a run also PUBLISHES is
+    # decided by the "Decide whether this run publishes" step, not by the
+    # clock. Deliberately off the hour: GitHub delays scheduled runs that
+    # land at the top of an hour under load.
+    - cron: "17 1,5,9,13,17,21 * * *"
+  workflow_dispatch:   # a manual run always publishes
 
 permissions:
-  contents: write   # commit listening.json + docs/
+  contents: write   # commit listening.json + playing.json + docs/
   issues: write     # open the token-expiry reminder
 
 concurrency:
@@ -88,6 +92,50 @@ jobs:
           echo "::error::Spotify refresh token expired. See the open issue."
           exit 1
 
+      # The play log is the rolling 7-day record of what was played. It holds
+      # timestamps, so it lives in the Actions cache and is never committed
+      # (this repo is public). Caches are immutable, so every run saves under
+      # a fresh key and restores the newest one by prefix.
+      - name: Restore the play log
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/spotify-plays.json
+          key: spotify-plays-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            spotify-plays-
+
+      # Decided by the age of the last listening.json commit, not the clock
+      # hour: GitHub delays scheduled runs by minutes to hours, so "publish
+      # at 01:xx" would sometimes never fire. With a 4-hourly poll, a 20-hour
+      # threshold publishes about once a day and tolerates ~4h of delay.
+      # If a publish finds nothing new to commit, the age never resets, so
+      # every later run retries (cheap: no commit, no deploy).
+      - name: Decide whether this run publishes
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+          PUBLISH_AFTER_HOURS: "20"
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "Manual run: publishing."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          last=$(git log -1 --format=%ct -- content/listening.json)
+          if [ -z "$last" ]; then
+            echo "listening.json has never been committed: publishing."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          age_hours=$(( ( $(date +%s) - last ) / 3600 ))
+          echo "listening.json was last committed ${age_hours} hour(s) ago."
+          if [ "$age_hours" -ge "$PUBLISH_AFTER_HOURS" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Poll only; not publishing yet."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Decide whether a keep-alive write is needed
         id: keepalive
         run: |
@@ -100,27 +148,74 @@ jobs:
             echo "flag=" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Fetch top tracks
+      # Poll-only runs update the play log and touch nothing under content/.
+      # --keep-alive is only valid alongside --publish, so it is added here
+      # rather than passed blindly.
+      - name: Fetch recent plays
         env:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-        run: python3 scripts/fetch_listening.py ${{ steps.keepalive.outputs.flag }}
+          PUBLISH: ${{ steps.gate.outputs.publish }}
+          KEEPALIVE: ${{ steps.keepalive.outputs.flag }}
+        run: |
+          args=""
+          if [ "$PUBLISH" = "true" ]; then
+            args="--publish $KEEPALIVE"
+          fi
+          python3 scripts/fetch_listening.py $args
+
+      # Straight after the fetch, ahead of the publish steps, so a later
+      # failure (Steam, the build) cannot also throw away this poll.
+      # always(): fetch_listening.py writes the log before it aggregates,
+      # so a failure in the publish half must not discard the poll.
+      - name: Save the play log
+        if: always() && hashFiles('.cache/spotify-plays.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/spotify-plays.json
+          key: spotify-plays-${{ github.run_id }}-${{ github.run_attempt }}
+
+      # continue-on-error so a Steam problem cannot stop the Spotify chart
+      # from publishing; the final step turns it back into a red run. With
+      # the two secrets unset the script is a no-op that exits 0.
+      - name: Fetch recently played games
+        id: steam
+        if: steps.gate.outputs.publish == 'true'
+        continue-on-error: true
+        env:
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          STEAM_ID: ${{ secrets.STEAM_ID }}
+        run: python3 scripts/fetch_playing.py
 
       - name: Build the site
+        if: steps.gate.outputs.publish == 'true'
         run: ./build.sh
 
       - name: Commit if anything changed
+        if: steps.gate.outputs.publish == 'true'
         run: |
+          # playing.json only exists once the Steam secrets have been added,
+          # and `git add` errors on a pathspec that matches nothing.
+          paths="content/listening.json docs/"
+          if [ -e content/playing.json ]; then
+            paths="$paths content/playing.json"
+          fi
           # --porcelain rather than `git diff --quiet`: the build recreates
           # docs/ from scratch, so new files show up untracked and a plain
           # diff would miss them entirely.
-          if [ -z "$(git status --porcelain -- content/listening.json docs/)" ]; then
+          if [ -z "$(git status --porcelain -- $paths)" ]; then
             echo "Nothing changed; no commit."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content/listening.json docs/
+          git add -- $paths
           git commit -m "Refresh listening data"
           git push
+
+      - name: Fail the run if the Steam fetch failed
+        if: steps.steam.outcome == 'failure'
+        run: |
+          echo "::error::Steam fetch failed (the Spotify chart was still published). See the 'Fetch recently played games' step."
+          exit 1

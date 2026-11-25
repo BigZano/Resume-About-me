@@ -23,65 +23,72 @@
     <meta name="theme-color" content="#14100E" />
 
     <!-- Styles -->
-    <link href="./index.css?v=3" rel="stylesheet" />
-    <link href="./landing.css?v=3" rel="stylesheet" />
+    <link href="./index.css?v=4" rel="stylesheet" />
+    <link href="./landing.css?v=4" rel="stylesheet" />
   </head>
 
   <body class="landing">
     <div class="shell">
 
       <header class="hero">
-        <canvas id="hero-fire" role="img"
-                aria-label="{{ SiteTitle }}"
-                data-name="{{ SiteTitle }}"></canvas>
+        <!-- The canvas is the name: role=img + aria-label give the h1 its
+             text for screen readers and search, the fire draws it. The
+             span is the no-script fallback; fire.js adds .is-lit and the
+             canvas takes over. aria-hidden so the name isn't read twice. -->
+        <h1 class="hero-name">
+          <span class="hero-fallback" aria-hidden="true">{{ SiteTitle }}</span>
+          <canvas id="hero-fire" role="img"
+                  aria-label="{{ SiteTitle }}"
+                  data-name="{{ SiteTitle }}"></canvas>
+        </h1>
         <p class="hero-tagline">{{ SiteDescription }}</p>
       </header>
 
       <main class="home">
         <div class="home-main">
 
-          <section class="intro">
-            <p class="eyebrow"> ~ > whoami </p>
+          <section class="intro" aria-labelledby="h-intro">
+            <h2 class="home-head" id="h-intro">~ &gt; whoami</h2>
             <p>
-              I'm an IT consultant in Washington with four years of MSP work with increasing 
-              levels of responsibility and complexity. In my personal time I'm pursuing a 
-              Bachelors degree from WGU, I'm also the principal developer for Armory Bot, and 
-              assist with moderation of a large, thriving online community based around 40k. 
+              I work in IT in Washington. In my personal time I'm pursuing a
+              Bachelor's degree from WGU, I'm the principal developer for Armory
+              Bot, and I help moderate a large, thriving online community based
+              around 40k, which is how sm2salamanders.site came to exist.
             </p>
             <p>
-              This site started as a boot.dev project and got out of hand. It's a resume,
-              a dev diary, and a place to put the things I'm into. I was enamored with the 
-              internet of the 2000s, and this is my attempt to reclaim a bit of that magic. 
+              This site started as a boot.dev project and got out of hand. It's a
+              dev diary, a workshop, and a place to put the things I'm into. I was
+              enamored with the internet of the 2000s, and this is my attempt to
+              reclaim a bit of that magic.
             </p>
           </section>
 
-          <nav class="pages" aria-label="Site sections">
-            <p class="eyebrow">Pages</p>
+          <nav class="pages" aria-labelledby="h-pages">
+            <h2 class="home-head" id="h-pages">Around the site</h2>
             <ul class="page-links">
 {{ PageLinks }}
             </ul>
           </nav>
 
-              
-          <section class="into">
-            <p class="eyebrow">What I'm into</p>
+          <section class="into" aria-labelledby="h-into">
+            <h2 class="home-head" id="h-into">What I'm into</h2>
             <div class="into-grid">
 
               <article class="into-card">
                 <h3>Warhammer 40K</h3>
-                <p class="into-note">
-                  The Salamanders represent the best the Imperium of Man has to offer. Through 
-                  adherence to the Promethean Creed, Salamanders show that true strength comes 
-                  from being a bastion for others. Resilence, discipline, sacrifice, 
-                  community service, these are but a few tenants that guide their culture and actions. 
+                <p>
+                  The Salamanders represent the best the Imperium of Man has to offer. Through
+                  adherence to the Promethean Creed, Salamanders show that true strength comes
+                  from being a bastion for others. Resilience, discipline, sacrifice,
+                  community service: these are but a few tenets that guide their culture and actions.
                 </p>
               </article>
 
               <article class="into-card">
                 <h3>Games</h3>
-                <p class="into-note">
-                  Video games are largely the entire reason I'm into IT and computers as a whole. 
-                  Stay a while and listen. 
+                <p>
+                  Video games are largely the entire reason I'm into IT and computers as a whole.
+                  Stay a while and listen.
                   For the Horde!
                   Don't you dare go hollow.
                 </p>
@@ -89,11 +96,12 @@
 
               <article class="into-card">
                 <h3>Cooking</h3>
-                <p class="into-note">
-                  I love cooking for myself, my girlfriend, and occasionally i'll sneak some (safe to eat) food
+                <p>
+                  I love cooking for myself, my girlfriend, and occasionally I'll sneak some (safe to eat) food
                   for our cat Crumb. Here is a picture of him screaming:
                 </p>
-                <img src="./crumb.png" alt="Crumb the cat screaming" class="cat-pic">
+                <img src="./crumb.png" alt="Crumb the cat screaming" class="cat-pic"
+                     loading="lazy" decoding="async">
               </article>
 
               <!-- Layer 3 of the fallback, already rendered: if
@@ -110,52 +118,62 @@
             </div>
           </section>
 
-          <section class="elsewhere">
-            <p class="eyebrow">Elsewhere</p>
+          <section class="elsewhere" aria-labelledby="h-elsewhere">
+            <h2 class="home-head" id="h-elsewhere">Elsewhere</h2>
             <ul class="link-row">
               <li><a href="https://github.com/bigzano" rel="me noopener">GitHub</a></li>
               <li><a href="https://www.armorybot.win" rel="noopener">Armory Bot</a></li>
+              <li><a href="https://bigzano.itch.io" rel="me noopener">itch.io</a></li>
               <li><a href="https://open.spotify.com/user/12152843602" rel="me noopener">Spotify</a></li>
-              <li><a href="mailto:bretzanotelli@yahoo.com">Email</a></li>
             </ul>
           </section>
 
         </div>
 
-        <aside class="home-side" aria-label="What I'm doing now">
+        <aside class="home-side" aria-labelledby="h-now">
           <div class="now">
-            <p class="now-head">Now</p>
+            <h2 class="now-head" id="h-now">Now</h2>
 
+            <!-- Generated from content/listening.json by a GitHub Action.
+                 See specs/2026-08-09-spotify-listening-design.md -->
             <section class="now-block">
-              <h4>Listening</h4>
-              <ul class="now-list now-tracks">
+              <h3>Listening</h3>
+              <ol class="now-list now-tracks">
 {{ ListeningTracks }}
-              </ul>
+              </ol>
               <p class="now-stamp">{{ ListeningStamp }}</p>
             </section>
 
+            <!-- ══ EDIT ME: hand-maintained. ══ -->
             <section class="now-block">
-              <h4>Building</h4>
+              <h3>Building</h3>
               <ul class="now-list">
                 <li><a href="https://www.armorybot.win" rel="noopener">Armory Bot</a></li>
-                <li>Portfolio</li>
-                <li></li>
+                <li><a href="https://sm2salamanders.site" rel="noopener">sm2salamanders.site</a></li>
+                <li><a href="workshop.html#b-site">This site</a></li>
               </ul>
             </section>
 
             <!-- ══ EDIT ME: hand-maintained. Swap when you start a new one. ══ -->
             <section class="now-block">
-              <h4>Reading</h4>
+              <h3>Reading</h3>
               <ul class="now-list">
-                <li>Know No Fear - Dan Abnett</li>
+                <li>Know No Fear, Dan Abnett</li>
               </ul>
             </section>
 
+            <!-- Steam fills the region between the markers once the
+                 STEAM_API_KEY / STEAM_ID secrets exist (content/playing.json).
+                 Until then — or if the data is unusable — what's written
+                 between them is shown as-is. ══ EDIT ME: the fallback. ══ -->
             <section class="now-block">
-              <h4>Playing</h4>
-              <ul class="now-list">
-                <li>Oblivion Remastered - Steam</li>
+              <h3>Playing</h3>
+<!-- playing:start -->
+              <ul class="now-list now-games">
+                <li><span class="title">Oblivion Remastered</span></li>
               </ul>
+              <p class="now-stamp">hand-picked</p>
+<!-- playing:end -->
             </section>
           </div>
         </aside>
@@ -167,7 +185,7 @@
 
     </div>
 
-    <script src="./fire.js" defer></script>
+    <script src="./fire.js?v=2" defer></script>
     <script src="./guestbook-cell.js" defer></script>
   </body>
 </html>

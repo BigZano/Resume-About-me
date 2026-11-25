@@ -1,7 +1,7 @@
 /* ============================================================
    Landing page — the personal homepage.
    Everything here is scoped to body.landing so it can't leak
-   into the resume, About Me, or the dev diary.
+   into the Workshop, About Me, or the dev diary.
    ============================================================ */
 
 body.landing{
@@ -38,11 +38,49 @@ body.landing .hero{
   padding:10vh 0 4vh;
 }
 
-#hero-fire{
-  display:block;
+/* the h1 exists for meaning, not looks — the canvas inside it is the name */
+body.landing .hero-name{
+  margin:0;
+  padding:0;
+  border:0;
+  font-size:inherit;
+  line-height:0;
+}
+
+body.landing #hero-fire{
+  display:none;                 /* until fire.js has laid it out */
   width:100%;
   height:auto;
 }
+body.landing .hero-name.is-lit #hero-fire{display:block}
+body.landing .hero-name.is-lit .hero-fallback{display:none}
+
+/* no script, no fire: the name in plain display type */
+body.landing .hero-fallback{
+  display:block;
+  font-family:var(--display);
+  font-weight:800;
+  font-size:clamp(3.2rem, 13vw, 8.5rem);
+  letter-spacing:-.02em;
+  line-height:1.05;
+  text-transform:uppercase;
+  color:var(--bone);
+}
+
+/* section headings: the utility face at a size you can actually read,
+   sentence case, no tracking. index.css gives every h2 an ember tick and
+   display type; on the homepage the tick would repeat five times down
+   one column, so it goes. */
+body.landing .home-head{
+  font-family:var(--util);
+  font-size:.95rem;
+  font-weight:400;
+  letter-spacing:.01em;
+  line-height:1.3;
+  color:var(--copper);
+  margin:0 0 1.1rem;
+}
+body.landing .home-head::before{display:none}
 
 body.landing .hero-tagline{
   font-size:clamp(1.02rem, 2.1vw, 1.3rem);
@@ -83,14 +121,26 @@ body.landing .page-links{
   border-top:1px solid var(--iron);
 }
 
+/* Sitemap rows, the way old homepages did it: the page, what's on it,
+   and what changed lately. Name on the left, notes on the right; the
+   whole row is one target via the stretched link. */
 body.landing .page-links li{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(11rem, 2fr) 3fr;
+  column-gap:1.75rem;
+  align-items:baseline;
   margin:0;
-  padding:0;
+  padding:1rem 0;
   border-bottom:1px solid var(--iron);
+  transition:background .2s ease;
 }
 body.landing .page-links li::before{display:none}
+body.landing .page-links li:hover{background:var(--soot)}
 
 body.landing .page-links a{
+  grid-column:1;
+  grid-row:1 / span 2;
   display:flex;
   align-items:baseline;
   gap:.9rem;
@@ -98,10 +148,34 @@ body.landing .page-links a{
   font-weight:700;
   font-size:var(--step-2);
   letter-spacing:-.02em;
+  line-height:1.2;
   color:var(--bone);
   border:0;
-  padding:.95rem .4rem .95rem 0;
+  padding:0 .4rem 0 0;
   transition:color .18s ease, padding-left .18s ease;
+}
+/* stretch the link over the row so the blurb is clickable too */
+body.landing .page-links a::before{
+  content:"";
+  position:absolute;
+  inset:0;
+}
+
+body.landing .page-blurb{
+  grid-column:2;
+  margin:0;
+  font-size:.98rem;
+  line-height:1.5;
+  max-width:none;
+}
+body.landing .page-stamp{
+  grid-column:2;
+  margin:.3rem 0 0;
+  font-family:var(--util);
+  font-size:.8rem;
+  letter-spacing:.01em;
+  color:var(--flame);
+  max-width:none;
 }
 
 /* the arrow is the affordance — it slides in on hover */
@@ -127,9 +201,12 @@ body.landing .page-links a:focus-visible::after{
 }
 
 /* ── what I'm into ──────────────────────────────────────── */
+/* Three interests across, the guestbook as a full-width strip beneath.
+   An explicit column count rather than auto-fit: auto-fit left the
+   fourth card alone on its row with two empty iron cells beside it. */
 body.landing .into-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  grid-template-columns:repeat(3, minmax(0,1fr));
   gap:1px;
   background:var(--iron);
   border:1px solid var(--iron);
@@ -165,14 +242,6 @@ body.landing .into-card .cat-pic{
   margin:0;
 }
 
-/* placeholder styling — obvious in the source, quiet on the page.
-   Delete the class when you write the real copy. */
-body.landing .into-note{
-  color:var(--copper);
-  opacity:.5;
-  font-style:italic;
-}
-
 /* ── elsewhere ──────────────────────────────────────────── */
 body.landing .link-row{
   list-style:none;
@@ -199,29 +268,28 @@ body.landing .link-row a:hover{
 }
 
 /* ── the Now panel ──────────────────────────────────────── */
-/* 10 tracks at two lines each overflow a sticky card on a laptop
-   viewport, which would strand Building and Reading below the fold with
-   no way to reach them. Bound the height and let the card scroll. */
+/* Not sticky any more. A sticky card has to fit the viewport or its
+   bottom becomes unreachable, and the old fix (a scrollbar inside the
+   card) put a second scrollbar on the page. Grouping the chart by
+   artist made the card short enough to simply sit in the column. */
 body.landing .now{
   border:1px solid var(--iron);
   background:var(--soot);
-  position:sticky;
-  top:2rem;
-  max-height:calc(100vh - 4rem);
-  overflow-y:auto;
 }
 
 body.landing .now-head{
   font-family:var(--util);
-  font-size:.72rem;
-  text-transform:uppercase;
-  letter-spacing:.22em;
+  font-size:.9rem;
+  font-weight:400;
+  letter-spacing:.02em;
+  line-height:1.3;
   color:var(--ash);
   background:var(--copper);
   margin:0;
-  padding:.45rem .9rem;
+  padding:.5rem .9rem .45rem;
   max-width:none;
 }
+body.landing .now-head::before{display:none}
 
 body.landing .now-block{
   padding:1rem .9rem 1.1rem;
@@ -229,14 +297,14 @@ body.landing .now-block{
 }
 body.landing .now-block:first-of-type{border-top:0}
 
-body.landing .now-block h4{
+body.landing .now-block h3{
   font-family:var(--util);
-  font-size:.68rem;
+  font-size:.85rem;
   font-weight:400;
-  text-transform:uppercase;
-  letter-spacing:.16em;
+  letter-spacing:.01em;
+  line-height:1.3;
   color:var(--copper);
-  margin:0 0 .6rem;
+  margin:0 0 .65rem;
 }
 
 body.landing .now-list{
@@ -263,26 +331,62 @@ body.landing .now-list a{
 }
 body.landing .now-list a:hover{color:var(--flame)}
 
-/* artist name sits above the track — deliberately text only, no
-   album art (some of it is genuinely not safe for a work laptop) */
+/* The chart. Artist on its own line above the track — deliberately text
+   only, no album art (some of it is genuinely not safe for a work
+   laptop). When the next track is by the same artist, render_listening
+   marks it .same-artist and the artist line is hidden visually (screen
+   readers still hear every row whole), so a week of one band reads as
+   one band with its tracks beneath it. */
 body.landing .now-tracks li{
-  color:var(--copper);
-  opacity:.85;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  column-gap:.6rem;
+  align-items:baseline;
+  margin:.75rem 0 0;
 }
-body.landing .now-tracks li span{
-  display:block;
-  color:var(--bone);
-  opacity:1;
+body.landing .now-tracks li:first-child{margin-top:0}
+body.landing .now-tracks li.same-artist{margin-top:.3rem}
+
+body.landing .now-tracks .artist{
+  grid-column:1 / -1;
+  color:var(--copper);
+  margin-bottom:.1rem;
+}
+body.landing .now-tracks .title{color:var(--bone)}
+
+/* the repeat artist: gone for the eye, kept for the ear */
+body.landing .now-tracks li.same-artist .artist{
+  position:absolute;
+  width:1px;
+  height:1px;
+  margin:-1px;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
 }
 
+/* play counts and hours: right-aligned, figures that line up */
+body.landing .now-tracks .plays,
+body.landing .now-games .hours{
+  color:var(--flame);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+
+body.landing .now-games li{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  column-gap:.6rem;
+  align-items:baseline;
+}
+
+/* readable now: the old stamp was 10px tracked caps at half opacity */
 body.landing .now-stamp{
   font-family:var(--util);
-  font-size:.64rem;
-  text-transform:uppercase;
-  letter-spacing:.14em;
+  font-size:.75rem;
+  letter-spacing:.01em;
   color:var(--copper);
-  opacity:.5;
-  margin:.8rem 0 0;
+  margin:.9rem 0 0;
   max-width:none;
 }
 
@@ -293,10 +397,9 @@ body.landing .home-footer{
 }
 body.landing .home-footer p{
   font-family:var(--util);
-  font-size:.74rem;
-  letter-spacing:.06em;
+  font-size:.78rem;
+  letter-spacing:.02em;
   color:var(--copper);
-  opacity:.65;
   margin:0;
   max-width:none;
 }
@@ -307,7 +410,6 @@ body.landing .home-footer p{
     grid-template-columns:minmax(0,1fr);
     gap:3rem;
   }
-  body.landing .now{position:static}
   body.landing .home-side{order:-1}   /* Now comes first on mobile */
 }
 
@@ -317,7 +419,17 @@ body.landing .home-footer p{
   body.landing .home{padding-top:2.5rem}
   body.landing .home-main > section,
   body.landing .home-main > nav{margin-bottom:2.75rem}
-  body.landing .page-links a{font-size:var(--step-1)}
+  body.landing .page-links li{
+    grid-template-columns:minmax(0,1fr);
+    row-gap:.35rem;
+  }
+  body.landing .page-links a{
+    grid-row:auto;
+    font-size:var(--step-1);
+  }
+  body.landing .page-blurb,
+  body.landing .page-stamp{grid-column:1}
+  body.landing .into-grid{grid-template-columns:minmax(0,1fr)}
 }
 
 /* ── guestbook cell ─────────────────────────────────────── */
@@ -336,7 +448,16 @@ body.landing .home-footer p{
 body.landing .into-card--guestbook{
   position:relative;
   padding-left:1.55rem;                 /* clears the rail */
+  /* full-width strip under the three interests: title, newest mark,
+     invitation — one row on wide screens */
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:9rem minmax(0,1fr) auto;
+  column-gap:1.75rem;
+  align-items:baseline;
 }
+body.landing .into-card--guestbook h3{margin:0}
+body.landing .into-card--guestbook .gb-sig{margin:0}
 
 body.landing .into-card--guestbook::before{
   content:"";
@@ -358,7 +479,7 @@ body.landing .into-card--guestbook.is-cached::before{background:var(--ember)}
 
 /* the signature slot — the only node the script rewrites */
 body.landing .into-card--guestbook .gb-sig{
-  margin:0 0 .95rem;
+  margin:0;
   font-size:.95rem;
   line-height:1.6;
   max-width:none;
@@ -367,8 +488,7 @@ body.landing .into-card--guestbook .gb-sig{
 /* the standing invitation: shown before the script runs, kept when
    there is nothing to show. Same register as the other cards' notes. */
 body.landing .into-card--guestbook .gb-invite{
-  color:var(--copper);
-  opacity:.55;
+  color:var(--copper);           /* full strength: 6:1 on --ash; at .55 it was 2.7:1 */
   font-style:italic;
 }
 
@@ -413,9 +533,8 @@ body.landing .into-card--guestbook .gb-cta{
 }
 body.landing .into-card--guestbook .gb-cta a{
   font-family:var(--util);
-  font-size:.78rem;
-  letter-spacing:.1em;
-  text-transform:uppercase;
+  font-size:.88rem;
+  letter-spacing:.01em;
   color:var(--copper);
   border-bottom:1px solid transparent;
 }
@@ -437,6 +556,14 @@ body.landing .into-card--guestbook.is-cold .gb-invite{
 }
 /* the link stays lit: the forge is out, the anvil is not */
 body.landing .into-card--guestbook.is-cold .gb-cta a{color:var(--copper)}
+
+/* the strip folds back into a card on a phone — after the base rules
+   above, or they would win on source order */
+@media (max-width:640px){
+  body.landing .into-card--guestbook{display:block}
+  body.landing .into-card--guestbook h3{margin:0 0 .55rem}
+  body.landing .into-card--guestbook .gb-sig{margin:0 0 .95rem}
+}
 
 /* ── print ──────────────────────────────────────────────── */
 /* index.css prints black on white. A cooled card left at --iron would

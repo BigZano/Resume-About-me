@@ -1,7 +1,6 @@
 <!-- page-date: 2025-11-11 -->
+<!-- landing-blurb: Diablo II, the Navy, Linux, and the Salamanders. -->
 # About Me
-
-![lemme take a selfie](./headshot.jpg)
 
 <a href="index.html" class="back-button">← Back</a>
 

@@ -108,6 +108,31 @@ a:hover{
   border-radius:2px;
 }
 
+/* the browser's own surfaces wear the palette too */
+::selection{
+  background:var(--ember-deep);
+  color:var(--bone);
+}
+html{
+  scrollbar-color:var(--iron) var(--ash);
+  accent-color:var(--ember);
+}
+
+/* visually hidden, still read aloud — repeated chart artists, the
+   "plays" after a count, "Previous part:" before an arrow */
+.vh{
+  position:absolute !important;
+  width:1px;
+  height:1px;
+  margin:-1px;
+  padding:0;
+  overflow:hidden;
+  clip:rect(0 0 0 0);
+  clip-path:inset(50%);
+  white-space:nowrap;
+  border:0;
+}
+
 /* ── headings ───────────────────────────────────────────── */
 h1,h2,h3,h4{
   font-family:var(--display);
@@ -171,20 +196,6 @@ p{
   max-width:var(--measure);
 }
 
-/* contact / meta line directly under the name */
-h1 + p{
-  font-family:var(--util);
-  font-size:var(--step--1);
-  color:var(--copper);
-  letter-spacing:.02em;
-  margin-top:.9rem;
-}
-h1 + p a{
-  color:var(--copper);
-  border-bottom-color:rgba(168,144,96,.4);
-}
-h1 + p a:hover{color:var(--flame)}
-
 strong,b{
   font-weight:700;
   color:var(--bone);
@@ -228,12 +239,6 @@ ul ul,ol ol,ul ol,ol ul{
 ul ul li::before{
   background:transparent;
   border:1px solid var(--copper);
-}
-
-/* the one-line role summary that follows a job title */
-h3 + p{
-  color:var(--copper);
-  margin-bottom:.7rem;
 }
 
 /* ── blockquote ─────────────────────────────────────────── */
@@ -319,7 +324,7 @@ img{
   transform:translateX(-3px);
 }
 
-/* ── content page shell (resume, about me, blog posts) ────
+/* ── content page shell (about me, blog posts, the series) ─
    Direct child only: the diary index carries body.page too, and its
    post previews are <article> elements that must not inherit this. */
 body.page > article{
@@ -530,6 +535,85 @@ body.diary .landing-footer{
   body.diary{padding:2.5rem 1.15rem 4rem}
 }
 
+/* ============================================================
+   "How this site works" — the paginated series
+   generate_series.py puts .series-nav at the top of each part's
+   <article> and .series-step at the bottom.
+   ============================================================ */
+.series-nav{
+  margin:0 0 3rem;
+  padding-bottom:1.4rem;
+  border-bottom:1px solid var(--iron);
+}
+
+.series-name{
+  font-family:var(--util);
+  font-size:.85rem;
+  letter-spacing:.01em;
+  color:var(--copper);
+  margin:0 0 .9rem;
+  max-width:none;
+}
+.series-name a{
+  color:var(--copper);
+  border-bottom-color:rgba(168,144,96,.4);
+}
+.series-name a:hover{color:var(--flame); border-bottom-color:var(--flame)}
+
+/* the parts, in order — a real <ol>, the numbers carry the reading order */
+.series-parts{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem 1.4rem;
+  margin:0;
+  padding:0;
+  list-style:none;
+  counter-reset:part;
+  max-width:none;
+  font-family:var(--util);
+  font-size:.9rem;
+}
+.series-parts li{
+  counter-increment:part;
+  margin:0;
+}
+.series-parts li::before{
+  content:counter(part) " ";
+  color:var(--copper);
+}
+.series-parts a{
+  color:var(--forge);
+  border-bottom-color:transparent;
+}
+.series-parts a:hover{color:var(--flame); border-bottom-color:var(--flame)}
+.series-parts a[aria-current="page"]{
+  color:var(--bone);
+  border-bottom:2px solid var(--ember);
+}
+
+.series-step{
+  display:flex;
+  justify-content:space-between;
+  gap:1.5rem;
+  margin-top:4rem;
+  padding-top:1.6rem;
+  border-top:1px solid var(--iron);
+}
+.series-step a{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:var(--step-1);
+  letter-spacing:-.01em;
+  color:var(--bone);
+  border:0;
+  transition:color .18s ease, transform .2s cubic-bezier(.2,.7,.2,1);
+}
+.series-step a:hover,
+.series-step a:focus-visible{color:var(--flame)}
+.series-step .series-prev:hover{transform:translateX(-3px)}
+.series-step .series-next{margin-left:auto; text-align:right}
+.series-step .series-next:hover{transform:translateX(3px)}
+
 /* ── motion ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
@@ -547,7 +631,7 @@ body.diary .landing-footer{
   h2{margin-top:2.2rem}
 }
 
-/* ── print: the resume has to survive a printer ─────────── */
+/* ── print: content pages survive a printer ─────────────── */
 @media print{
   @page{margin:12mm}
   :root{--measure:none}
@@ -571,8 +655,6 @@ body.diary .landing-footer{
   ul li{margin-bottom:.12rem; padding-left:.9rem}
   ul li::before{background:#000; width:4px; height:4px; top:.62em}
 
-  h3 + p, h3 + ul{border-left:0; padding-left:0; margin-left:0}
-
   blockquote{
     border-left:1.5pt solid #666;
     color:#000;
@@ -590,6 +672,8 @@ body.diary .landing-footer{
   .hero,
   .home-side,
   .home-footer,
+  .series-nav,
+  .series-step,
   .guestbook{display:none !important}
 
   h2,h3,li,blockquote{break-inside:avoid}

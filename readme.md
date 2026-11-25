@@ -1,1 +1,1 @@
-Resume and sometimes blog site. 
+BigZano's homepage, workshop, and dev diary.

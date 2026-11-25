@@ -1,10 +1,10 @@
 {
-  "name": "Bret Zanotelli — Resume",
-  "short_name": "Resume",
+  "name": "BigZano",
+  "short_name": "BigZano",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0b6efd",
+  "background_color": "#14100E",
+  "theme_color": "#14100E",
   "icons": [
     {
       "src": "favicon.svg",

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The fire</title>
+
+    <!-- Basic SEO -->
+    <meta name="description" content="My name at the top of the homepage is on fire. It isn&#x27;t a video or a GIF. It&#x27;s a fire simulation on a canvas, in static/fire.js, about 300 lines of JavaScript, burning into the let…" />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The fire" />
+    <meta property="og:description" content="My name at the top of the homepage is on fire. It isn&#x27;t a video or a GIF. It&#x27;s a fire simulation on a canvas, in static/fire.js, about 300 lines of JavaScript, burning into the let…" />
+    <meta property="og:url" content="/how_it_works/02-fire.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="The fire" />
+    <meta name="twitter:description" content="My name at the top of the homepage is on fire. It isn&#x27;t a video or a GIF. It&#x27;s a fire simulation on a canvas, in static/fire.js, about 300 lines of JavaScript, burning into the let…" />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="../site.webmanifest" />
+    <meta name="theme-color" content="#14100E" />
+
+    <!-- Styles -->
+    <link href="../index.css?v=4" rel="stylesheet" />
+  </head>
+
+  <body class="page">
+    <article>
+<nav class="series-nav" aria-label="How this site works">
+  <p class="series-name"><a href="../index.html">BigZano</a> / How this site works</p>
+  <ol class="series-parts">
+    <li><a href="01-generator.html">The generator</a></li>
+    <li><a href="02-fire.html" aria-current="page">The fire</a></li>
+    <li><a href="03-listening.html">Listening</a></li>
+    <li><a href="04-playing.html">Playing</a></li>
+    <li><a href="05-guestbook.html">The guestbook</a></li>
+  </ol>
+</nav>
+<div><h1>The fire</h1><p>My name at the top of the homepage is on fire. It isn't a video or a GIF. It's a fire simulation on a canvas, in <a href="https://github.com/BigZano/Resume-About-me/blob/main/static/fire.js">static/fire.js</a>, about 300 lines of JavaScript, burning into the letters.</p><p>The reason is on my About page: the first time I saw the flames move on the Diablo II title screen, I was hooked on computers. Fire is also the idea the rest of the site hangs on, though not the epic kind. The kind you gather around: a hearth, a forge, a bonfire, a stove. So the name gets to burn.</p><h2>The algorithm</h2><p>It's the fire effect from the PlayStation version of Doom, and it's smaller than it looks. The fire is a grid of numbers, each one how hot that spot is. The bottom row is held near maximum heat, which is the fuel. Then, seventeen times a second, every cell copies its heat into one of the three cells above it (up-left, straight up or up-right, picked at random) and sometimes loses a bit on the way. Heat rises, wanders sideways and cools off, which is most of what a flame does. To draw it, each number is looked up in a palette of 37 colors, from near-black through red and orange to almost white.</p><p>Here's the copying step, all of it:</p><pre><code>  function spread(src, decay) {
+    var rand = (Math.random() * 3) | 0;
+    var to = src - rand + 1 - fw;
+    if (to < 0 || to >= fire.length) return;
+    var v = fire[src] - (rand & 1) * decay;
+    fire[to] = v > 0 ? v : 0;
+  }
+</code></pre><p><code>rand</code> is 0, 1 or 2, and that one roll picks the target: right, straight up, or left. Heat is only lost on the straight-up roll, so one copy in three cools.</p><h2>A different height for every column</h2><p>A plain Doom fire is one flat band of flame. I wanted the flames to vary across the name, like a campfire crossed with the bars on an EQ display, so every column gets its own height limit and cooling rate. Tall columns cool slowly and short ones cool fast.</p><pre><code>      var u = (x / fw) * 6.2832;
+      var n = Math.sin(u * 2.3 + envPhase) * 0.42
+            + Math.sin(u * 5.1 - envPhase * 1.4) * 0.33
+            + Math.sin(u * 11.7 + envPhase * 2.2) * 0.25;
+      n = n * 0.5 + 0.5;
+      var f = (1 - VARIATION) + VARIATION * (0.18 + 0.82 * n);
+      capRows[x] = Math.max(2, f * fh);
+      decayCol[x] = (2.15 * HOT) / capRows[x];
+</code></pre><p>Three sine waves of different sizes are added together to make a lumpy skyline, and every step they slide along at different speeds, so it never quite repeats. One catch: the sideways drift smears the cooling rates out, so cooling alone didn't hold the shape. When the fire gets painted, each column fades out as it nears its limit and anything above it is hidden.</p><h2>Into the letters</h2><p>The fire is painted onto a small hidden canvas and stretched up with smoothing off, so the pixels stay honest. My name is drawn in white on a second hidden canvas, and the fire is only kept where the white is. That gets laid over the visible name, which is charred dark at the bottom and fades to bone color above the flames. A blurred copy goes behind it all for the glow.</p><p>The name is in capitals on purpose. Lowercase letters are only about half as tall, so the flames swallowed them whole while only reaching two thirds of the way up the capitals.</p><h2>Playing nice with the browser</h2><ul><li>It runs 17 steps a second, not once per frame.</li><li>It stops when the canvas scrolls off screen or the tab is hidden, and paints one still frame instead.</li><li>With reduced motion on, it burns for 120 steps up front, paints one lit frame and stays still. It also notices if the setting changes.</li><li>It waits for the display font to load, so the flames burn into the real letters and not a fallback.</li><li>The canvas is labeled with my name, so a screen reader reads a name instead of nothing.</li></ul><p>Six numbers at the top of the file control the look, and a comment says to leave them alone. If the script never runs, the name is still there as plain text in the same typeface. The script swaps the text for the fire once it has something to draw. [Bret: the September diary says the flames were inspired by a fan remake you saw. Want to name or link it here?]</p></div>
+<nav class="series-step" aria-label="Previous and next part">
+  <a class="series-prev" rel="prev" href="01-generator.html"><span class="vh">Previous part: </span>← The generator</a>
+  <a class="series-next" rel="next" href="03-listening.html"><span class="vh">Next part: </span>Listening →</a>
+</nav>
+</article>
+  </body>
+</html>

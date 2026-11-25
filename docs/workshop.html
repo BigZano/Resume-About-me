@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Workshop · BigZano</title>
+
+    <!-- Basic SEO -->
+    <meta name="description" content="Things BigZano has built, is building, and builds them on." />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Workshop" />
+    <meta property="og:description" content="Things BigZano has built, is building, and builds them on." />
+    <meta property="og:url" content="/workshop.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Workshop" />
+    <meta name="twitter:description" content="Things BigZano has built, is building, and builds them on." />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <meta name="theme-color" content="#14100E" />
+
+    <link rel="preload" href="./fonts/BricolageGrotesque.woff2" as="font"
+          type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/Literata.woff2" as="font"
+          type="font/woff2" crossorigin />
+
+    <!-- Styles -->
+    <link href="./index.css?v=4" rel="stylesheet" />
+    <link href="./workshop.css?v=1" rel="stylesheet" />
+  </head>
+
+  <!-- ══ EDIT ME: hand-maintained. Each build is a <section class="build">.
+       Screenshots live in static/workshop/ — capture at 1440 wide (desktop)
+       or 390 wide @2x (phone), save as .webp, keep them under ~80 KB. ══ -->
+  <body class="workshop">
+    <div class="ws-shell">
+
+      <header class="ws-head">
+        <a class="back-button" href="./index.html">&larr; BigZano</a>
+        <h1>Workshop</h1>
+        <p class="ws-lede">
+          What I've built, what I'm building, and what I build it on.
+        </p>
+      </header>
+
+      <main>
+
+        <!-- ── sm2salamanders.site ─────────────────────────────── -->
+        <section class="build build--salamanders" aria-labelledby="b-salamanders">
+          <figure class="ws-shots">
+            <img class="ws-shot ws-shot--desk"
+                 src="./workshop/salamanders-desktop.webp"
+                 width="1440" height="900" loading="lazy" decoding="async"
+                 alt="The sm2salamanders.site home page on a desktop: a volcano pours lava into a pool below the word Salamanders, with Join the Chapter and Open the Perk Builder buttons." />
+            <img class="ws-shot ws-shot--phone"
+                 src="./workshop/salamanders-phone.webp"
+                 width="600" height="1298" loading="lazy" decoding="async"
+                 alt="The same home page on a phone, buttons stacked above the volcano." />
+            <figcaption>sm2salamanders.site on a desktop and on a phone.</figcaption>
+          </figure>
+
+          <div class="build-text">
+            <h2 id="b-salamanders">sm2salamanders<wbr>.site</h2>
+            <p>
+              The clan site for the Salamanders, our Warhammer 40,000: Space
+              Marine 2 community. Members plan perk builds, browse the armoury,
+              share builds, and read the order of battle and the Legion
+              Archive. Most of them do it on their phones, so it was built
+              phone-first.
+            </p>
+            <dl class="build-facts">
+              <dt>Built with</dt>
+              <dd>Vue 3, Vite and Tailwind, with a small Bun + Postgres API</dd>
+              <dt>Used by</dt>
+              <dd>The Salamanders, on several continents</dd>
+            </dl>
+            <p class="build-links">
+              <a href="https://sm2salamanders.site" rel="noopener">Visit the site</a>
+              <a href="https://github.com/BigZano/salamanders-site" rel="noopener">Source</a>
+            </p>
+          </div>
+        </section>
+
+        <!-- ── Armory Bot ──────────────────────────────────────── -->
+        <!-- TODO: swap the user count for the live figure once the bot's
+             counter endpoint exists. -->
+        <section class="build build--armory" aria-labelledby="b-armory">
+          <div class="build-text">
+            <h2 id="b-armory">Armory Bot</h2>
+            <p>
+              A Discord bot for running a community: moderation and auto-mod,
+              leveling, an economy with a shop and bounties, button roles,
+              timers, temporary voice channels, custom commands, and an AI
+              agent for jokes, roasts and questions. It started as a small
+              bot for the Salamanders server and grew a web dashboard and an
+              API of its own.
+            </p>
+            <dl class="build-facts">
+              <dt>Built with</dt>
+              <dd>Python and discord.py, a FastAPI backend, a Vue dashboard, PostgreSQL</dd>
+              <dt>Used by</dt>
+              <dd><span data-stat="armory-users">10,000+</span> people, and climbing</dd>
+            </dl>
+            <p class="build-links">
+              <a href="https://armorybot.win" rel="noopener">Docs</a>
+              <a href="https://dashboard.armorybot.win" rel="noopener">Dashboard</a>
+              <a href="https://discord.com/oauth2/authorize?client_id=1311117241789579274" rel="noopener">Add it to a server</a>
+            </p>
+          </div>
+
+          <figure class="ws-shots">
+            <img class="ws-shot"
+                 src="./workshop/armorybot.webp"
+                 width="1440" height="680" loading="lazy" decoding="async"
+                 alt="The armorybot.win home page: The all-in-one Discord bot for gaming clans, beside a flame icon in a ring." />
+            <figcaption>armorybot.win, the bot's docs and front door.</figcaption>
+          </figure>
+        </section>
+
+        <!-- ── Pysteroids ──────────────────────────────────────── -->
+        <section class="build build--pysteroids" aria-labelledby="b-pysteroids">
+          <figure class="ws-shots ws-shots--pair">
+            <img class="ws-shot"
+                 src="./workshop/pysteroids-menu.webp"
+                 width="1277" height="714" loading="lazy" decoding="async"
+                 alt="Pysteroids title screen: the game's name in glowing pink and blue over a starfield, with Play, Settings, Controls and Exit." />
+            <img class="ws-shot"
+                 src="./workshop/pysteroids-play.webp"
+                 width="1266" height="694" loading="lazy" decoding="async"
+                 alt="Pysteroids mid-game: a triangle ship among outlined asteroids, lives and dash cooldown in the corner." />
+            <figcaption>Title screen and a run in progress.</figcaption>
+          </figure>
+
+          <div class="build-text build-text--wide">
+            <h2 id="b-pysteroids">Pysteroids</h2>
+            <div class="build-cols">
+              <div>
+                <p>
+                  My take on Asteroids, in Python and Pygame. Boss asteroids
+                  with escalating health, power-ups, a dash that makes you
+                  briefly invincible, and ring blasts in ice, fire and
+                  lightning. Minimum spec, per the README: it will run on a
+                  potato if it has Python.
+                </p>
+                <p>
+                  It's a free download on itch.io. A version you can play
+                  right here in the browser is on the list.
+                </p>
+                <p class="build-links">
+                  <a href="https://bigzano.itch.io/pysteroids" rel="noopener">Download on itch.io</a>
+                  <a href="https://github.com/BigZano/Pysteroids" rel="noopener">Source</a>
+                </p>
+              </div>
+              <dl class="build-keys" aria-label="Controls">
+                <dt>WASD</dt><dd>Fly</dd>
+                <dt>Mouse or Space</dt><dd>Aim and fire</dd>
+                <dt>Left Shift</dt><dd>Dash</dd>
+                <dt>R</dt><dd>Ring blast</dd>
+                <dt>Esc</dt><dd>Pause</dd>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── This site ───────────────────────────────────────── -->
+        <section class="build build--site" aria-labelledby="b-site">
+          <div class="build-text">
+            <h2 id="b-site">This site</h2>
+            <p>
+              bretzanotelli.work, the page you're reading. A hand-rolled
+              Python generator with no dependencies, my name burning in the
+              Doom fire, a weekly Spotify chart and a Steam block kept fresh
+              by GitHub Actions, and a guestbook on a Cloudflare Worker.
+              I wrote up how each piece works.
+            </p>
+            <p class="build-links">
+              <a href="https://github.com/BigZano/Resume-About-me" rel="noopener">Source</a>
+            </p>
+          </div>
+
+          <nav class="site-parts" aria-labelledby="b-site-parts">
+            <h3 id="b-site-parts">How this site works</h3>
+            <ol>
+              <li><a href="./how_it_works/01-generator.html">The generator</a></li>
+              <li><a href="./how_it_works/02-fire.html">The fire</a></li>
+              <li><a href="./how_it_works/03-listening.html">Listening</a></li>
+              <li><a href="./how_it_works/04-playing.html">Playing</a></li>
+              <li><a href="./how_it_works/05-guestbook.html">The guestbook</a></li>
+            </ol>
+          </nav>
+        </section>
+
+        <!-- ── Smaller builds ──────────────────────────────────── -->
+        <section class="ws-more" aria-labelledby="ws-more-head">
+          <h2 id="ws-more-head">Smaller builds</h2>
+          <ul class="more-list">
+            <li>
+              <a href="https://github.com/BigZano/admin-toolkit" rel="noopener">admin-toolkit</a>
+              <p>A terminal UI in Go that finds my PowerShell admin scripts, asks for their parameters in plain language, and streams the output.</p>
+              <p class="more-lang">Go · PowerShell</p>
+            </li>
+            <li>
+              <span class="more-name">termulizer</span>
+              <p>A music visualizer for the terminal, because I missed the Winamp and Media Player visualizers growing up.</p>
+              <p class="more-lang">Go · Lua · source private for now</p>
+            </li>
+            <li>
+              <a href="https://github.com/BigZano/Better-Windows-Calendar" rel="noopener">Better-Windows-Calendar</a>
+              <p>A calendar for Windows and Linux that gets along with Waybar and Komorebi. Under construction.</p>
+              <p class="more-lang">Go</p>
+            </li>
+            <li>
+              <span class="more-name">game_overlay</span>
+              <p>A Diablo 4 overlay, with other games to follow. Work in progress.</p>
+              <p class="more-lang">Go · Python · source private for now</p>
+            </li>
+            <li>
+              <a href="https://github.com/BigZano/Go-kedex" rel="noopener">Go-kedex</a>
+              <p>The boot.dev Pokédex project: a REPL that walks the PokéAPI, with a cache.</p>
+              <p class="more-lang">Go</p>
+            </li>
+            <li>
+              <a href="https://github.com/BigZano/advent_2025" rel="noopener">advent_2025</a>
+              <p>My Advent of Code 2025 solutions. The dev diary has the pain in more detail.</p>
+              <p class="more-lang">Python</p>
+            </li>
+          </ul>
+        </section>
+
+        <!-- ── What I build on ─────────────────────────────────── -->
+        <section class="ws-uses" aria-labelledby="ws-uses-head">
+          <h2 id="ws-uses-head">What I build on</h2>
+          <dl class="uses-list">
+            <div>
+              <dt>Desktop</dt>
+              <dd>Windows for nearly everything. Linux over SSH when I need it, and to get into the home server.</dd>
+            </div>
+            <div>
+              <dt>Editor</dt>
+              <dd>NeoVim with LazyVim. VS Code is still installed, as a backup.</dd>
+            </div>
+            <div>
+              <dt>Home server</dt>
+              <dd>A spare computer running Debian, with a Samba file share and PiHole.</dd>
+            </div>
+            <div>
+              <dt>Languages</dt>
+              <dd>Python, Go, PowerShell and Bash most days. Vue and Tailwind when a site needs them.</dd>
+            </div>
+            <div>
+              <dt>Learning</dt>
+              <dd>A B.S. in IT at WGU, and the boot.dev backend track.</dd>
+            </div>
+          </dl>
+        </section>
+
+      </main>
+
+      <footer class="ws-footer">
+        <p>2026 &middot; BigZano &mdash; forged in fire, tempered in code</p>
+      </footer>
+
+    </div>
+  </body>
+</html>

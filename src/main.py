@@ -7,6 +7,11 @@ from Gen_Content.generate_blog_index import generate_blog_index
 from Gen_Content.generate_guestbook_page import generate_guestbook_page
 from Gen_Content.generate_landing_page import generate_landing_page
 from Gen_Content.generate_page import generate_page
+from Gen_Content.generate_series import generate_series
+from Gen_Content.generate_static_page import (
+    generate_static_page,
+    write_redirect_page,
+)
 
 
 def copy_static_to_docs():
@@ -40,6 +45,16 @@ def copy_static_to_docs():
             return False
         
         log_message(f"Starting build from {static_path} to {docs_path}")
+
+        # REFACTOR: split into per-section functions and pass site_config
+        # in, instead of hoisting it here so every page block can reuse it.
+        site_config = {
+            "title": "BigZano",
+            "site_title": "BigZano",
+            "site_description": "IT by trade. I make things talk to each other properly.",
+            "site_author": "BigZano",
+            "description": "BigZano's homepage: a dev diary, a workshop of things I've built, and what I'm listening to and playing."
+        }
         
         if os.path.exists(docs_path):
             log_message("Deleting existing docs directory...")
@@ -80,7 +95,7 @@ def copy_static_to_docs():
             try:
                 generate_page(src_md, template_path, out_html)
             # REFACTOR: extract a shared _safe_step(name, fn) helper — this
-            # broad-except/log/continue pattern repeats 4x below.
+            # broad-except/log/continue pattern repeats 8x below.
             except Exception as e:  # noqa: BLE001
                 had_errors = True
                 log_message(f"ERROR building {md_name}: {e}")
@@ -122,19 +137,29 @@ def copy_static_to_docs():
                 log_message("WARNING: dev_diary_template.html not found")
         else:
             log_message("No dev_diary subdirectory found, skipping blog generation")
-        
+
+        # "How this site works": a paginated series of markdown parts.
+        series_dir = os.path.join(content_path, "how_it_works")
+        if os.path.isdir(series_dir):
+            log_message("Generating series from content/how_it_works/...")
+            try:
+                written = generate_series(
+                    series_dir,
+                    template_path,
+                    os.path.join(docs_path, "how_it_works"),
+                    home_label=site_config["site_title"],
+                )
+                log_message(f"Series generated: {len(written)} part(s)")
+            except Exception as e:  # noqa: BLE001
+                had_errors = True
+                log_message(f"ERROR generating series: {e}")
+                import traceback
+                log_message(traceback.format_exc())
+        else:
+            log_message("No how_it_works subdirectory found, skipping series generation")
+
         titlepage_template = os.path.join(workspace_root, "titlepage.html")
         index_html = os.path.join(docs_path, "index.html")
-
-        # REFACTOR: split into per-section functions and pass site_config
-        # in, instead of hoisting it here so the guestbook block can reuse it.
-        site_config = {
-            "title": "Home - Portfolio",
-            "site_title": "Bret Zanotelli",
-            "site_description": "IT consultant. Linux daily driver. I make things talk to each other properly.",
-            "site_author": "Bret Zanotelli",
-            "description": "Personal portfolio featuring development projects, resume, and creative pursuits"
-        }
 
         if os.path.exists(titlepage_template):
             log_message("Generating landing page...")
@@ -148,18 +173,6 @@ def copy_static_to_docs():
                 log_message(traceback.format_exc())
         else:
             log_message(f"WARNING: titlepage.html template not found at {titlepage_template}")
-            resume_html = os.path.join(docs_path, "resume.html")
-            if os.path.exists(resume_html):
-                shutil.copy2(resume_html, index_html)
-                log_message("Set homepage: index.html copied from resume.html (fallback)")
-            else:
-                generated = [os.path.join(docs_path, f"{os.path.splitext(m)[0]}.html") for m in md_files]
-                generated = [p for p in generated if os.path.exists(p)]
-                if generated:
-                    shutil.copy2(generated[0], index_html)
-                    log_message(f"Set homepage: index.html copied from {os.path.basename(generated[0])} (fallback)")
-                else:
-                    log_message("WARNING: No pages generated to set as index.html")
 
         # Guestbook page. Templating only — entries are fetched in the
         # browser, never at build time, so the build stays offline.
@@ -186,6 +199,52 @@ def copy_static_to_docs():
                 log_message(traceback.format_exc())
         else:
             log_message("WARNING: guestbook.html template not found")
+
+        # Workshop page: hand-written HTML like the guestbook, so it only
+        # needs the site placeholders filled in.
+        workshop_template = os.path.join(workspace_root, "workshop.html")
+        workshop_html = os.path.join(docs_path, "workshop.html")
+        if os.path.exists(workshop_template):
+            log_message("Generating workshop page...")
+            try:
+                generate_static_page(
+                    workshop_template,
+                    workshop_html,
+                    {
+                        "title": "Workshop",
+                        "site_title": site_config["site_title"],
+                        "site_author": site_config["site_author"],
+                        "description": "Things BigZano has built, is building, and builds them on.",
+                    },
+                    "/workshop.html",
+                )
+                log_message("Workshop page generated successfully")
+            except Exception as e:  # noqa: BLE001
+                had_errors = True
+                log_message(f"ERROR generating workshop page: {e}")
+                import traceback
+                log_message(traceback.format_exc())
+        else:
+            log_message("WARNING: workshop.html template not found")
+
+        # The resume is retired. Old links land on a stub that forwards to
+        # the Workshop instead of a 404.
+        if not os.path.exists(workshop_html):
+            log_message("WARNING: docs/workshop.html is missing, so the resume redirect points nowhere")
+        try:
+            write_redirect_page(
+                os.path.join(docs_path, "resume.html"),
+                "workshop.html",
+                "Moved: Workshop",
+                "<p>The resume is retired. "
+                "<a href=\"workshop.html\">The Workshop has what I've built.</a></p>",
+            )
+            log_message("Wrote resume.html redirect to workshop.html")
+        except Exception as e:  # noqa: BLE001
+            had_errors = True
+            log_message(f"ERROR writing resume redirect: {e}")
+            import traceback
+            log_message(traceback.format_exc())
 
         if had_errors:
             log_message("Build completed with errors (see above).")
