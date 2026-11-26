@@ -1,0 +1,25 @@
+{
+  "fetched_at": "2026-11-26T09:29:53Z",
+  "games": [
+    {
+      "name": "Hades II",
+      "hours_2weeks": 26.9
+    },
+    {
+      "name": "Destiny 2",
+      "hours_2weeks": 7.6
+    },
+    {
+      "name": "Valor Mortis",
+      "hours_2weeks": 5.2
+    },
+    {
+      "name": "Warhammer 40,000: Space Marine 2",
+      "hours_2weeks": 0.3
+    },
+    {
+      "name": "Hades",
+      "hours_2weeks": 0.3
+    }
+  ]
+}
